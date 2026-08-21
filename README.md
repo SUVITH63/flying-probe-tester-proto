@@ -11,21 +11,20 @@
 
 ---
 
-## 💾 1-Click Standalone Downloads — v1.2.0
+## 💾 1-Click Standalone Direct Downloads (No Unzipping Required!)
 
-> Extract the ZIP and double-click the launcher. **No Python installation required.**
+Click below to download the single-file executable for your OS. **No unzipping or manual extraction needed — just click and launch!**
 
 <div align="center">
 
-| Operating System | Download | Launch |
+| Operating System | Single-File 1-Click Download | How to Run |
 | :---: | :---: | :---: |
-| 🍎 **macOS** | [⬇ Download FPTester-macOS-1Click.zip](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-macOS-1Click.zip) | Double-click `start_mac.command` |
-| 🪟 **Windows** | [⬇ Download FPTester-Windows-1Click.zip](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-Windows-1Click.zip) | Double-click `FPTester-Launcher.bat` |
-| 🪟 **Windows x64** | [⬇ Download FPTester-Windows-x64.zip](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-Windows-x64.zip) | Double-click `FPTester-Launcher.bat` |
+| 🍎 **macOS** | [⬇ **Download FPTester-macOS**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-macOS) | Single click / executable |
+| 🪟 **Windows** | [⬇ **Download FPTester-Windows.bat**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-Windows.bat) | Direct 1-Click `.bat` |
 
 </div>
 
-> 🍎 **macOS Tip**: If macOS says *"Apple could not verify FPTester-App"*, double-click **`start_mac.command`** — it automatically removes the Gatekeeper flag. Or right-click → **Open** → **Open Anyway**.
+> 🍎 **macOS Gatekeeper Tip**: If macOS blocks execution on first click, right-click `FPTester-macOS` → select **Open** → click **Open Anyway**. Or run `chmod +x FPTester-macOS`.
 
 > 🪟 **Windows Tip**: If SmartScreen appears, click **More info** → **Run anyway**.
 
@@ -53,7 +52,7 @@ Plug in your **ESP32 or Arduino** and the app connects **automatically** — no 
 
 - **AI Test Plan Engine**: Local Ollama, Google Gemini, or OpenAI GPT-4o for generating probe sequences
 - **Universal PCB Parser**: KiCad `.kicad_pcb` and Gerber `.gbr` file support
-- **Dual 5-Bar Kinematics Visualizer**: Real-time inverse kinematics with drag-and-drop flex handles
+- Republic 2D Dual 5-Bar Kinematics Visualizer: Real-time inverse kinematics with drag-and-drop flex handles
 - **Hardware & Simulation**: ESP32/Arduino USB serial dispatch + laptop simulation mode
 - **Zero External Dependencies**: Native Python HTTP server, no pip installs needed
 
@@ -68,10 +67,6 @@ cd flying-probe-tester-proto
 # Launch the application (opens browser automatically)
 python3 run_app.py
 ```
-
-**Platform launchers:**
-- **macOS / Linux**: `./start_mac.command` or `./start_mac_linux.sh`
-- **Windows**: `FPTester-Launcher.bat` or `start_windows.bat`
 
 App opens automatically at **http://localhost:8000**
 
