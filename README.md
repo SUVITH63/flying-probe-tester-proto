@@ -11,22 +11,25 @@
 
 ---
 
-## 💾 1-Click Standalone Direct Downloads (No Unzipping Required!)
+## 💾 1-Click Standalone Direct Downloads (Zero Setup & No Unzipping Required!)
 
-Click below to download the single-file executable for your OS. **No unzipping or manual extraction needed — just click and launch!**
+Click below to download the single-file executable for your OS. **No unzipping, no Python installation, and no manual setup needed — just click and launch!**
 
 <div align="center">
 
-| Operating System | Single-File 1-Click Download | How to Run |
-| :---: | :---: | :---: |
-| 🍎 **macOS** | [⬇ **Download FPTester-macOS**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-macOS) | Single click / executable |
-| 🪟 **Windows** | [⬇ **Download FPTester-Windows.bat**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-Windows.bat) | Direct 1-Click `.bat` |
+| Operating System | Single-File 1-Click Download | Requirements | How to Run |
+| :---: | :---: | :---: | :---: |
+| 🪟 **Windows** | [⬇ **Download FPTester-Windows.bat**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-Windows.bat) | **Zero Setup** (Auto-Bootstraps Portable Python if missing) | Double-click `FPTester-Windows.bat` |
+| 🍎 **macOS** | [⬇ **Download FPTester-macOS**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-macOS) | Standalone Executable | Double-click `FPTester-macOS` |
+| 📦 **Windows ZIP** | [⬇ **Download FPTester-Windows-1Click.zip**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-Windows-1Click.zip) | Portable Zip Package | Unzip & double-click `FPTester-Launcher.bat` |
 
 </div>
 
+> ⚡ **Windows Zero-Setup Feature**: `FPTester-Windows.bat` works on **any Windows PC** — if Python is missing, it automatically sets up Portable Python 3.11 in the background without needing administrator rights or manual installation.
+
 > 🍎 **macOS Gatekeeper Tip**: If macOS blocks execution on first click, right-click `FPTester-macOS` → select **Open** → click **Open Anyway**. Or run `chmod +x FPTester-macOS`.
 
-> 🪟 **Windows Tip**: If SmartScreen appears, click **More info** → **Run anyway**.
+> 🪟 **Windows SmartScreen Tip**: If SmartScreen appears on first run, click **More info** → **Run anyway**.
 
 ---
 
@@ -52,7 +55,7 @@ Plug in your **ESP32 or Arduino** and the app connects **automatically** — no 
 
 - **AI Test Plan Engine**: Local Ollama, Google Gemini, or OpenAI GPT-4o for generating probe sequences
 - **Universal PCB Parser**: KiCad `.kicad_pcb` and Gerber `.gbr` file support
-- Republic 2D Dual 5-Bar Kinematics Visualizer: Real-time inverse kinematics with drag-and-drop flex handles
+- **2D Dual 5-Bar Kinematics Visualizer**: Real-time inverse kinematics with drag-and-drop flex handles
 - **Hardware & Simulation**: ESP32/Arduino USB serial dispatch + laptop simulation mode
 - **Zero External Dependencies**: Native Python HTTP server, no pip installs needed
 
