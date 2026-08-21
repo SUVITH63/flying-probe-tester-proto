@@ -618,14 +618,15 @@
                 if (ports.length === 0) {
                     const opt = document.createElement('option');
                     opt.value = '';
-                    opt.textContent = 'No hardware found';
+                    opt.textContent = 'No COM ports detected in Device Manager';
                     select.appendChild(opt);
                 } else {
                     ports.forEach(p => {
                         const opt = document.createElement('option');
                         opt.value = p.port;
                         const typeLabel = p.device_type ? ` [${p.device_type}]` : '';
-                        opt.textContent = `${p.port}${typeLabel}`;
+                        const descLabel = p.description && p.description !== p.port ? ` - ${p.description}` : '';
+                        opt.textContent = `${p.port}${descLabel}${typeLabel}`;
                         select.appendChild(opt);
                     });
                 }
