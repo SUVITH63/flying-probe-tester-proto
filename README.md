@@ -11,25 +11,29 @@
 
 ---
 
-## 💾 1-Click Standalone Direct Downloads (Zero Setup & No Unzipping Required!)
+## 💾 1-Click Standalone Downloads & Releases
 
-Click below to download the single-file executable for your OS. **No unzipping, no Python installation, and no manual setup needed — just click and launch!**
+Click below to download the application package for your operating system:
 
 <div align="center">
 
-| Operating System | Single-File 1-Click Download | Requirements | How to Run |
-| :---: | :---: | :---: | :---: |
-| 🪟 **Windows** | [⬇ **Download FPTester-Windows.bat**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-Windows.bat) | **Zero Setup** (Auto-Bootstraps Portable Python if missing) | Double-click `FPTester-Windows.bat` |
-| 🍎 **macOS** | [⬇ **Download FPTester-macOS**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-macOS) | Standalone Executable | Double-click `FPTester-macOS` |
-| 📦 **Windows ZIP** | [⬇ **Download FPTester-Windows-1Click.zip**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-Windows-1Click.zip) | Portable Zip Package | Unzip & double-click `FPTester-Launcher.bat` |
+| Operating System | Direct 1-Click Download Link | Package Format | Launch Instructions |
+| :---: | :---: | :---: | :--- |
+| 🪟 **Windows** | [⬇ **Download FPTester for Windows (.zip)**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-Windows-1Click.zip) | Portable 1-Click `.zip` | Extract ZIP → Double-click **`FPTester-Launcher.bat`** (or `start_windows.bat`) |
+| 🪟 **Windows (Alt)** | [⬇ **Download FPTester-Windows.bat**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-Windows.bat) | Direct `.bat` File | Double-click `FPTester-Windows.bat` |
+| 🍎 **macOS** | [⬇ **Download FPTester for macOS**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-macOS) | Standalone Executable | Double-click `FPTester-macOS` |
 
 </div>
 
-> ⚡ **Windows Zero-Setup Feature**: `FPTester-Windows.bat` works on **any Windows PC** — if Python is missing, it automatically sets up Portable Python 3.11 in the background without needing administrator rights or manual installation.
+> ⚡ **Quick Launch Steps for Windows**:
+> 1. Click [**Download FPTester for Windows (.zip)**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-Windows-1Click.zip)
+> 2. Extract the downloaded `.zip` file
+> 3. Double-click **`FPTester-Launcher.bat`**
+> 4. The server starts and opens **`http://localhost:8000`** in your web browser automatically!
 
-> 🍎 **macOS Gatekeeper Tip**: If macOS blocks execution on first click, right-click `FPTester-macOS` → select **Open** → click **Open Anyway**. Or run `chmod +x FPTester-macOS`.
+> 🍎 **macOS Gatekeeper Tip**: If macOS blocks execution on first click, right-click `FPTester-macOS` → select **Open** → click **Open Anyway**.
 
-> 🪟 **Windows SmartScreen Tip**: If SmartScreen appears on first run, click **More info** → **Run anyway**.
+> 🪟 **Windows SmartScreen Tip**: If SmartScreen appears on first launch, click **More info** → **Run anyway**.
 
 ---
 
