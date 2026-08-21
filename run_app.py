@@ -5,6 +5,10 @@ Runs natively on Windows, macOS, and Linux without requiring pip install or exte
 """
 import os
 import sys
+
+# Ensure current script directory is at the head of sys.path
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 import time
 import socket
 import threading
