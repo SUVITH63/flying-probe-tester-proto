@@ -1,8 +1,7 @@
 """
-FPTester Instant SFX Builder (Bulletproof ZIP Signature Search)
-Appends raw ZIP payload after marker: REM __FPT_PAYLOAD_OFFSET_MARKER_999__
-PowerShell finds 'FPT_PAYLOAD_OFFSET_MARKER_999' and locates ZIP header PK (0x50 0x4B 0x03 0x04).
-Zero backticks, zero quote escape issues, 100% robust on all Windows PowerShell versions.
+FPTester Instant SFX Builder (Always-Fresh Extraction)
+Appends raw ZIP payload (with Python 3.11 Embeddable Runtime) after marker.
+Always extracts on launch (takes 0.2s) so stale temp files are never executed.
 """
 import os
 import sys
@@ -33,7 +32,7 @@ APP_FILES = [
 ]
 
 def build_instant_sfx():
-    print("Building Bulletproof SFX FPTester-Windows.bat ...")
+    print("Building Always-Fresh SFX FPTester-Windows.bat ...")
     os.makedirs(DIST_DIR, exist_ok=True)
 
     buf = io.BytesIO()
@@ -60,7 +59,6 @@ def build_instant_sfx():
     marker_str = "REM __FPT_PAYLOAD_OFFSET_MARKER_999__"
     marker_bytes = f"\r\n{marker_str}\r\n".encode("ascii")
 
-    # Clean PowerShell extraction script — no backticks, no complex escapes
     ps_extract_script = (
         "$b = [System.IO.File]::ReadAllBytes($env:BAT_PATH); "
         "$mk = [System.Text.Encoding]::ASCII.GetBytes('FPT_PAYLOAD_OFFSET_MARKER_999'); "
@@ -96,13 +94,11 @@ echo.
 set FPTDIR=%TEMP%\\FPTester
 set BAT_PATH=%~f0
 
-if not exist "%FPTDIR%\\py_embed_win\\python.exe" (
-    echo [*] Extracting FPTester and bundled Python 3.11 runtime to %FPTDIR% ...
-    if not exist "%FPTDIR%" mkdir "%FPTDIR%"
-    powershell -NoProfile -ExecutionPolicy Bypass -Command "{ps_extract_script}"
-    echo [*] Extraction complete!
-    echo.
-)
+echo [*] Extracting FPTester files & Python 3.11 runtime to %FPTDIR% ...
+if not exist "%FPTDIR%" mkdir "%FPTDIR%"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "{ps_extract_script}"
+echo [*] Extraction complete!
+echo.
 
 cd /d "%FPTDIR%"
 
@@ -131,7 +127,7 @@ exit /b
         f.write(bat_bytes)
 
     size_mb = round(len(bat_bytes) / (1024 * 1024), 2)
-    print(f"✅ Built Bulletproof SFX: {out_bat} ({size_mb} MB)")
+    print(f"✅ Built Always-Fresh SFX: {out_bat} ({size_mb} MB)")
 
 if __name__ == "__main__":
     build_instant_sfx()
