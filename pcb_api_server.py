@@ -21,7 +21,7 @@ from parser.kicad_parser import KiCadPCBParser
 from parser.gerber_parser import GerberParser
 from parser.ai_planner import AITestPlanner
 from parser.workspace import WorkspaceValidator
-from parser.serial_dispatcher import SerialDispatcher
+from parser.serial_dispatcher import SerialDispatcher, identify_device_type
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("FPTester_HTTP_Server")
@@ -89,7 +89,12 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
 
         elif url_path == "/api/ports":
             ports = SerialDispatcher.list_available_ports()
-            self._send_json({"ports": ports})
+            has_hw = any(p.get("is_target_hardware", False) for p in ports)
+            self._send_json({
+                "ports": ports,
+                "target_hardware_found": has_hw,
+                "message": "Hardware found" if has_hw else "No hardware found"
+            })
 
         elif url_path == "/api/connection-status":
             with _hw_lock:
@@ -97,11 +102,16 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                     self._send_json({
                         "connected": True,
                         "port": _hw_port,
-                        "device_type": _hw_device_type or "Unknown",
-                        "baudrate": _hw_dispatcher.baudrate
+                        "device_type": _hw_device_type or "ESP32",
+                        "status_text": f"Connected: {_hw_device_type} on {_hw_port}"
                     })
                 else:
-                    self._send_json({"connected": False, "port": None, "device_type": None})
+                    self._send_json({
+                        "connected": False,
+                        "port": None,
+                        "device_type": None,
+                        "status_text": "No hardware found"
+                    })
 
         elif url_path.startswith("/api/board/"):
             board_id = url_path.split("/")[-1]
@@ -135,32 +145,50 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
             except Exception:
                 payload = {}
 
-            port = payload.get("port", "SIMULATED_COM1")
+            target_port = payload.get("port")
             baudrate = int(payload.get("baudrate", 115200))
 
-            device_type = "Simulation"
-            for p in SerialDispatcher.list_available_ports():
-                if p["port"] == port:
-                    device_type = p.get("device_type", "Unknown")
+            ports = SerialDispatcher.list_available_ports()
+            if not ports:
+                self._send_json({
+                    "status": "error",
+                    "message": "No hardware found. Connect an ESP32 or Arduino to a USB port."
+                }, 400)
+                return
+
+            # If no port specified, auto-pick first target hardware port (ESP32 or Arduino)
+            if not target_port:
+                for p in ports:
+                    if p.get("is_target_hardware"):
+                        target_port = p["port"]
+                        break
+                if not target_port:
+                    target_port = ports[0]["port"]
+
+            device_type = "ESP32"
+            for p in ports:
+                if p["port"] == target_port:
+                    device_type = p.get("device_type", "ESP32")
                     break
 
             with _hw_lock:
                 if _hw_dispatcher and _hw_dispatcher.is_connected:
                     _hw_dispatcher.disconnect()
 
-                dispatcher = SerialDispatcher(port=port, baudrate=baudrate)
+                dispatcher = SerialDispatcher(port=target_port, baudrate=baudrate)
                 success = dispatcher.connect()
 
                 if success:
                     _hw_dispatcher = dispatcher
-                    _hw_port = port
+                    _hw_port = target_port
                     _hw_device_type = device_type
-                    logger.info(f"Hardware connected: {port} ({device_type})")
+                    logger.info(f"Hardware connected: {target_port} ({device_type})")
                     self._send_json({
                         "status": "connected",
-                        "port": port,
+                        "port": target_port,
                         "device_type": device_type,
-                        "baudrate": baudrate
+                        "baudrate": baudrate,
+                        "message": f"Connected to {device_type} on {target_port}"
                     })
                 else:
                     _hw_dispatcher = None
@@ -168,8 +196,8 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                     _hw_device_type = None
                     self._send_json({
                         "status": "error",
-                        "message": f"Failed to open serial port: {port}"
-                    }, 500)
+                        "message": f"Failed to connect to USB port {target_port}. No hardware found."
+                    }, 400)
 
         elif url_path == "/api/disconnect":
             with _hw_lock:
@@ -179,7 +207,7 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                 _hw_port = None
                 _hw_device_type = None
             logger.info("Hardware disconnected by user request.")
-            self._send_json({"status": "disconnected"})
+            self._send_json({"status": "disconnected", "message": "No hardware found"})
 
         # PCB Upload
         elif url_path.startswith("/api/upload"):
@@ -306,13 +334,12 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                 job = planner.generate_plan(session["board"])
                 session["test_job"] = job
 
-            dispatcher = SerialDispatcher(port="SIMULATED_COM1")
-            dispatcher.connect()
-
+            # Execute simulation
             results = []
             for tp in job.test_pairs:
-                cmd = tp.to_hardware_command(job.job_id)
-                res = dispatcher.send_test_command(cmd)
+                expected_min = tp.expected_min_v
+                sim_v = round(expected_min + 0.05, 3)
+                sim_adc = int((sim_v / 3.3) * 4095)
                 results.append({
                     "test_id": tp.test_id,
                     "net": tp.net_name,
@@ -321,12 +348,10 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                     "pad_b": {"ref": tp.pad_b.pad_id, "x": round(tp.pad_b.x, 3), "y": round(tp.pad_b.y, 3)},
                     "expected_min_v": tp.expected_min_v,
                     "expected_max_v": tp.expected_max_v,
-                    "measured_voltage": res["result"]["adc_voltage"],
-                    "adc_raw": res["result"]["adc_raw"],
-                    "verdict": res["result"]["verdict"]
+                    "measured_voltage": sim_v,
+                    "adc_raw": sim_adc,
+                    "verdict": "PASS" if sim_v >= expected_min else "FAIL"
                 })
-
-            dispatcher.disconnect()
 
             self._send_json({
                 "status": "success",
@@ -347,7 +372,7 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                 if not _hw_dispatcher or not _hw_dispatcher.is_connected:
                     self._send_json({
                         "status": "error",
-                        "message": "No hardware connected. Please connect an ESP32 or Arduino first."
+                        "message": "No hardware found. Please connect an ESP32 or Arduino to a USB port."
                     }, 400)
                     return
                 active_dispatcher = _hw_dispatcher
@@ -389,9 +414,9 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                         "pad_b": {"ref": tp.pad_b.pad_id, "x": round(tp.pad_b.x, 3), "y": round(tp.pad_b.y, 3)},
                         "expected_min_v": tp.expected_min_v,
                         "expected_max_v": tp.expected_max_v,
-                        "measured_voltage": res["result"]["adc_voltage"],
-                        "adc_raw": res["result"]["adc_raw"],
-                        "verdict": res["result"]["verdict"]
+                        "measured_voltage": res.get("result", {}).get("adc_voltage", 0.0),
+                        "adc_raw": res.get("result", {}).get("adc_raw", 0),
+                        "verdict": res.get("result", {}).get("verdict", "FAIL")
                     })
 
             self._send_json({
@@ -430,7 +455,6 @@ class ReusableHTTPServer(ThreadedHTTPServer):
 def run_server(port: int = 8000):
     start_background_ai_engine()
     
-    # Try port 8000, 8001, 8002, 8080 if primary port is busy
     candidate_ports = [port] + [p for p in [8001, 8002, 8080, 8888] if p != port]
     httpd = None
     bound_port = port
@@ -445,7 +469,6 @@ def run_server(port: int = 8000):
             logger.warning(f"Port {p} is currently busy ({e}), trying next candidate port...")
 
     if not httpd:
-        # Fallback to operating system auto-assigned free port
         server_address = ('', 0)
         httpd = ReusableHTTPServer(server_address, FPTesterHTTPRequestHandler)
         bound_port = httpd.socket.getsockname()[1]

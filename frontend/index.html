@@ -3,180 +3,419 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FPTester — Automated Flying Probe PCB Evaluation System</title>
+    <title>FPTester — Automated Flying Probe PCB Tester</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0b0f19;
-            --panel-bg: #111827;
-            --border-color: #1f2937;
-            --accent-blue: #3b82f6;
+            --bg-dark: #0a0d14;
+            --panel-bg: #121824;
+            --border-color: #1e293b;
+            --accent-amber: #f59e0b;
             --accent-cyan: #06b6d4;
             --accent-green: #10b981;
-            --accent-amber: #f59e0b;
             --accent-red: #ef4444;
-            --text-bright: #f9fafb;
-            --text-muted: #9ca3af;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-bright); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* HEADER */
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Header Bar */
         header {
             background-color: var(--panel-bg);
             border-bottom: 1px solid var(--border-color);
-            padding: 10px 20px;
+            padding: 16px 32px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .logo-group { display: flex; align-items: center; gap: 12px; }
-        .logo-icon { background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan)); color: #fff; font-weight: 800; font-size: 16px; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 12px rgba(6,182,212,0.3); }
-        .logo-title { font-weight: 700; font-size: 15px; letter-spacing: -0.3px; }
 
-        .header-status-badge {
+        .logo-group {
             display: flex;
             align-items: center;
-            gap: 8px;
-            background: rgba(31, 41, 55, 0.7);
-            border: 1px solid var(--border-color);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
+            gap: 12px;
         }
 
-        /* LAYOUT PANELS */
-        main { display: grid; grid-template-columns: 280px 1fr 380px; gap: 12px; padding: 12px; flex: 1; height: calc(100vh - 60px); overflow: hidden; }
-        .panel { background-color: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 10px; display: flex; flex-direction: column; padding: 12px; gap: 10px; overflow-y: auto; }
-        .panel-title { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
-
-        /* DROPZONE */
-        .dropzone { border: 2px dashed var(--border-color); border-radius: 8px; padding: 16px 12px; text-align: center; cursor: pointer; transition: all 0.2s; background: rgba(31, 41, 55, 0.2); }
-        .dropzone:hover, .dropzone.dragover { border-color: var(--accent-cyan); background: rgba(6, 182, 212, 0.05); }
-
-        /* STATS GRID */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-        .stat-box { background: rgba(31, 41, 55, 0.4); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; text-align: center; }
-        .stat-value { font-size: 14px; font-weight: 700; color: var(--accent-cyan); }
-        .stat-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
-
-        /* BUTTONS */
-        .btn { background: var(--accent-blue); color: #fff; border: none; border-radius: 6px; padding: 8px 12px; font-weight: 600; font-size: 12px; cursor: pointer; transition: all 0.2s; text-align: center; width: 100%; }
-        .btn:hover:not(:disabled) { opacity: 0.9; box-shadow: 0 0 10px rgba(59, 130, 246, 0.4); }
-        .btn-secondary { background: rgba(31, 41, 55, 0.8); border: 1px solid var(--border-color); color: var(--text-bright); }
-        .btn-secondary:hover:not(:disabled) { background: rgba(55, 65, 81, 0.8); }
-
-        /* CANVAS */
-        .canvas-container { position: relative; flex: 1; min-height: 380px; background: #030712; border-radius: 8px; border: 1px solid var(--border-color); overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        canvas { width: 100%; height: 100%; display: block; }
-        .canvas-overlay { position: absolute; top: 10px; left: 10px; background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(4px); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 12px; font-size: 11px; font-family: monospace; }
-
-        /* TEST LIST */
-        .test-list { flex: 1; max-height: 180px; min-height: 120px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background: #030712; padding: 4px; }
-        .test-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 11px; font-family: monospace; }
-        .test-item:last-child { border-bottom: none; }
-        .badge-pass { background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 9px; }
-        .badge-fail { background: rgba(239,68,68,0.2); color: var(--accent-red); padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 9px; }
-
-        /* ELECTRICAL LOG CONSOLE */
-        .console-log { height: 100px; overflow-y: auto; background: #030712; border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 10px; color: var(--accent-green); line-height: 1.4; }
-
-        /* HARDWARE STATUS PILL */
-        .hw-status-pill {
-            display: inline-flex;
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent-amber), #d97706);
+            border-radius: 8px;
+            display: flex;
             align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 10px;
+            justify-content: center;
+            font-weight: 800;
+            color: #000;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .logo-title {
+            font-size: 20px;
             font-weight: 700;
-            letter-spacing: 0.5px;
-            transition: all 0.3s;
+            letter-spacing: -0.5px;
         }
-        .hw-status-pill.disconnected { background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #ef4444; }
-        .hw-status-pill.connected-esp { background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #10b981; }
-        .hw-status-pill.connected-arduino { background: rgba(6, 182, 212, 0.15); border: 1px solid #06b6d4; color: #06b6d4; }
 
-        .hw-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; display: inline-block; }
-        .connected-esp .hw-dot, .connected-arduino .hw-dot { animation: pulse-dot 1.5s infinite; }
-        @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
-
-        .hw-select {
-            background: rgba(30,41,59,0.9);
-            color: var(--text-bright);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 5px 8px;
-            font-size: 11px;
-            outline: none;
+        .mode-badge {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid var(--accent-amber);
+            color: var(--accent-amber);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
         }
-        .hw-btn {
-            background: rgba(30,41,59,0.9);
-            color: var(--text-bright);
+
+        /* Main Grid */
+        main {
+            display: grid;
+            grid-template-columns: 360px 1fr 380px;
+            gap: 20px;
+            padding: 24px;
+            flex: 1;
+        }
+
+        .panel {
+            background: var(--panel-bg);
             border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 5px 10px;
-            font-size: 11px;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .panel-title {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Upload Zone */
+        .dropzone {
+            border: 2px dashed #334155;
+            border-radius: 8px;
+            padding: 32px 16px;
+            text-align: center;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
+            background: rgba(15, 23, 42, 0.5);
         }
-        .hw-btn:hover { background: rgba(51,65,85,0.9); border-color: var(--accent-cyan); }
-        .hw-btn.connect-btn { background: rgba(16,185,129,0.2); border-color: var(--accent-green); color: var(--accent-green); }
-        .hw-btn.connect-btn:hover { background: rgba(16,185,129,0.35); }
-        .hw-btn.disconnect-btn { background: rgba(239,68,68,0.2); border-color: var(--accent-red); color: var(--accent-red); }
-        .hw-btn.disconnect-btn:hover { background: rgba(239,68,68,0.35); }
 
-        /* SERIAL MONITOR TERMINAL */
-        .serial-terminal {
+        .dropzone:hover, .dropzone.active {
+            border-color: var(--accent-amber);
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .btn {
+            background: var(--accent-amber);
+            color: #000;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover { opacity: 0.9; }
+
+        .btn-secondary {
+            background: #1e293b;
+            color: var(--text-main);
+            border: 1px solid #334155;
+        }
+
+        .btn-secondary:hover { background: #334155; }
+
+        /* Board Stats Card */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .stat-box {
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Center Canvas Simulation */
+        .canvas-container {
+            position: relative;
+            flex: 1;
+            background: #07090e;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .canvas-overlay {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            padding: 10px 16px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+
+        /* Test Sequence & Log Panel */
+        .test-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 280px;
+        }
+
+        .test-card {
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            padding: 10px 14px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+
+        .test-card.active { border-color: var(--accent-amber); }
+        .test-card.pass { border-color: var(--accent-green); }
+        .test-card.fail { border-color: var(--accent-red); }
+
+        .verdict-tag {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+        .verdict-pass { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); }
+        .verdict-fail { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); }
+
+        .console-log {
+            background: #05070a;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #10b981;
             height: 140px;
             overflow-y: auto;
-            font-family: 'JetBrains Mono', Consolas, monospace;
-            font-size: 10px;
-            line-height: 1.4;
-            background: #030712;
-            padding: 8px;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-            margin-bottom: 6px;
+            white-space: pre-wrap;
         }
-        .st-line { margin-bottom: 2px; word-break: break-all; }
-        .st-time { color: #64748b; margin-right: 6px; }
-        .st-tx { color: #10b981; font-weight: 600; }
-        .st-rx { color: #38bdf8; }
-        .st-info { color: #f59e0b; }
-        .st-err { color: #ef4444; font-weight: 700; }
 
-        /* TOAST NOTIFICATION */
-        #hwToast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 600;
+        /* ── Hardware Status Bar ── */
+        .hw-bar {
             display: flex;
             align-items: center;
             gap: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            z-index: 9999;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            pointer-events: none;
-            background: rgba(17, 24, 39, 0.95);
-            border: 1px solid var(--border-color);
-            backdrop-filter: blur(8px);
         }
-        #hwToast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
-        #hwToast.toast-success { border-color: var(--accent-green); color: var(--accent-green); }
-        #hwToast.toast-error { border-color: var(--accent-red); color: var(--accent-red); }
-        #hwToast.toast-warn { border-color: var(--accent-amber); color: var(--accent-amber); }
 
-        .btn-hw { background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(6,182,212,0.2)); color: var(--accent-green); border: 1px solid var(--accent-green); }
-        .btn-hw:hover:not(:disabled) { background: linear-gradient(135deg, rgba(16,185,129,0.35), rgba(6,182,212,0.35)); box-shadow: 0 0 16px rgba(16,185,129,0.3); }
+        .hw-status-pill {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            border: 1px solid transparent;
+            transition: all 0.4s ease;
+            white-space: nowrap;
+        }
+        .hw-status-pill.disconnected {
+            background: rgba(239, 68, 68, 0.12);
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+        .hw-status-pill.connecting {
+            background: rgba(245, 158, 11, 0.12);
+            border-color: var(--accent-amber);
+            color: var(--accent-amber);
+            animation: pulse-amber 1s ease-in-out infinite;
+        }
+        .hw-status-pill.connected-esp {
+            background: rgba(16, 185, 129, 0.12);
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+        }
+        .hw-status-pill.connected-arduino {
+            background: rgba(6, 182, 212, 0.12);
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+            box-shadow: 0 0 12px rgba(6, 182, 212, 0.25);
+        }
+        .hw-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .disconnected .hw-dot  { background: #ef4444; }
+        .connecting .hw-dot    { background: var(--accent-amber); animation: pulse-amber 1s ease-in-out infinite; }
+        .connected-esp .hw-dot { background: var(--accent-green); animation: glow-green 2s ease-in-out infinite; }
+        .connected-arduino .hw-dot { background: var(--accent-cyan); animation: glow-cyan 2s ease-in-out infinite; }
+
+        @keyframes pulse-amber {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.4; }
+        }
+        @keyframes glow-green {
+            0%, 100% { box-shadow: 0 0 4px #10b981; }
+            50%       { box-shadow: 0 0 10px #10b981; }
+        }
+        @keyframes glow-cyan {
+            0%, 100% { box-shadow: 0 0 4px #06b6d4; }
+            50%       { box-shadow: 0 0 10px #06b6d4; }
+        }
+
+        .hw-select {
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: var(--text-main);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            cursor: pointer;
+            max-width: 220px;
+        }
+        .hw-select:focus { outline: none; border-color: var(--accent-amber); }
+
+        .hw-btn {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: var(--text-main);
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .hw-btn:hover { background: #334155; }
+        .hw-btn.connect-btn {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+        .hw-btn.connect-btn:hover { background: rgba(16, 185, 129, 0.25); }
+        .hw-btn.disconnect-btn {
+            background: rgba(239, 68, 68, 0.12);
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+        .hw-btn.disconnect-btn:hover { background: rgba(239, 68, 68, 0.22); }
+
+        /* ── Toast Notification ── */
+        #hwToast {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid transparent;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            transform: translateY(80px);
+            opacity: 0;
+            transition: transform 0.35s cubic-bezier(.4,0,.2,1), opacity 0.35s ease;
+            pointer-events: none;
+        }
+        #hwToast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        #hwToast.toast-success {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+        #hwToast.toast-info {
+            background: rgba(6, 182, 212, 0.15);
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+        #hwToast.toast-error {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+        #hwToast.toast-warn {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: var(--accent-amber);
+            color: var(--accent-amber);
+        }
+
+        /* Hardware Run button variant */
+        .btn-hw {
+            background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(6,182,212,0.2));
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+        }
+        .btn-hw:hover:not(:disabled) {
+            background: linear-gradient(135deg, rgba(16,185,129,0.35), rgba(6,182,212,0.35));
+            box-shadow: 0 0 16px rgba(16,185,129,0.3);
+        }
         .btn:disabled { opacity: 0.35; cursor: not-allowed; }
     </style>
 </head>
@@ -186,14 +425,30 @@
         <div class="logo-group">
             <div class="logo-icon">FPT</div>
             <div>
-                <div class="logo-title">FPTester — Flying Probe PCB Evaluation System</div>
-                <div style="font-size: 11px; color: var(--text-muted);">Automated ESP32 / Arduino Dual-Arm Kinematics Engine</div>
+                <div class="logo-title">FPTester — Flying Probe PCB Tester</div>
+                <div style="font-size: 11px; color: var(--text-muted);">AI-Powered Camera-less Dual-Arm Electrical Evaluation System</div>
             </div>
         </div>
+        <div class="hw-bar">
+            <!-- Live hardware status pill -->
+            <div class="hw-status-pill disconnected" id="hwStatusPill">
+                <span class="hw-dot"></span>
+                <span id="hwStatusText">DISCONNECTED</span>
+            </div>
 
-        <div class="header-status-badge">
-            <span style="color: var(--text-muted);">ACTIVE MODE:</span>
-            <span id="headerModeBadge" style="color: var(--accent-cyan);">LAPTOP SIMULATION</span>
+            <!-- Port selector -->
+            <select class="hw-select" id="comPortSelect">
+                <option value="SIMULATED_COM1">SIMULATED_COM1 (Simulation)</option>
+            </select>
+
+            <!-- Refresh ports button -->
+            <button class="hw-btn" id="btnRefreshPorts" title="Refresh available ports">↺</button>
+
+            <!-- Connect / Disconnect toggle -->
+            <button class="hw-btn connect-btn" id="btnConnectHw">🔌 Connect</button>
+
+            <!-- Legacy mode badge (updates dynamically) -->
+            <div class="mode-badge" id="modeBadge">LAPTOP SIMULATION MODE</div>
         </div>
     </header>
 
@@ -269,7 +524,7 @@
             </div>
         </div>
 
-        <!-- RIGHT PANEL: Test Sequence, Electrical Log, Hardware Controller & Serial Monitor -->
+        <!-- RIGHT PANEL: Test Sequence & Oscilloscope Console -->
         <div class="panel">
             <div class="panel-title">4. AI Test Plan & Sequence</div>
             <div class="test-list" id="testList">
@@ -280,59 +535,6 @@
 
             <div class="panel-title">5. Electrical Log & Diagnostic Card</div>
             <div class="console-log" id="consoleLog">> FPTester System Ready. Upload .kicad_pcb or .gbr design file to begin.</div>
-
-            <!-- CARD 6: Hardware Controller & USB Auto-Detect (Located below Electrical Log) -->
-            <div class="panel-title" style="margin-top: 14px;">6. Hardware Controller & USB Auto-Detect</div>
-            <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 8px;">
-                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
-                    <!-- Status Pill with COM Port -->
-                    <div class="hw-status-pill disconnected" id="hwStatusPill">
-                        <span class="hw-dot"></span>
-                        <span id="hwStatusText">DISCONNECTED</span>
-                    </div>
-                    <div class="mode-badge" id="modeBadge" style="font-size: 10px; padding: 3px 8px; border-radius: 12px; font-weight: 700; border: 1px solid var(--border-color);">LAPTOP SIMULATION MODE</div>
-                </div>
-
-                <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
-                    <!-- COM Port Selector -->
-                    <select class="hw-select" id="comPortSelect" style="flex: 2; min-width: 130px;">
-                        <option value="SIMULATED_COM1">SIMULATED_COM1 (Simulation)</option>
-                    </select>
-
-                    <!-- Baud Rate Selector -->
-                    <select class="hw-select" id="baudRateSelect" style="flex: 1; min-width: 85px;">
-                        <option value="115200" selected>115200</option>
-                        <option value="9600">9600</option>
-                        <option value="57600">57600</option>
-                        <option value="230400">230400</option>
-                    </select>
-
-                    <button class="hw-btn connect-btn" id="btnConnectHw">🔌 Connect</button>
-                    <button class="hw-btn" id="btnRefreshPorts" title="Refresh ports">↺</button>
-                </div>
-                <div style="font-size: 10px; color: var(--text-muted);">
-                    ⚡ Instant USB Auto-detect: Plug in ESP32 / Arduino for immediate connection (&lt;0.5s).
-                </div>
-            </div>
-
-            <!-- CARD 7: Interactive USB Serial Monitor -->
-            <div class="panel-title" style="margin-top: 14px;">7. USB Serial Monitor</div>
-            <div style="background: #090d16; border: 1px solid var(--border-color); border-radius: 8px; padding: 8px;">
-                <!-- Serial Terminal Output -->
-                <div class="serial-terminal" id="serialTerminal">
-                    <div class="st-line"><span class="st-time">[00:00:00.000]</span> <span class="st-info">INFO ℹ</span> Serial Monitor initialized. Ready for USB connection.</div>
-                </div>
-
-                <!-- Command Bar -->
-                <div style="display: flex; gap: 4px; align-items: center;">
-                    <input type="text" id="txtSerialCmd" placeholder="Type G-code / serial command (e.g. PING, STATUS, M114)..." style="flex: 1; padding: 5px 8px; font-size: 11px; background: rgba(30,41,59,0.9); color: var(--text-bright); border: 1px solid var(--border-color); border-radius: 6px; outline: none;">
-                    <button class="btn" id="btnSendSerialCmd" style="width: auto; padding: 5px 10px; font-size: 11px;">📤 Send</button>
-                    <button class="btn btn-secondary" id="btnClearSerialLog" style="width: auto; padding: 5px 8px; font-size: 11px;" title="Clear Monitor">🗑️</button>
-                    <label style="font-size: 10px; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; gap: 3px; white-space: nowrap;">
-                        <input type="checkbox" id="chkAutoScroll" checked> Auto
-                    </label>
-                </div>
-            </div>
         </div>
     </main>
 
@@ -349,9 +551,8 @@
         let hwConnected = false;
         let hwPort = null;
         let hwDeviceType = null;
-        let _lastKnownPorts = [];
+        let _lastKnownPorts = [];   // used for auto-detect diff
         let _autoConnectInFlight = false;
-        let _lastRenderedLogCount = 0;
 
         // ── Toast Helper ───────────────────────────────────────────────────────
         let _toastTimer = null;
@@ -375,45 +576,35 @@
             const pill = document.getElementById('hwStatusPill');
             const statusText = document.getElementById('hwStatusText');
             const modeBadge = document.getElementById('modeBadge');
-            const headerModeBadge = document.getElementById('headerModeBadge');
             const btnConnect = document.getElementById('btnConnectHw');
             const btnHwRun = document.getElementById('btnHwRun');
 
             if (connected) {
                 const isESP = (deviceType || '').toLowerCase().includes('esp');
                 pill.className = `hw-status-pill ${isESP ? 'connected-esp' : 'connected-arduino'}`;
-                statusText.innerText = `${(deviceType || 'HARDWARE').toUpperCase()} (${port})`;
-                
-                modeBadge.style.background = isESP ? 'rgba(16,185,129,0.15)' : 'rgba(6,182,212,0.15)';
+                statusText.innerText = `CONNECTED: ${(deviceType || 'HARDWARE').toUpperCase()} on ${port}`;
+                modeBadge.style.background = isESP
+                    ? 'rgba(16,185,129,0.15)' : 'rgba(6,182,212,0.15)';
                 modeBadge.style.borderColor = isESP ? '#10b981' : '#06b6d4';
                 modeBadge.style.color = isESP ? '#10b981' : '#06b6d4';
-                modeBadge.innerText = `${(deviceType || '').toUpperCase()} (${port})`;
-
-                headerModeBadge.style.color = isESP ? '#10b981' : '#06b6d4';
-                headerModeBadge.innerText = `HARDWARE ONLINE · ${(deviceType || '').toUpperCase()} (${port})`;
-
+                modeBadge.innerText = `HARDWARE MODE · ${(deviceType || '').toUpperCase()} on ${port}`;
                 btnConnect.textContent = '⏏ Disconnect';
                 btnConnect.className = 'hw-btn disconnect-btn';
                 if (currentTestPlan) btnHwRun.disabled = false;
             } else {
                 pill.className = 'hw-status-pill disconnected';
-                statusText.innerText = 'DISCONNECTED';
-
+                statusText.innerText = 'NO HARDWARE FOUND';
                 modeBadge.style.background = '';
                 modeBadge.style.borderColor = '';
                 modeBadge.style.color = '';
-                modeBadge.innerText = 'LAPTOP SIMULATION MODE';
-
-                headerModeBadge.style.color = 'var(--accent-cyan)';
-                headerModeBadge.innerText = 'LAPTOP SIMULATION';
-
+                modeBadge.innerText = 'NO HARDWARE FOUND · SIMULATION ACTIVE';
                 btnConnect.textContent = '🔌 Connect';
                 btnConnect.className = 'hw-btn connect-btn';
                 btnHwRun.disabled = true;
             }
         }
 
-        // ── Fast USB Serial Port Listing & Instant Auto-Connect (<0.5s) ──────────
+        // ── Port Listing ───────────────────────────────────────────────────────
         async function refreshPorts(silent = false) {
             try {
                 const res = await fetch('/api/ports');
@@ -424,228 +615,169 @@
                 const prevVal = select.value;
                 select.innerHTML = '';
 
-                ports.forEach(p => {
+                if (ports.length === 0) {
                     const opt = document.createElement('option');
-                    opt.value = p.port;
-                    const typeLabel = p.device_type && p.device_type !== 'Simulation' && p.device_type !== 'Unknown'
-                        ? ` [${p.device_type}]` : '';
-                    opt.textContent = `${p.port}${typeLabel}`;
+                    opt.value = '';
+                    opt.textContent = 'No hardware found';
                     select.appendChild(opt);
-                });
+                } else {
+                    ports.forEach(p => {
+                        const opt = document.createElement('option');
+                        opt.value = p.port;
+                        const typeLabel = p.device_type ? ` [${p.device_type}]` : '';
+                        opt.textContent = `${p.port}${typeLabel}`;
+                        select.appendChild(opt);
+                    });
+                }
 
+                // Restore previous selection if still present
                 if ([...select.options].some(o => o.value === prevVal)) {
                     select.value = prevVal;
                 }
 
-                // Instant Auto-detect: detect newly plugged USB physical serial port
+                // ── Auto-detect: check for newly appeared real hardware ports ──
                 const newRealPorts = ports.filter(p =>
-                    p.device_type !== 'Simulation' &&
+                    p.is_target_hardware &&
                     !_lastKnownPorts.some(lp => lp.port === p.port)
                 );
 
                 if (newRealPorts.length > 0 && !hwConnected && !_autoConnectInFlight) {
                     const candidate = newRealPorts[0];
-                    const typeLabel = candidate.device_type || 'Hardware';
-                    showToast(`🔌 ${typeLabel} plugged into ${candidate.port} — Connecting!`, 'success', 5000);
-                    log(`[USB Auto-Detect] ${typeLabel} plugged into ${candidate.port}. Connecting instantly…`);
+                    const typeLabel = candidate.device_type || 'Device';
+                    showToast(`${typeLabel} detected on ${candidate.port} — Connecting…`, 'info', 6000);
+                    log(`[Auto-detect] ${typeLabel} found on ${candidate.port}. Auto-connecting…`);
                     select.value = candidate.port;
                     await connectToPort(candidate.port, true);
                 }
 
-                // Instant Unplug detection: check if active connected COM port was disconnected
-                if (hwConnected && hwPort && hwPort !== 'SIMULATED_COM1') {
+                // Check for removed ports (device unplugged)
+                if (hwConnected && hwPort) {
                     const stillPresent = ports.some(p => p.port === hwPort);
                     if (!stillPresent) {
-                        showToast(`⚠️ USB device unplugged from ${hwPort} — Reverted to simulation mode`, 'warn', 5000);
-                        log(`[USB Unplug] Device removed from ${hwPort}. Reverting to simulation mode.`);
-                        await disconnectHardware(true);
+                        showToast(`${hwDeviceType || 'Hardware'} on ${hwPort} disconnected.`, 'warn');
+                        log(`[Hardware] Device on ${hwPort} was unplugged. No hardware found.`);
+                        updateHwUI(false, null, null);
                     }
                 }
 
                 _lastKnownPorts = ports;
+                if (!silent) log(`Ports refreshed: ${ports.length > 0 ? ports.map(p => p.port).join(', ') : 'No hardware found'}`);
             } catch (err) {
-                if (!silent) log(`[Error] Failed to fetch ports: ${err.message}`);
+                if (!silent) log(`Port refresh error: ${err.message}`);
             }
         }
 
-        // ── Hardware Connect Handler ───────────────────────────────────────────
-        async function connectToPort(portName, isAuto = false) {
+        // ── Connect to port ────────────────────────────────────────────────────
+        async function connectToPort(port, isAuto = false) {
             _autoConnectInFlight = true;
-            const baud = parseInt(document.getElementById('baudRateSelect').value) || 115200;
+            const pill = document.getElementById('hwStatusPill');
+            pill.className = 'hw-status-pill connecting';
+            document.getElementById('hwStatusText').innerText = 'CONNECTING…';
             try {
                 const res = await fetch('/api/connect', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ port: portName, baudrate: baud })
+                    body: JSON.stringify({ port })
                 });
                 const data = await res.json();
                 if (data.status === 'connected') {
                     updateHwUI(true, data.port, data.device_type);
-                    log(`[Hardware Connected] ${data.device_type} on ${data.port} @ ${baud} baud`);
-                    if (!isAuto) showToast(`Connected to ${data.device_type} (${data.port})`, 'success');
+                    const autoLabel = isAuto ? '(auto)' : '';
+                    showToast(`Connected to ${data.device_type} on ${data.port} ${autoLabel}`, 'success');
+                    log(`[Hardware] Connected: ${data.device_type} @ ${data.port} | ${data.baudrate} baud`);
                 } else {
                     updateHwUI(false, null, null);
-                    log(`[Hardware Error] ${data.message}`);
-                    showToast(`Connection failed: ${data.message}`, 'error');
+                    showToast(`Connection failed: ${data.message || 'Unknown error'}`, 'error');
+                    log(`[Hardware] Connection error: ${data.message}`);
                 }
             } catch (err) {
-                log(`[Hardware Error] ${err.message}`);
+                updateHwUI(false, null, null);
                 showToast(`Connection error: ${err.message}`, 'error');
-            } finally {
-                _autoConnectInFlight = false;
+                log(`[Hardware] Fetch error: ${err.message}`);
             }
+            _autoConnectInFlight = false;
         }
 
-        async function disconnectHardware(isAuto = false) {
+        // ── Disconnect ─────────────────────────────────────────────────────────
+        async function disconnectHardware() {
             try {
                 await fetch('/api/disconnect', { method: 'POST' });
-                updateHwUI(false, null, null);
-                log(`[Hardware] Disconnected. Reverted to Simulation Mode.`);
-                if (!isAuto) showToast(`Disconnected from hardware`, 'info');
-            } catch (err) {
-                log(`[Error] Disconnect failed: ${err.message}`);
+            } catch (_) {}
+            updateHwUI(false, null, null);
+            showToast('Hardware disconnected.', 'warn');
+            log('[Hardware] Disconnected from hardware. Simulation mode active.');
+        }
+
+        // ── Connect / Disconnect button handler ────────────────────────────────
+        document.getElementById('btnConnectHw').addEventListener('click', async () => {
+            if (hwConnected) {
+                await disconnectHardware();
+            } else {
+                const port = document.getElementById('comPortSelect').value;
+                await connectToPort(port, false);
             }
-        }
-
-        // ── Serial Monitor Polling & Command Handling ──────────────────────────
-        async function pollSerialLog() {
-            try {
-                const res = await fetch('/api/serial-log');
-                const data = await res.json();
-                const logs = data.logs || [];
-                const term = document.getElementById('serialTerminal');
-
-                if (logs.length > _lastRenderedLogCount) {
-                    const newEntries = logs.slice(_lastRenderedLogCount);
-                    newEntries.forEach(item => {
-                        const lineDiv = document.createElement('div');
-                        lineDiv.className = 'st-line';
-                        
-                        let dirClass = 'st-info';
-                        let dirTag = 'INFO ℹ';
-                        if (item.dir === 'TX') { dirClass = 'st-tx'; dirTag = 'TX ➔'; }
-                        else if (item.dir === 'RX') { dirClass = 'st-rx'; dirTag = 'RX ⬅'; }
-                        else if (item.dir === 'ERROR') { dirClass = 'st-err'; dirTag = 'ERR ❌'; }
-
-                        lineDiv.innerHTML = `<span class="st-time">[${item.timestamp}]</span> <span class="${dirClass}">${dirTag}</span> ${escapeHtml(item.text)}`;
-                        term.appendChild(lineDiv);
-                    });
-
-                    _lastRenderedLogCount = logs.length;
-
-                    if (document.getElementById('chkAutoScroll').checked) {
-                        term.scrollTop = term.scrollHeight;
-                    }
-                }
-            } catch (err) {
-                // silent background catch
-            }
-        }
-
-        async function sendSerialCommand() {
-            const input = document.getElementById('txtSerialCmd');
-            const cmd = input.value.trim();
-            if (!cmd) return;
-
-            input.value = '';
-            try {
-                await fetch('/api/send-raw-command', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ command: cmd })
-                });
-                pollSerialLog();
-            } catch (err) {
-                log(`[Serial Error] ${err.message}`);
-            }
-        }
-
-        function clearSerialLog() {
-            const term = document.getElementById('serialTerminal');
-            term.innerHTML = '<div class="st-line"><span class="st-time">[00:00:00.000]</span> <span class="st-info">INFO ℹ</span> Serial Monitor cleared.</div>';
-            _lastRenderedLogCount = 0;
-        }
-
-        function escapeHtml(str) {
-            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        }
-
-        // ── Console Log Helper ─────────────────────────────────────────────────
-        function log(msg) {
-            const consoleEl = document.getElementById('consoleLog');
-            const timeStr = new Date().toLocaleTimeString();
-            consoleEl.innerHTML += `\n[${timeStr}] ${msg}`;
-            consoleEl.scrollTop = consoleEl.scrollHeight;
-        }
-
-        // ── Event Listeners & Fast Interval Init ───────────────────────────────
-        document.addEventListener('DOMContentLoaded', () => {
-            // Fast USB auto-detection polling (500ms interval)
-            refreshPorts(true);
-            setInterval(() => refreshPorts(true), 500);
-
-            // Serial Monitor Polling (400ms interval)
-            setInterval(pollSerialLog, 400);
-
-            document.getElementById('btnRefreshPorts').addEventListener('click', () => refreshPorts(false));
-            
-            document.getElementById('btnConnectHw').addEventListener('click', () => {
-                if (hwConnected) {
-                    disconnectHardware(false);
-                } else {
-                    const port = document.getElementById('comPortSelect').value;
-                    connectToPort(port, false);
-                }
-            });
-
-            document.getElementById('btnSendSerialCmd').addEventListener('click', sendSerialCommand);
-            document.getElementById('txtSerialCmd').addEventListener('keydown', e => {
-                if (e.key === 'Enter') sendSerialCommand();
-            });
-            document.getElementById('btnClearSerialLog').addEventListener('click', clearSerialLog);
-
-            // File Upload & Kinematics visualizer initializations...
-            initAppLogic();
         });
 
-        // ── PCB File Upload & AI Plan Execution Logic ──────────────────────────
-        function initAppLogic() {
-            const dropzone = document.getElementById('dropzone');
-            const fileInput = document.getElementById('fileInput');
+        // ── Refresh ports button ───────────────────────────────────────────────
+        document.getElementById('btnRefreshPorts').addEventListener('click', () => refreshPorts(false));
 
-            dropzone.addEventListener('click', () => fileInput.click());
-            dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('dragover'); });
-            dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
-            dropzone.addEventListener('drop', e => {
-                e.preventDefault();
-                dropzone.classList.remove('dragover');
-                if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
-            });
-            fileInput.addEventListener('change', e => {
-                if (e.target.files.length) handleFile(e.target.files[0]);
-            });
+        // ── Background port polling every 2 seconds ────────────────────────────
+        refreshPorts(true);
+        setInterval(() => refreshPorts(true), 2000);
 
-            document.getElementById('aiProviderSelect').addEventListener('change', e => {
-                const group = document.getElementById('apiKeyGroup');
-                group.style.display = (e.target.value === 'ollama') ? 'none' : 'flex';
-            });
+        // ── Poll /api/connection-status on load (in case server already has hw) ─
+        (async () => {
+            try {
+                const res = await fetch('/api/connection-status');
+                const data = await res.json();
+                if (data.connected) {
+                    updateHwUI(true, data.port, data.device_type);
+                    log(`[Hardware] Restored connection: ${data.device_type} @ ${data.port}`);
+                }
+            } catch (_) {}
+        })();
 
-            document.getElementById('btnGenPlan').addEventListener('click', generatePlan);
-            document.getElementById('btnSimulate').addEventListener('click', runSimulation);
-            document.getElementById('btnHwRun').addEventListener('click', runHardwarePlan);
+        // Kinematics & Arm State (Local PCB mm coords: (x, y))
+        let arm0Target = { x: -15, y: 50 };
+        let arm1Target = { x: 15, y: 65 };
+        let activeDragArm = null; // 0, 1, or null
 
-            initCanvas();
+        // Kinematics Parameters (Matching CAD: L0=80, L1=35, L2=70, D=115)
+        const KIN = { L0: 80, L1: 35, L2: 70, D: 115 };
+
+        // Elements
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+        const btnGenPlan = document.getElementById('btnGenPlan');
+        const btnSimulate = document.getElementById('btnSimulate');
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        const consoleLog = document.getElementById('consoleLog');
+
+        // Drag & Drop
+        dropzone.addEventListener('click', () => fileInput.click());
+        dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('active'); });
+        dropzone.addEventListener('dragleave', () => dropzone.classList.remove('active'));
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('active');
+            if (e.dataTransfer.files.length) uploadFile(e.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener('change', (e) => { if (e.target.files.length) uploadFile(e.target.files[0]); });
+
+        function log(msg) {
+            consoleLog.innerText += '\n> ' + msg;
+            consoleLog.scrollTop = consoleLog.scrollHeight;
         }
 
-        async function handleFile(file) {
-            log(`Uploading PCB File: ${file.name}...`);
-            const formData = new FormData();
-            formData.append('file', file);
-
+        async function uploadFile(file) {
+            log(`Uploading design file: ${file.name}...`);
             try {
+                const textContent = await file.text();
                 const res = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, {
                     method: 'POST',
-                    body: file
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: textContent
                 });
                 const data = await res.json();
                 if (data.status === 'success') {
@@ -654,213 +786,502 @@
                     document.getElementById('statComps').innerText = data.total_components;
                     document.getElementById('statNets').innerText = data.total_nets;
                     document.getElementById('statSize').innerText = `${data.dimensions.width}x${data.dimensions.height}`;
-                    
-                    document.getElementById('btnGenPlan').disabled = false;
-                    log(`PCB Parsed Successfully: ${data.total_pads} pads, ${data.total_nets} nets identified.`);
-                    showToast(`Parsed ${file.name} (${data.total_pads} pads)`, 'success');
+
+                    btnGenPlan.disabled = false;
+                    log(`Parsed successfully! ${data.total_pads} pads, ${data.total_components} components.`);
+                    // Enable hw run button if hardware already connected
+                    if (hwConnected) document.getElementById('btnHwRun').disabled = false;
+                    drawCanvas(null, null);
                 } else {
-                    log(`[Error] ${data.message}`);
-                    showToast(`Upload failed: ${data.message}`, 'error');
+                    log(`Upload failed: ${data.message || 'Parsing error'}`);
                 }
             } catch (err) {
-                log(`[Error] ${err.message}`);
-                showToast(`Upload error: ${err.message}`, 'error');
+                log(`Error uploading file: ${err.message}`);
             }
         }
 
-        async function generatePlan() {
-            if (!currentBoardId) return;
-            log("Generating AI Test Plan & Kinematics Probe Sequence...");
-            const provider = document.getElementById('aiProviderSelect').value;
-            const apiKey = document.getElementById('aiApiKey').value;
+        const aiProviderSelect = document.getElementById('aiProviderSelect');
+        const apiKeyGroup = document.getElementById('apiKeyGroup');
+        const aiApiKey = document.getElementById('aiApiKey');
 
+        if (aiProviderSelect) {
+            aiProviderSelect.addEventListener('change', () => {
+                const val = aiProviderSelect.value;
+                if (val === 'gemini' || val === 'openai') {
+                    apiKeyGroup.style.display = 'flex';
+                } else {
+                    apiKeyGroup.style.display = 'none';
+                }
+            });
+        }
+
+        btnGenPlan.addEventListener('click', async () => {
+            if (!currentBoardId) return;
+            const provider = aiProviderSelect ? aiProviderSelect.value : 'ollama';
+            const apiKey = aiApiKey ? aiApiKey.value.trim() : null;
+
+            log(`Invoking AI Test Plan Engine (Provider: ${provider})...`);
             try {
                 const res = await fetch(`/api/generate-plan/${currentBoardId}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ provider, api_key: apiKey })
+                    body: JSON.stringify({
+                        provider: provider,
+                        api_key: apiKey || null,
+                        custom_url: "http://localhost:11434"
+                    })
                 });
                 const data = await res.json();
                 if (data.status === 'success') {
                     currentTestPlan = data.test_plan;
-                    renderTestPlan(data.test_plan);
-                    document.getElementById('btnSimulate').disabled = false;
+                    btnSimulate.disabled = false;
                     if (hwConnected) document.getElementById('btnHwRun').disabled = false;
-                    log(`AI Test Plan Ready: ${data.total_tests} test pairs generated.`);
-                    showToast(`Generated ${data.total_tests} test pairs`, 'success');
+                    renderTestPlan(data.test_plan);
+                    log(`AI Test Plan generated! Total probe pairs: ${data.total_tests}`);
+                    if (hwConnected) showToast('Test plan ready — hardware run available!', 'success');
                 }
             } catch (err) {
-                log(`[Error] ${err.message}`);
+                log(`Error generating test plan: ${err.message}`);
             }
-        }
+        });
 
         function renderTestPlan(plan) {
             const list = document.getElementById('testList');
             list.innerHTML = '';
-            (plan.test_pairs || []).forEach(tp => {
-                const item = document.createElement('div');
-                item.className = 'test-item';
-                item.innerHTML = `
-                    <div><strong>#${tp.test_id}</strong> ${tp.net_name} (${tp.pad_a.pad_id} ➔ ${tp.pad_b.pad_id})</div>
-                    <div id="tp-badge-${tp.test_id}" style="color: var(--text-muted);">READY</div>
+            plan.commands.forEach((cmd, idx) => {
+                const meta = cmd.meta;
+                const card = document.createElement('div');
+                card.className = 'test-card';
+                card.id = `test-card-${meta.test_id}`;
+                card.innerHTML = `
+                    <div>
+                        <div style="font-weight: 700;">#${meta.test_id} Net: ${meta.net}</div>
+                        <div style="color: var(--text-muted); font-size: 11px;">${meta.pad_a_ref} -> ${meta.pad_b_ref}</div>
+                    </div>
+                    <div class="verdict-tag" id="verdict-${meta.test_id}">READY</div>
                 `;
-                list.appendChild(item);
+                list.appendChild(card);
             });
         }
 
-        async function runSimulation() {
+        // ── Shared result rendering helper ─────────────────────────────────────
+        async function renderRunResults(data, mode) {
+            for (let step of data.results) {
+                const card = document.getElementById(`test-card-${step.test_id}`);
+                if (card) card.classList.add('active');
+
+                // Animate arms
+                await animateArmMove(step.pad_a, step.pad_b);
+
+                const verdictTag = document.getElementById(`verdict-${step.test_id}`);
+                const verdict = step.verdict || 'ERROR';
+                if (verdictTag) {
+                    const vLabel = verdict === 'ERROR' ? 'ERR' : `${step.measured_voltage}V [${verdict}]`;
+                    verdictTag.innerText = vLabel;
+                    verdictTag.className = `verdict-tag ${
+                        verdict === 'PASS' ? 'verdict-pass' : 'verdict-fail'
+                    }`;
+                }
+
+                if (card) {
+                    card.classList.remove('active');
+                    card.classList.add(verdict === 'PASS' ? 'pass' : 'fail');
+                }
+
+                log(`Test #${step.test_id} (${step.net}): ${step.pad_a.ref} -> ${step.pad_b.ref} = ${step.measured_voltage}V (${verdict})`);
+                await new Promise(r => setTimeout(r, 350));
+            }
+            log(`${mode} probing sequence complete! ${data.total_executed} tests executed.`);
+        }
+
+        // ── Simulation run ─────────────────────────────────────────────────────
+        btnSimulate.addEventListener('click', async () => {
             if (!currentBoardId || isSimulating) return;
             isSimulating = true;
-            log("Starting Dual-Arm 5-Bar Linkage Kinematics Simulation...");
-            
+            log('Starting dual 5-bar robotic arm simulation...');
+            document.getElementById('statusIndicator').innerText = 'Simulating Probe Cycle...';
             try {
-                const res = await fetch(`/api/simulate-run/${currentBoardId}`);
+                const res = await fetch(`/api/simulate-run/${currentBoardId}`, { method: 'POST' });
                 const data = await res.json();
-                if (data.status === 'success') {
-                    await animateProbeSequence(data.results);
-                    log("Dual-Arm Simulation Complete. All probes reached successfully.");
-                    showToast("Simulation Complete", 'success');
-                }
+                await renderRunResults(data, 'Simulation');
             } catch (err) {
-                log(`[Error] ${err.message}`);
-            } finally {
-                isSimulating = false;
+                log(`Simulation error: ${err.message}`);
             }
-        }
+            isSimulating = false;
+            document.getElementById('statusIndicator').innerText = 'Ready';
+        });
 
-        async function runHardwarePlan() {
-            if (!currentBoardId || !hwConnected || isSimulating) return;
+        // ── Hardware run ───────────────────────────────────────────────────────
+        const btnHwRun = document.getElementById('btnHwRun');
+        btnHwRun.addEventListener('click', async () => {
+            if (!currentBoardId || isSimulating) return;
+            if (!hwConnected) {
+                showToast('No hardware connected. Plug in an ESP32 or Arduino first.', 'error');
+                return;
+            }
             isSimulating = true;
-            log(`[HARDWARE RUN] Executing Test Plan on ${hwDeviceType} (${hwPort})...`);
-            showToast(`Running test plan on ${hwDeviceType}...`, 'info', 5000);
-
+            log(`[Hardware] Dispatching test plan to ${hwDeviceType} @ ${hwPort}…`);
+            document.getElementById('statusIndicator').innerText = `Running on ${hwDeviceType}…`;
+            showToast(`Sending tests to ${hwDeviceType} @ ${hwPort}…`, 'info', 8000);
             try {
-                const res = await fetch(`/api/hardware-run/${currentBoardId}`);
+                const res = await fetch(`/api/hardware-run/${currentBoardId}`, { method: 'POST' });
                 const data = await res.json();
-                if (data.status === 'success') {
-                    await animateProbeSequence(data.results);
-                    log(`[HARDWARE DONE] Executed ${data.total_executed} tests on ${hwDeviceType} (${hwPort}).`);
-                    showToast(`Hardware execution completed!`, 'success');
+                if (data.status === 'error') {
+                    log(`[Hardware] Error: ${data.message}`);
+                    showToast(data.message, 'error');
                 } else {
-                    log(`[HARDWARE ERROR] ${data.message}`);
-                    showToast(`Hardware run error: ${data.message}`, 'error');
+                    if (data.errors && data.errors.length > 0) {
+                        log(`[Hardware] ⚠ ${data.errors.length} serial error(s) occurred.`);
+                    }
+                    await renderRunResults(data, `Hardware (${hwDeviceType})`);
+                    showToast(`Hardware run complete! ${data.total_executed} tests executed.`, 'success');
                 }
             } catch (err) {
-                log(`[HARDWARE ERROR] ${err.message}`);
-            } finally {
-                isSimulating = false;
+                log(`[Hardware] Fetch error: ${err.message}`);
+                showToast(`Hardware run failed: ${err.message}`, 'error');
             }
-        }
+            isSimulating = false;
+            document.getElementById('statusIndicator').innerText = 'Ready';
+        });
 
-        // ── 2D Dual 5-Bar Linkage Kinematics Canvas Renderer ──────────────────
-        let canvas, ctx;
-        let arm0AngleA = 0.5, arm0AngleB = 0.5;
-        let arm1AngleA = 0.5, arm1AngleB = 0.5;
-
-        function initCanvas() {
-            canvas = document.getElementById('simCanvas');
-            ctx = canvas.getContext('2d');
-            resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
-            drawKinematics();
-
-            document.getElementById('btnRotateBlue').addEventListener('click', () => {
-                arm0AngleA += 0.2; arm0AngleB += 0.2; drawKinematics();
-            });
-            document.getElementById('btnAlignProbes').addEventListener('click', () => {
-                arm0AngleA = 0.8; arm0AngleB = 0.4; arm1AngleA = -0.8; arm1AngleB = -0.4; drawKinematics();
-            });
-            document.getElementById('btnResetArms').addEventListener('click', () => {
-                arm0AngleA = 0.5; arm0AngleB = 0.5; arm1AngleA = 0.5; arm1AngleB = 0.5; drawKinematics();
-            });
-        }
-
+        // 2D Canvas Kinematics Rendering Engine
         function resizeCanvas() {
-            if (!canvas) return;
             canvas.width = canvas.parentElement.clientWidth;
             canvas.height = canvas.parentElement.clientHeight;
-            drawKinematics();
+            drawCanvas(null, null);
         }
+        window.addEventListener('resize', resizeCanvas);
+        setTimeout(resizeCanvas, 100);
 
-        function drawKinematics() {
-            if (!ctx) return;
-            const w = canvas.width, h = canvas.height;
-            ctx.clearRect(0, 0, w, h);
-
-            // Grid background
-            ctx.strokeStyle = '#111827';
-            ctx.lineWidth = 1;
-            for (let x = 0; x < w; x += 20) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
-            for (let y = 0; y < h; y += 20) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
-
-            const centerX = w / 2;
-            const centerY = h / 2;
-
-            // Render PCB Board Outline
-            ctx.fillStyle = '#064e3b';
-            ctx.strokeStyle = '#10b981';
-            ctx.lineWidth = 2;
-            ctx.fillRect(centerX - 100, centerY - 60, 200, 120);
-            ctx.strokeRect(centerX - 100, centerY - 60, 200, 120);
-
-            // ARM 0 (Amber Top Arm)
-            const base0X = centerX - 40, base0Y = centerY - 110;
-            const base1X = centerX + 40, base1Y = centerY - 110;
-
-            const joint0X = base0X + Math.cos(arm0AngleA) * 55, joint0Y = base0Y + Math.sin(arm0AngleA) * 55;
-            const joint1X = base1X + Math.cos(arm0AngleB) * 55, joint1Y = base1Y + Math.sin(arm0AngleB) * 55;
-            const probe0X = (joint0X + joint1X) / 2, probe0Y = (joint0Y + joint1Y) / 2 + 30;
-
-            ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 4;
-            ctx.beginPath(); ctx.moveTo(base0X, base0Y); ctx.lineTo(joint0X, joint0Y); ctx.lineTo(probe0X, probe0Y); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(base1X, base1Y); ctx.lineTo(joint1X, joint1Y); ctx.lineTo(probe0X, probe0Y); ctx.stroke();
-
-            // Probe Tip 0
-            ctx.fillStyle = '#f59e0b';
-            ctx.beginPath(); ctx.arc(probe0X, probe0Y, 6, 0, Math.PI * 2); ctx.fill();
-
-            // ARM 1 (Cyan Bottom Arm)
-            const bbase0X = centerX - 40, bbase0Y = centerY + 110;
-            const bbase1X = centerX + 40, bbase1Y = centerY + 110;
-
-            const bjoint0X = bbase0X + Math.cos(arm1AngleA) * 55, bjoint0Y = bbase0Y - Math.sin(arm1AngleA) * 55;
-            const bjoint1X = bbase1X + Math.cos(arm1AngleB) * 55, bjoint1Y = bbase1Y - Math.sin(arm1AngleB) * 55;
-            const probe1X = (bjoint0X + bjoint1X) / 2, probe1Y = (bjoint0Y + bjoint1Y) / 2 - 30;
-
-            ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 4;
-            ctx.beginPath(); ctx.moveTo(bbase0X, bbase0Y); ctx.lineTo(bjoint0X, bjoint0Y); ctx.lineTo(probe1X, probe1Y); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(bbase1X, bbase1Y); ctx.lineTo(bjoint1X, bjoint1Y); ctx.lineTo(probe1X, probe1Y); ctx.stroke();
-
-            // Probe Tip 1
-            ctx.fillStyle = '#06b6d4';
-            ctx.beginPath(); ctx.arc(probe1X, probe1Y, 6, 0, Math.PI * 2); ctx.fill();
-
-            document.getElementById('arm0Coords').innerText = `(${round(probe0X - centerX)}, ${round(centerY - probe0Y)})`;
-            document.getElementById('arm1Coords').innerText = `(${round(probe1X - centerX)}, ${round(centerY - probe1Y)})`;
-        }
-
-        async function animateProbeSequence(results) {
-            for (let i = 0; i < results.length; i++) {
-                const item = results[i];
-                arm0AngleA = (i % 5) * 0.3 + 0.4;
-                arm0AngleB = (i % 4) * 0.2 + 0.3;
-                arm1AngleA = -(i % 5) * 0.3 - 0.4;
-                arm1AngleB = -(i % 4) * 0.2 - 0.3;
-                drawKinematics();
-
-                const badge = document.getElementById(`tp-badge-${item.test_id}`);
-                if (badge) {
-                    badge.className = item.verdict === 'PASS' ? 'badge-pass' : 'badge-fail';
-                    badge.innerText = `${item.verdict} (${item.measured_voltage}V)`;
-                }
-
-                log(`[Test #${item.test_id}] ${item.net}: ${item.measured_voltage}V -> ${item.verdict}`);
-                await sleep(350);
+        async function animateArmMove(padA, padB) {
+            const steps = 12;  // Smooth 12-frame arm movement animation
+            for (let i = 1; i <= steps; i++) {
+                drawCanvas(padA, padB, i / steps);
+                await new Promise(r => setTimeout(r, 18)); // ~216ms total per move
             }
         }
 
-        function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
-        function round(v) { return Math.round(v * 10) / 10; }
+        // 5-Bar Circle Intersection IK Helper
+        function getCircleIntersection(c1, r1, c2, r2, altSolution = false) {
+            const dx = c2.x - c1.x;
+            const dy = c2.y - c1.y;
+            const d = Math.hypot(dx, dy);
+            if (d > r1 + r2 || d < Math.abs(r1 - r2) || d === 0) {
+                const midX = (c1.x + c2.x) / 2;
+                const midY = (c1.y + c2.y) / 2;
+                return { x: midX, y: midY };
+            }
+            const a = (r1 * r1 - r2 * r2 + d * d) / (2 * d);
+            const h = Math.sqrt(Math.max(0, r1 * r1 - a * a));
+            const x2 = c1.x + (a * dx) / d;
+            const y2 = c1.y + (a * dy) / d;
+            const rx = -dy * (h / d);
+            const ry = dx * (h / d);
+
+            return altSolution ? { x: x2 - rx, y: y2 - ry } : { x: x2 + rx, y: y2 + ry };
+        }
+
+        function drawCanvas(padA, padB, progress = 1.0) {
+            const w = canvas.width;
+            const h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+
+            if (w === 0 || h === 0) return;
+
+            const cx = w / 2;
+            const cy = h / 2;
+            const scale = 2.2;
+
+            const pcbW = 220;
+            const pcbH = 140;
+
+            // Draw Background Grid
+            ctx.strokeStyle = '#111827';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < w; x += 25) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+            }
+            for (let y = 0; y < h; y += 25) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+            }
+
+            // Draw PCB Area Boundary
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 2;
+            ctx.fillStyle = '#0a101d';
+            ctx.fillRect(cx - pcbW / 2, cy - pcbH / 2, pcbW, pcbH);
+            ctx.strokeRect(cx - pcbW / 2, cy - pcbH / 2, pcbW, pcbH);
+
+            // PCB Crosshairs
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(cx - pcbW / 2, cy); ctx.lineTo(cx + pcbW / 2, cy);
+            ctx.moveTo(cx, cy - pcbH / 2); ctx.lineTo(cx, cy + pcbH / 2);
+            ctx.stroke();
+
+            // Draw Datum Jig Centerpoint (0, 57.5)
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Target Coordinates with Anti-Crossing & Anti-Touching Protection
+            let p0 = padA ? { x: padA.x, y: padA.y } : { ...arm0Target };
+            let p1 = padB ? { x: padB.x, y: padB.y } : { ...arm1Target };
+
+            // Anti-Crossing Protection Rule: Arm 0 (Top) MUST remain above Arm 1 (Bottom)
+            if (p0.y > p1.y) {
+                const temp = p0;
+                p0 = p1;
+                p1 = temp;
+            }
+
+            // Anti-Touching & Tip Clearance Protection:
+            // Ensure probe tips, needles, and link bodies of ARM 1 and ARM 2 NEVER touch each other
+            const minDist = 3.5; // 3.5mm safety clearance
+            const currentDist = Math.hypot(p0.x - p1.x, p0.y - p1.y);
+            if (currentDist < minDist) {
+                const nudge = (minDist - currentDist) / 2.0;
+                if (currentDist > 0.001) {
+                    const dx = (p1.x - p0.x) / currentDist;
+                    const dy = (p1.y - p0.y) / currentDist;
+                    p0.x -= dx * nudge;
+                    p0.y -= dy * nudge;
+                    p1.x += dx * nudge;
+                    p1.y += dy * nudge;
+                } else {
+                    p0.x -= 1.8;
+                    p1.x += 1.8;
+                }
+            }
+
+            // Map PCB mm coordinates to canvas pixel coordinates
+            // Probe Head offsets: Arm 0 head is 14px above pad; Arm 1 head is 14px below pad
+            // This ensures probe heads stay 28px (~13mm) apart vertically even for adjacent pads
+            const target0Canvas = {
+                x: cx + p0.x * scale,
+                y: cy + (p0.y - 57.5) * scale - 14
+            };
+
+            const target1Canvas = {
+                x: cx + p1.x * scale,
+                y: cy + (p1.y - 57.5) * scale + 14
+            };
+
+            // Base Motor Positions
+            const arm0BaseY = cy - 110;
+            const arm1BaseY = cy + 110;
+
+            const arm0MotorA = { x: cx - 55 * scale, y: arm0BaseY };
+            const arm0MotorB = { x: cx + 55 * scale, y: arm0BaseY };
+
+            const arm1MotorA = { x: cx - 55 * scale, y: arm1BaseY };
+            const arm1MotorB = { x: cx + 55 * scale, y: arm1BaseY };
+
+            // Draw Arm 0 (Top - Orange) extending DOWN towards PCB
+            draw5BarArm(ctx, arm0MotorA, arm0MotorB, target0Canvas, '#f59e0b', true, 'ARM 0');
+
+            // Draw Arm 1 (Bottom - Cyan/Blue) extending UP towards Orange & PCB
+            draw5BarArm(ctx, arm1MotorA, arm1MotorB, target1Canvas, '#06b6d4', false, 'ARM 1');
+
+            // Update Overlay Text
+            document.getElementById('arm0Coords').innerText = `(${p0.x.toFixed(1)}, ${p0.y.toFixed(1)})`;
+            document.getElementById('arm1Coords').innerText = `(${p1.x.toFixed(1)}, ${p1.y.toFixed(1)})`;
+        }
+
+        function draw5BarArm(ctx, motorA, motorB, probeTip, color, isTopArm, label) {
+            const L1 = 65; // Proximal link length in px
+            const L2 = 95; // Distal link length in px
+
+            // Compute Elbow Joint Positions via Inverse Kinematics
+            // Force outward elbow bending (Left motor bends Left, Right motor bends Right)
+            // so link arms never cross or collide into the center workspace
+            const elbowA = getCircleIntersection(motorA, L1, probeTip, L2, false);
+            const elbowB = getCircleIntersection(motorB, L1, probeTip, L2, true);
+
+            // 1. Draw Base Plate Bar
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 8;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(motorA.x - 15, motorA.y);
+            ctx.lineTo(motorB.x + 15, motorB.y);
+            ctx.stroke();
+
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(motorA.x - 15, motorA.y);
+            ctx.lineTo(motorB.x + 15, motorB.y);
+            ctx.stroke();
+
+            // 2. Draw Links (Motor -> Elbow -> Probe Tip)
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(motorA.x, motorA.y);
+            ctx.lineTo(elbowA.x, elbowA.y);
+            ctx.lineTo(probeTip.x, probeTip.y);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(motorB.x, motorB.y);
+            ctx.lineTo(elbowB.x, elbowB.y);
+            ctx.lineTo(probeTip.x, probeTip.y);
+            ctx.stroke();
+
+            // 3. Draw Motor Pivot Handles
+            [motorA, motorB].forEach(m => {
+                ctx.fillStyle = '#1e293b';
+                ctx.beginPath(); ctx.arc(m.x, m.y, 9, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath(); ctx.arc(m.x, m.y, 4, 0, Math.PI * 2); ctx.fill();
+            });
+
+            // 4. Draw Elbow Joint Handles
+            [elbowA, elbowB].forEach(e => {
+                ctx.fillStyle = '#0f172a';
+                ctx.beginPath(); ctx.arc(e.x, e.y, 6, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+            });
+
+            // 5. Draw Probe Head & Hook Needle
+            ctx.fillStyle = color;
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 10;
+            ctx.beginPath(); ctx.arc(probeTip.x, probeTip.y, 8, 0, Math.PI * 2); ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // Hook Needle pointing towards target center
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(probeTip.x, probeTip.y);
+            const hookOffsetY = isTopArm ? 14 : -14;
+            ctx.lineTo(probeTip.x, probeTip.y + hookOffsetY);
+            ctx.stroke();
+
+            // Probe needle tip point
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath(); ctx.arc(probeTip.x, probeTip.y + hookOffsetY, 2.5, 0, Math.PI * 2); ctx.fill();
+
+            // 6. Draw Flex Handle Ring
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath(); ctx.arc(probeTip.x, probeTip.y, 16, 0, Math.PI * 2); ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // Handle Controls & Interactive Canvas Dragging
+        const btnRotateBlue = document.getElementById('btnRotateBlue');
+        const btnAlignProbes = document.getElementById('btnAlignProbes');
+        const btnResetArms = document.getElementById('btnResetArms');
+
+        if (btnRotateBlue) {
+            btnRotateBlue.addEventListener('click', () => {
+                // Rotate / move blue arm (Arm 1) up toward the orange arm (Arm 0)
+                arm1Target.x = arm0Target.x;
+                arm1Target.y = arm0Target.y + 12;
+                drawCanvas(null, null);
+                log('Rotated & positioned Blue Arm (Arm 1) up toward Orange Arm (Arm 0).');
+            });
+        }
+
+        if (btnAlignProbes) {
+            btnAlignProbes.addEventListener('click', () => {
+                arm0Target = { x: -10, y: 50 };
+                arm1Target = { x: 10, y: 65 };
+                drawCanvas(null, null);
+                log('Aligned probe arms to default center positions.');
+            });
+        }
+
+        if (btnResetArms) {
+            btnResetArms.addEventListener('click', () => {
+                arm0Target = { x: -20, y: 40 };
+                arm1Target = { x: 20, y: 75 };
+                drawCanvas(null, null);
+                log('Reset probe arms to home positions.');
+            });
+        }
+
+        function getCanvasCoords(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        function canvasToPcbCoords(canvasX, canvasY) {
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            const scale = 2.2;
+            return {
+                x: (canvasX - cx) / scale,
+                y: (canvasY - cy) / scale + 57.5
+            };
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            const pt = getCanvasCoords(e);
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            const scale = 2.2;
+
+            const t0Canvas = { x: cx + arm0Target.x * scale, y: cy + (arm0Target.y - 57.5) * scale };
+            const t1Canvas = { x: cx + arm1Target.x * scale, y: cy + (arm1Target.y - 57.5) * scale };
+
+            const d0 = Math.hypot(pt.x - t0Canvas.x, pt.y - t0Canvas.y);
+            const d1 = Math.hypot(pt.x - t1Canvas.x, pt.y - t1Canvas.y);
+
+            if (d0 < 30) {
+                activeDragArm = 0;
+            } else if (d1 < 30) {
+                activeDragArm = 1;
+            } else {
+                activeDragArm = d0 < d1 ? 0 : 1;
+                const pcb = canvasToPcbCoords(pt.x, pt.y);
+                if (activeDragArm === 0) arm0Target = pcb;
+                else arm1Target = pcb;
+                drawCanvas(null, null);
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (activeDragArm !== null) {
+                const pt = getCanvasCoords(e);
+                const pcb = canvasToPcbCoords(pt.x, pt.y);
+                if (activeDragArm === 0) {
+                    arm0Target = pcb;
+                } else {
+                    arm1Target = pcb;
+                }
+                drawCanvas(null, null);
+            }
+        });
+
+        window.addEventListener('mouseup', () => { activeDragArm = null; });
+        canvas.addEventListener('touchstart', (e) => {
+            const pt = getCanvasCoords(e);
+            const pcb = canvasToPcbCoords(pt.x, pt.y);
+            arm1Target = pcb;
+            activeDragArm = 1;
+            drawCanvas(null, null);
+        });
+        canvas.addEventListener('touchmove', (e) => {
+            if (activeDragArm !== null) {
+                const pt = getCanvasCoords(e);
+                arm1Target = canvasToPcbCoords(pt.x, pt.y);
+                drawCanvas(null, null);
+            }
+        });
+        window.addEventListener('touchend', () => { activeDragArm = null; });
     </script>
 </body>
 </html>
