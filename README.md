@@ -11,24 +11,21 @@
 
 ---
 
-## 💾 1-Click Standalone Direct Downloads
+## 💾 Direct 1-Click Standalone Downloads & Releases
 
-Click below to download the application package for your operating system:
+Click below to download the application for your operating system:
 
 <div align="center">
 
-| Operating System | Direct 1-Click Download Link | Format | Instructions |
+| Operating System | Direct 1-Click Download Link | Package Format | Launch Instructions |
 | :---: | :---: | :---: | :--- |
-| 🪟 **Windows** | [⬇ **Download FPTester for Windows (.zip)**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-Windows-1Click.zip) | Portable 1-Click `.zip` (Python Included) | Extract ZIP ➔ Double-click **`FPTester-Launcher.bat`** |
-| 🍎 **macOS** | [⬇ **Download FPTester for macOS**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-macOS) | Standalone Executable | Double-click `FPTester-macOS` |
+| 🪟 **Windows** | [⬇ **Download FPTester-Windows.bat**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-Windows.bat) | **Single-File 1-Click `.bat`** (No Unzipping Required) | Double-click `FPTester-Windows.bat` |
+| 🪟 **Windows (ZIP)** | [⬇ **Download FPTester-Windows-1Click.zip**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-Windows-1Click.zip) | Portable 1-Click `.zip` | Extract ZIP ➔ Double-click `FPTester-Launcher.bat` |
+| 🍎 **macOS** | [⬇ **Download FPTester-macOS**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-macOS) | Standalone Executable | Double-click `FPTester-macOS` |
 
 </div>
 
-> ⚡ **Quick 3-Step Guide for Windows**:
-> 1. Download [**FPTester-Windows-1Click.zip**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-Windows-1Click.zip)
-> 2. Right-click the `.zip` file ➔ Click **"Extract All..."** ➔ Click **"Extract"**
-> 3. Double-click **`FPTester-Launcher.bat`**
-> 4. The server starts and opens **`http://localhost:8000`** in your browser automatically!
+> ⚡ **Windows Single-File 1-Click Option**: Download **`FPTester-Windows.bat`** — it extracts its built-in Python runtime + software in 0.2s and opens `http://localhost:8000` automatically in your web browser!
 
 > 🍎 **macOS Gatekeeper Tip**: If macOS blocks execution on first click, right-click `FPTester-macOS` → select **Open** → click **Open Anyway**.
 
