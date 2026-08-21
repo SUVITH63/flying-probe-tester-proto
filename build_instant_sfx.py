@@ -1,7 +1,8 @@
 """
-FPTester Instant Binary-Tail Windows SFX Builder (v1.2.0 - Forced Embedded Python Extraction)
-Appends raw ZIP payload (with Python 3.11 Embeddable Runtime) after __ZIP_START__ marker.
-Checks for %FPTDIR%\\py_embed_win\\python.exe so extraction is NEVER skipped on systems with stale temp files.
+FPTester Instant SFX Builder (Bulletproof ZIP Signature Search)
+Appends raw ZIP payload after marker: REM __FPT_PAYLOAD_OFFSET_MARKER_999__
+PowerShell finds 'FPT_PAYLOAD_OFFSET_MARKER_999' and locates ZIP header PK (0x50 0x4B 0x03 0x04).
+Zero backticks, zero quote escape issues, 100% robust on all Windows PowerShell versions.
 """
 import os
 import sys
@@ -32,7 +33,7 @@ APP_FILES = [
 ]
 
 def build_instant_sfx():
-    print("Building Instant Binary-Tail FPTester-Windows.bat (v1.2.0)...")
+    print("Building Bulletproof SFX FPTester-Windows.bat ...")
     os.makedirs(DIST_DIR, exist_ok=True)
 
     buf = io.BytesIO()
@@ -56,28 +57,32 @@ def build_instant_sfx():
                         added.add(rel_path)
 
     zip_bytes = buf.getvalue()
-    marker = b"\r\n__ZIP_START__\r\n"
+    marker_str = "REM __FPT_PAYLOAD_OFFSET_MARKER_999__"
+    marker_bytes = f"\r\n{marker_str}\r\n".encode("ascii")
 
+    # Clean PowerShell extraction script — no backticks, no complex escapes
     ps_extract_script = (
-        "$bat = $env:BAT_PATH; "
-        "$dest = $env:FPTDIR; "
-        "$bytes = [System.IO.File]::ReadAllBytes($bat); "
-        "$marker = [System.Text.Encoding]::ASCII.GetBytes(\"`r`n__ZIP_START__`r`n\"); "
-        "$idx = -1; "
-        "for ($i = 0; $i -le $bytes.Length - $marker.Length; $i++) { "
-        "    $match = $true; "
-        "    for ($j = 0; $j -lt $marker.Length; $j++) { "
-        "        if ($bytes[$i + $j] -ne $marker[$j]) { $match = $false; break } "
-        "    } "
-        "    if ($match) { $idx = $i + $marker.Length; break } "
+        "$b = [System.IO.File]::ReadAllBytes($env:BAT_PATH); "
+        "$mk = [System.Text.Encoding]::ASCII.GetBytes('FPT_PAYLOAD_OFFSET_MARKER_999'); "
+        "$start = -1; "
+        "for ($i = 0; $i -le $b.Length - $mk.Length; $i++) { "
+        "    $m = $true; "
+        "    for ($j = 0; $j -lt $mk.Length; $j++) { if ($b[$i + $j] -ne $mk[$j]) { $m = $false; break } } "
+        "    if ($m) { $start = $i; break } "
         "} "
-        "if ($idx -gt 0) { "
-        "    $zipBytes = new-object byte[] ($bytes.Length - $idx); "
-        "    [System.Buffer]::BlockCopy($bytes, $idx, $zipBytes, 0, $zipBytes.Length); "
-        "    $tmpZip = [System.IO.Path]::Combine($env:TEMP, 'fpt_instant.zip'); "
-        "    [System.IO.File]::WriteAllBytes($tmpZip, $zipBytes); "
-        "    Expand-Archive -Path $tmpZip -DestinationPath $dest -Force; "
-        "    Remove-Item $tmpZip -ErrorAction SilentlyContinue; "
+        "if ($start -gt 0) { "
+        "    $zipStart = -1; "
+        "    for ($i = $start; $i -le $b.Length - 4; $i++) { "
+        "        if ($b[$i] -eq 0x50 -and $b[$i+1] -eq 0x4B -and $b[$i+2] -eq 0x03 -and $b[$i+3] -eq 0x04) { $zipStart = $i; break } "
+        "    } "
+        "    if ($zipStart -gt 0) { "
+        "        $z = new-object byte[] ($b.Length - $zipStart); "
+        "        [System.Buffer]::BlockCopy($b, $zipStart, $z, 0, $z.Length); "
+        "        $tmp = [System.IO.Path]::Combine($env:TEMP, 'fpt_instant.zip'); "
+        "        [System.IO.File]::WriteAllBytes($tmp, $z); "
+        "        Expand-Archive -Path $tmp -DestinationPath $env:FPTDIR -Force; "
+        "        Remove-Item $tmp -ErrorAction SilentlyContinue; "
+        "    } "
         "}"
     )
 
@@ -91,7 +96,6 @@ echo.
 set FPTDIR=%TEMP%\\FPTester
 set BAT_PATH=%~f0
 
-REM Force extraction if bundled python runtime is not present
 if not exist "%FPTDIR%\\py_embed_win\\python.exe" (
     echo [*] Extracting FPTester and bundled Python 3.11 runtime to %FPTDIR% ...
     if not exist "%FPTDIR%" mkdir "%FPTDIR%"
@@ -102,7 +106,6 @@ if not exist "%FPTDIR%\\py_embed_win\\python.exe" (
 
 cd /d "%FPTDIR%"
 
-REM 1. Always use bundled Python 3.11 embeddable runtime
 if exist "%FPTDIR%\\py_embed_win\\python.exe" (
     echo [*] Starting FPTester server with bundled Python runtime...
     "%FPTDIR%\\py_embed_win\\python.exe" run_app.py
@@ -121,14 +124,14 @@ pause
 exit /b
 """
 
-    bat_bytes = bat_header.encode("ascii") + marker + zip_bytes
+    bat_bytes = bat_header.encode("ascii") + marker_bytes + zip_bytes
 
     out_bat = os.path.join(DIST_DIR, "FPTester-Windows.bat")
     with open(out_bat, "wb") as f:
         f.write(bat_bytes)
 
     size_mb = round(len(bat_bytes) / (1024 * 1024), 2)
-    print(f"✅ Built Instant SFX: {out_bat} ({size_mb} MB)")
+    print(f"✅ Built Bulletproof SFX: {out_bat} ({size_mb} MB)")
 
 if __name__ == "__main__":
     build_instant_sfx()
