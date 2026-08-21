@@ -128,10 +128,7 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
         content_length = int(self.headers.get('Content-Length', 0))
         post_data = self.rfile.read(content_length) if content_length > 0 else b""
 
-        # ------------------------------------------------------------------ #
-        #  Hardware Connection Endpoints                                        #
-        # ------------------------------------------------------------------ #
-
+        # Hardware Connection Endpoints
         if url_path == "/api/connect":
             try:
                 payload = json.loads(post_data.decode('utf-8')) if post_data else {}
@@ -141,7 +138,6 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
             port = payload.get("port", "SIMULATED_COM1")
             baudrate = int(payload.get("baudrate", 115200))
 
-            # Look up device_type from port list
             device_type = "Simulation"
             for p in SerialDispatcher.list_available_ports():
                 if p["port"] == port:
@@ -149,7 +145,6 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                     break
 
             with _hw_lock:
-                # Disconnect any existing connection first
                 if _hw_dispatcher and _hw_dispatcher.is_connected:
                     _hw_dispatcher.disconnect()
 
@@ -186,28 +181,22 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
             logger.info("Hardware disconnected by user request.")
             self._send_json({"status": "disconnected"})
 
-        # ------------------------------------------------------------------ #
-        #  PCB Upload                                                           #
-        # ------------------------------------------------------------------ #
-
+        # PCB Upload
         elif url_path.startswith("/api/upload"):
             content_str = post_data.decode('utf-8', errors='ignore')
             session_id = str(uuid.uuid4())[:8]
 
-            # Extract filename from query params
             filename = "uploaded_design.kicad_pcb"
             query = urllib.parse.urlparse(self.path).query
             query_params = urllib.parse.parse_qs(query)
             if 'filename' in query_params:
                 filename = query_params['filename'][0]
 
-            # Strip multipart form-data boundary headers if present
             if '\r\n\r\n' in content_str:
                 content_str = content_str.split('\r\n\r\n', 1)[-1]
             if '\n\n' in content_str and content_str.startswith('--'):
                 content_str = content_str.split('\n\n', 1)[-1]
 
-            # Extract S-expression content if embedded in multipart noise
             if '(kicad_pcb' in content_str:
                 start_idx = content_str.find('(kicad_pcb')
                 end_idx = content_str.rfind(')')
@@ -215,7 +204,6 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                     content_str = content_str[start_idx:end_idx + 1]
 
             fname_lower = filename.lower().strip()
-            # Determine file type from extension and content signature
             is_kicad = (fname_lower.endswith('.kicad_pcb') or
                         fname_lower.endswith('.kicad') or
                         '(kicad_pcb' in content_str[:200])
@@ -236,7 +224,7 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                 if is_kicad:
                     try:
                         board = _kicad_parser.parse_string(content_str, board_name=filename)
-                    except Exception as kicad_err:
+                    except Exception:
                         board = _gerber_parser.parse_string(content_str, board_name=filename)
                 elif is_gerber:
                     try:
@@ -244,7 +232,6 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                     except Exception:
                         board = _kicad_parser.parse_string(content_str, board_name=filename)
                 else:
-                    # Auto-detect: try KiCad first then Gerber
                     try:
                         board = _kicad_parser.parse_string(content_str, board_name=filename)
                     except Exception:
@@ -270,10 +257,7 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                 logger.error(f"Error parsing PCB file '{filename}': {e}")
                 self._send_json({"status": "error", "message": f"Failed to parse PCB file: {str(e)}"}, 400)
 
-        # ------------------------------------------------------------------ #
-        #  AI Test Plan Generation                                              #
-        # ------------------------------------------------------------------ #
-
+        # AI Test Plan Generation
         elif url_path.startswith("/api/generate-plan/"):
             board_id = url_path.split("/")[-1]
             if board_id not in BOARD_SESSIONS:
@@ -283,7 +267,6 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
             session = BOARD_SESSIONS[board_id]
             board = session["board"]
 
-            # Parse optional AI configuration parameters
             provider = "ollama"
             api_key = None
             custom_url = None
@@ -298,8 +281,6 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
 
             planner = AITestPlanner(provider=provider, api_key=api_key, custom_url=custom_url)
             job = planner.generate_plan(board, job_id=101)
-            # NOTE: workspace reachability is already validated inside the LLM planner
-            # for each pair at creation time, so no second pass needed here.
             session["test_job"] = job
 
             self._send_json({
@@ -311,10 +292,7 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                 "test_plan": job.to_dict()
             })
 
-        # ------------------------------------------------------------------ #
-        #  Laptop Simulation Run                                                #
-        # ------------------------------------------------------------------ #
-
+        # Laptop Simulation Run
         elif url_path.startswith("/api/simulate-run/"):
             board_id = url_path.split("/")[-1]
             if board_id not in BOARD_SESSIONS:
@@ -358,10 +336,7 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                 "results": results
             })
 
-        # ------------------------------------------------------------------ #
-        #  Real Hardware Run (ESP32 / Arduino)                                  #
-        # ------------------------------------------------------------------ #
-
+        # Real Hardware Run (ESP32 / Arduino)
         elif url_path.startswith("/api/hardware-run/"):
             board_id = url_path.split("/")[-1]
             if board_id not in BOARD_SESSIONS:
@@ -454,10 +429,30 @@ class ReusableHTTPServer(ThreadedHTTPServer):
 
 def run_server(port: int = 8000):
     start_background_ai_engine()
-    server_address = ('', port)
-    httpd = ReusableHTTPServer(server_address, FPTesterHTTPRequestHandler)
-    logger.info(f"FPTester Production Server running at http://localhost:{port} (multi-threaded)")
-    httpd.serve_forever()
+    
+    # Try port 8000, 8001, 8002, 8080 if primary port is busy
+    candidate_ports = [port] + [p for p in [8001, 8002, 8080, 8888] if p != port]
+    httpd = None
+    bound_port = port
+
+    for p in candidate_ports:
+        try:
+            server_address = ('', p)
+            httpd = ReusableHTTPServer(server_address, FPTesterHTTPRequestHandler)
+            bound_port = p
+            break
+        except OSError as e:
+            logger.warning(f"Port {p} is currently busy ({e}), trying next candidate port...")
+
+    if not httpd:
+        # Fallback to operating system auto-assigned free port
+        server_address = ('', 0)
+        httpd = ReusableHTTPServer(server_address, FPTesterHTTPRequestHandler)
+        bound_port = httpd.socket.getsockname()[1]
+
+    logger.info(f"FPTester Production Server running at http://localhost:{bound_port} (multi-threaded)")
+    return httpd, bound_port
 
 if __name__ == "__main__":
-    run_server(8000)
+    httpd, p = run_server(8000)
+    httpd.serve_forever()

@@ -9,14 +9,16 @@ set TARGET_DIR=%~dp0
 if "%TARGET_DIR:~-1%"=="\" set TARGET_DIR=%TARGET_DIR:~0,-1%
 if not exist "%TARGET_DIR%\run_app.py" set TARGET_DIR=%TEMP%\FPTester
 
-REM ── Trigger background browser opener (waits 2s for server, then opens default browser) ──
-start /B cmd /c "timeout /t 2 >nul & start "" http://localhost:8000"
-
 REM ── Check System Python & Launch Server ───────────────────────────────────
 where py >nul 2>nul
 if %errorlevel%==0 (
     echo [*] Starting FPTester server with py...
     py "%TARGET_DIR%\run_app.py"
+    if %errorlevel% neq 0 (
+        echo.
+        echo [ERROR] FPTester server exited with error code %errorlevel%.
+        pause
+    )
     goto end
 )
 
@@ -24,6 +26,11 @@ where python >nul 2>nul
 if %errorlevel%==0 (
     echo [*] Starting FPTester server with python...
     python "%TARGET_DIR%\run_app.py"
+    if %errorlevel% neq 0 (
+        echo.
+        echo [ERROR] FPTester server exited with error code %errorlevel%.
+        pause
+    )
     goto end
 )
 
@@ -31,6 +38,11 @@ where python3 >nul 2>nul
 if %errorlevel%==0 (
     echo [*] Starting FPTester server with python3...
     python3 "%TARGET_DIR%\run_app.py"
+    if %errorlevel% neq 0 (
+        echo.
+        echo [ERROR] FPTester server exited with error code %errorlevel%.
+        pause
+    )
     goto end
 )
 
@@ -63,6 +75,11 @@ if not exist "%PORTABLE_PY%\python.exe" (
 if exist "%PORTABLE_PY%\python.exe" (
     echo [*] Starting FPTester server with Portable Python...
     "%PORTABLE_PY%\python.exe" "%TARGET_DIR%\run_app.py"
+    if %errorlevel% neq 0 (
+        echo.
+        echo [ERROR] FPTester server exited with error code %errorlevel%.
+        pause
+    )
     goto end
 )
 

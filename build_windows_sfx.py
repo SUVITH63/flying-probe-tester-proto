@@ -1,9 +1,10 @@
 """
-FPTester Windows Self-Extracting Launcher Builder (Auto-Bootstrapping Python & Native Browser Trigger)
+FPTester Windows Self-Extracting Launcher Builder (Auto-Bootstrapping Python & Force Clean Extract)
 Creates a standalone FPTester-Windows.bat that:
- - Decodes embedded ZIP payload via certutil to %TEMP%/FPTester
- - Uses background delayed Windows OS shell command to open default browser at http://localhost:8000
- - Checks for system Python; if missing, auto-downloads Portable Python 3.11 in 3 seconds
+ - Decodes embedded ZIP payload via certutil to %TEMP%/FPTester (force overwrites stale files)
+ - Starts server on dynamic free port (8000/8001/8002/8080)
+ - Opens browser ONLY when socket connection succeeds
+ - Pauses on error so window never closes silently
  - Requires ZERO user setup, NO manual Python installation, and NO admin rights!
 """
 import os
@@ -32,7 +33,7 @@ INCLUDE = [
 ]
 
 def build_sfx_bat():
-    print("Building FPTester Windows Self-Extracting .bat (Native OS Browser Trigger)...")
+    print("Building FPTester Windows Self-Extracting .bat (Clean-Extract & Dynamic Port)...")
 
     buf = io.BytesIO()
     added_files = set()
@@ -71,11 +72,10 @@ def build_sfx_bat():
         "set ZIPFILE=%TEMP%\\fpt_payload.zip",
         "set PORTABLE_PY=%TEMP%\\FPTester_Python",
         "",
-        "if not exist \"%FPTDIR%\\run_app.py\" (",
-        "    echo [*] First run: extracting FPTester to %FPTDIR% ...",
-        "    if not exist \"%FPTDIR%\" mkdir \"%FPTDIR%\"",
-        "    if exist \"%B64FILE%\" del /f /q \"%B64FILE%\"",
-        "    echo -----BEGIN CERTIFICATE----- >> \"%B64FILE%\"",
+        "echo [*] Initializing FPTester files in %FPTDIR% ...",
+        "if not exist \"%FPTDIR%\" mkdir \"%FPTDIR%\"",
+        "if exist \"%B64FILE%\" del /f /q \"%B64FILE%\"",
+        "echo -----BEGIN CERTIFICATE----- >> \"%B64FILE%\"",
     ]
 
     for line in b64_lines:
@@ -87,18 +87,19 @@ def build_sfx_bat():
         "    powershell -NoProfile -Command \"Expand-Archive -Path '%ZIPFILE%' -DestinationPath '%FPTDIR%' -Force\"",
         "    if exist \"%B64FILE%\" del /f /q \"%B64FILE%\"",
         "    if exist \"%ZIPFILE%\" del /f /q \"%ZIPFILE%\"",
-        "    echo [*] Extraction complete.",
+        "    echo [*] File extraction complete.",
         "    echo.",
-        ")",
-        "",
-        "REM ── Trigger background browser opener (waits 2s for server, then opens default browser) ──",
-        "start /B cmd /c \"timeout /t 2 >nul & start \"\" http://localhost:8000\"",
         "",
         "REM ── System Python Check ─────────────────────────────────────────────",
         "where py >nul 2>nul",
         "if %errorlevel%==0 (",
         "    echo [*] Starting FPTester server with py...",
         "    py \"%FPTDIR%\\run_app.py\"",
+        "    if %errorlevel% neq 0 (",
+        "        echo.",
+        "        echo [ERROR] FPTester server exited with error code %errorlevel%.",
+        "        pause",
+        "    )",
         "    goto end",
         ")",
         "",
@@ -106,6 +107,11 @@ def build_sfx_bat():
         "if %errorlevel%==0 (",
         "    echo [*] Starting FPTester server with python...",
         "    python \"%FPTDIR%\\run_app.py\"",
+        "    if %errorlevel% neq 0 (",
+        "        echo.",
+        "        echo [ERROR] FPTester server exited with error code %errorlevel%.",
+        "        pause",
+        "    )",
         "    goto end",
         ")",
         "",
@@ -113,6 +119,11 @@ def build_sfx_bat():
         "if %errorlevel%==0 (",
         "    echo [*] Starting FPTester server with python3...",
         "    python3 \"%FPTDIR%\\run_app.py\"",
+        "    if %errorlevel% neq 0 (",
+        "        echo.",
+        "        echo [ERROR] FPTester server exited with error code %errorlevel%.",
+        "        pause",
+        "    )",
         "    goto end",
         ")",
         "",
@@ -143,6 +154,11 @@ def build_sfx_bat():
         "if exist \"%PORTABLE_PY%\\python.exe\" (",
         "    echo [*] Starting FPTester server with Portable Python...",
         "    \"%PORTABLE_PY%\\python.exe\" \"%FPTDIR%\\run_app.py\"",
+        "    if %errorlevel% neq 0 (",
+        "        echo.",
+        "        echo [ERROR] FPTester server exited with error code %errorlevel%.",
+        "        pause",
+        "    )",
         "    goto end",
         ")",
         "",
