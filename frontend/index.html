@@ -636,9 +636,7 @@
                     ports.forEach(p => {
                         const opt = document.createElement('option');
                         opt.value = p.port;
-                        const typeLabel = p.device_type ? ` [${p.device_type}]` : '';
-                        const descLabel = p.description && p.description !== p.port ? ` - ${p.description}` : '';
-                        opt.textContent = `${p.port}${descLabel}${typeLabel}`;
+                        opt.textContent = p.device_manager_name || `${p.port} - ${p.description}`;
                         select.appendChild(opt);
                     });
 

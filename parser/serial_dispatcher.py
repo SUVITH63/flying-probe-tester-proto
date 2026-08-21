@@ -1,8 +1,7 @@
 """
 FPTester USB Serial Dispatcher
 Scans Windows Device Manager & PySerial to discover ALL COM ports on the laptop.
-Supports manual port selection from pulldown dropdown, auto-identification of ESP32 and Arduino boards,
-and direct serial communication.
+Preserves exact Windows Device Manager naming (e.g. "Arduino Uno (COM18)") and numerical sorting.
 """
 import os
 import sys
@@ -53,7 +52,7 @@ def identify_device_type(hwid: str, description: str = "", port_name: str = "") 
 def scan_windows_device_manager() -> List[Dict[str, str]]:
     """
     Queries Windows Device Manager directly via PowerShell PnP Entity scan.
-    Guarantees that ALL COM ports visible in Windows Device Manager are discovered.
+    Returns exact Device Manager names (e.g. 'Arduino Uno (COM18)') and COM numbers.
     """
     dev_ports = []
     if sys.platform != "win32":
@@ -72,15 +71,19 @@ def scan_windows_device_manager() -> List[Dict[str, str]]:
             if isinstance(data, dict):
                 data = [data]
             for item in data:
-                name = item.get("Name", "")
+                name = item.get("Name", "")  # e.g. "Arduino Uno (COM18)"
                 desc = item.get("Description", "") or name
                 hwid = item.get("DeviceID", "")
                 if "(COM" in name:
                     try:
-                        com_name = "COM" + name.split("(COM")[1].split(")")[0]
+                        com_num_str = name.split("(COM")[1].split(")")[0]
+                        com_number = int(com_num_str)
+                        com_name = f"COM{com_number}"
                         dev_ports.append({
                             "port": com_name,
-                            "description": desc if desc else name,
+                            "com_number": com_number,
+                            "device_manager_name": name,
+                            "description": desc,
                             "hwid": hwid
                         })
                     except Exception:
@@ -101,8 +104,8 @@ class SerialDispatcher:
     @staticmethod
     def list_available_ports() -> List[Dict[str, str]]:
         """
-        Scans laptop serial ports using both PySerial and Windows Device Manager.
-        Returns ALL discovered COM ports without filtering any port out.
+        Scans laptop serial ports using PySerial and Windows Device Manager.
+        Preserves exact Device Manager naming and numerical COM port ordering.
         """
         found_map: Dict[str, Dict[str, str]] = {}
 
@@ -114,8 +117,11 @@ class SerialDispatcher:
                     desc = p.description or port_name
                     hwid = p.hwid or ""
                     dev_type = identify_device_type(hwid, desc, port_name)
+                    com_num = int(port_name[3:]) if port_name.startswith("COM") and port_name[3:].isdigit() else 999
                     found_map[port_name] = {
                         "port": port_name,
+                        "com_number": com_num,
+                        "device_manager_name": desc if "(" in desc else f"{desc} ({port_name})",
                         "description": desc,
                         "device_type": dev_type,
                         "hwid": hwid,
@@ -124,32 +130,29 @@ class SerialDispatcher:
             except Exception as e:
                 logger.warning(f"PySerial port scan error: {e}")
 
-        # 2. Direct Windows Device Manager PnP Scan
+        # 2. Direct Windows Device Manager PnP Scan (Overrides with exact Device Manager strings)
         dm_ports = scan_windows_device_manager()
         for dp in dm_ports:
             port_name = dp["port"]
+            dm_name = dp["device_manager_name"]
             desc = dp["description"]
             hwid = dp["hwid"]
-            if port_name not in found_map:
-                dev_type = identify_device_type(hwid, desc, port_name)
-                found_map[port_name] = {
-                    "port": port_name,
-                    "description": desc,
-                    "device_type": dev_type,
-                    "hwid": hwid,
-                    "is_target_hardware": True
-                }
-            else:
-                # Merge richer description from Device Manager if available
-                if desc and len(desc) > len(found_map[port_name]["description"]):
-                    found_map[port_name]["description"] = desc
+            com_num = dp["com_number"]
+            dev_type = identify_device_type(hwid, dm_name, port_name)
 
-        # Sort ports naturally (COM1, COM2, COM3, COM4, ...)
+            found_map[port_name] = {
+                "port": port_name,
+                "com_number": com_num,
+                "device_manager_name": dm_name,
+                "description": desc,
+                "device_type": dev_type,
+                "hwid": hwid,
+                "is_target_hardware": True
+            }
+
+        # Sort strictly by numerical COM number (COM1, COM2, COM3 ... COM18)
         def port_sort_key(item):
-            name = item["port"]
-            if name.startswith("COM") and name[3:].isdigit():
-                return (0, int(name[3:]))
-            return (1, name)
+            return item.get("com_number", 999)
 
         sorted_ports = sorted(list(found_map.values()), key=port_sort_key)
         return sorted_ports
