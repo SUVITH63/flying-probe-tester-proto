@@ -2,7 +2,7 @@
 FPTester Production Web & REST API Server (Synced with Major_proect_server_host)
 Runs natively on any laptop without requiring external pip packages.
 Provides endpoints for PCB file uploading, AI test plan generation, 2D dual-arm laptop simulation,
-and ESP32 / Arduino USB hardware dispatch.
+ESP32 / Arduino USB hardware dispatch, and Serial Monitor log stream.
 """
 import os
 import sys
@@ -14,7 +14,6 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from socketserver import ThreadingMixIn
 import logging
 
-# Ensure parser modules are accessible
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
 from parser.kicad_parser import KiCadPCBParser
@@ -26,23 +25,19 @@ from parser.serial_dispatcher import SerialDispatcher
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("FPTester_HTTP_Server")
 
-# In-Memory Session Store (thread-safe writes via lock)
 BOARD_SESSIONS: dict = {}
 _sessions_lock = threading.Lock()
 
-# Global active hardware connection (thread-safe)
 _hw_dispatcher: SerialDispatcher = None
 _hw_port: str = None
 _hw_device_type: str = None
 _hw_lock = threading.Lock()
 
-# Pre-warm parsers at import time so the very first upload request is instant
 _kicad_parser = KiCadPCBParser()
 _gerber_parser = GerberParser()
 logger.info("Parser engines pre-warmed and ready.")
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
-    """Multi-threaded HTTP server — each request runs in its own thread."""
     daemon_threads = True
 
 
@@ -84,7 +79,7 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                 self._send_html("<h1>FPTester Server Online</h1><p>Frontend index.html not found.</p>")
 
         elif url_path == "/api/health":
-            self._send_json({"status": "online", "system": "FPTester HTTP Server", "version": "2.1.0"})
+            self._send_json({"status": "online", "system": "FPTester HTTP Server", "version": "2.2.0"})
 
         elif url_path == "/api/ports":
             ports = SerialDispatcher.list_available_ports()
@@ -102,6 +97,13 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                     })
                 else:
                     self._send_json({"connected": False, "port": None, "device_type": None})
+
+        elif url_path == "/api/serial-log":
+            with _hw_lock:
+                if _hw_dispatcher:
+                    self._send_json({"logs": _hw_dispatcher.logs})
+                else:
+                    self._send_json({"logs": []})
 
         elif url_path.startswith("/api/board/"):
             board_id = url_path.split("/")[-1]
@@ -128,7 +130,6 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
         content_length = int(self.headers.get('Content-Length', 0))
         post_data = self.rfile.read(content_length) if content_length > 0 else b""
 
-        # Hardware Connection Endpoints
         if url_path == "/api/connect":
             try:
                 payload = json.loads(post_data.decode('utf-8')) if post_data else {}
@@ -181,7 +182,19 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
             logger.info("Hardware disconnected by user request.")
             self._send_json({"status": "disconnected"})
 
-        # PCB Upload
+        elif url_path == "/api/serial-send":
+            try:
+                payload = json.loads(post_data.decode('utf-8')) if post_data else {}
+            except Exception:
+                payload = {}
+            cmd_text = payload.get("command", "")
+            with _hw_lock:
+                if _hw_dispatcher and _hw_dispatcher.is_connected:
+                    resp = _hw_dispatcher.send_raw_command(cmd_text)
+                    self._send_json({"status": "ok", "response": resp, "logs": _hw_dispatcher.logs})
+                else:
+                    self._send_json({"status": "error", "message": "No serial connection active."}, 400)
+
         elif url_path.startswith("/api/upload"):
             content_str = post_data.decode('utf-8', errors='ignore')
             session_id = str(uuid.uuid4())[:8]
@@ -257,7 +270,6 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                 logger.error(f"Error parsing PCB file '{filename}': {e}")
                 self._send_json({"status": "error", "message": f"Failed to parse PCB file: {str(e)}"}, 400)
 
-        # AI Test Plan Generation
         elif url_path.startswith("/api/generate-plan/"):
             board_id = url_path.split("/")[-1]
             if board_id not in BOARD_SESSIONS:
@@ -292,7 +304,6 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                 "test_plan": job.to_dict()
             })
 
-        # Laptop Simulation Run
         elif url_path.startswith("/api/simulate-run/"):
             board_id = url_path.split("/")[-1]
             if board_id not in BOARD_SESSIONS:
@@ -336,7 +347,6 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                 "results": results
             })
 
-        # Real Hardware Run (ESP32 / Arduino)
         elif url_path.startswith("/api/hardware-run/"):
             board_id = url_path.split("/")[-1]
             if board_id not in BOARD_SESSIONS:
@@ -424,13 +434,10 @@ def start_background_ai_engine():
     t.start()
 
 class ReusableHTTPServer(ThreadedHTTPServer):
-    """Threaded, reuse-address HTTP server for FPTester."""
     allow_reuse_address = True
 
 def run_server(port: int = 8000):
     start_background_ai_engine()
-    
-    # Try port 8000, 8001, 8002, 8080 if primary port is busy
     candidate_ports = [port] + [p for p in [8001, 8002, 8080, 8888] if p != port]
     httpd = None
     bound_port = port
@@ -445,7 +452,6 @@ def run_server(port: int = 8000):
             logger.warning(f"Port {p} is currently busy ({e}), trying next candidate port...")
 
     if not httpd:
-        # Fallback to operating system auto-assigned free port
         server_address = ('', 0)
         httpd = ReusableHTTPServer(server_address, FPTesterHTTPRequestHandler)
         bound_port = httpd.socket.getsockname()[1]
