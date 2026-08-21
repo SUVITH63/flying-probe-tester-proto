@@ -1,7 +1,7 @@
 """
-FPTester Instant Binary-Tail Windows SFX Builder
-Appends raw ZIP payload directly after __ZIP_START__ marker at end of .bat script.
-Extracts in 0.2 seconds via PowerShell without slow echo statements!
+FPTester Instant Binary-Tail Windows SFX Builder (v1.2.0 - Forced Embedded Python Extraction)
+Appends raw ZIP payload (with Python 3.11 Embeddable Runtime) after __ZIP_START__ marker.
+Checks for %FPTDIR%\\py_embed_win\\python.exe so extraction is NEVER skipped on systems with stale temp files.
 """
 import os
 import sys
@@ -32,10 +32,9 @@ APP_FILES = [
 ]
 
 def build_instant_sfx():
-    print("Building Instant Binary-Tail FPTester-Windows.bat...")
+    print("Building Instant Binary-Tail FPTester-Windows.bat (v1.2.0)...")
     os.makedirs(DIST_DIR, exist_ok=True)
 
-    # 1. Build in-memory ZIP of app + bundled python
     buf = io.BytesIO()
     added = set()
     with zipfile.ZipFile(buf, 'w', zipfile.ZIP_DEFLATED) as zf:
@@ -57,10 +56,8 @@ def build_instant_sfx():
                         added.add(rel_path)
 
     zip_bytes = buf.getvalue()
-
     marker = b"\r\n__ZIP_START__\r\n"
 
-    # PowerShell extraction script embedded in batch header
     ps_extract_script = (
         "$bat = $env:BAT_PATH; "
         "$dest = $env:FPTDIR; "
@@ -94,8 +91,9 @@ echo.
 set FPTDIR=%TEMP%\\FPTester
 set BAT_PATH=%~f0
 
-if not exist "%FPTDIR%\\run_app.py" (
-    echo [*] First run: extracting FPTester & Python runtime to %FPTDIR% ...
+REM Force extraction if bundled python runtime is not present
+if not exist "%FPTDIR%\\py_embed_win\\python.exe" (
+    echo [*] Extracting FPTester and bundled Python 3.11 runtime to %FPTDIR% ...
     if not exist "%FPTDIR%" mkdir "%FPTDIR%"
     powershell -NoProfile -ExecutionPolicy Bypass -Command "{ps_extract_script}"
     echo [*] Extraction complete!
@@ -104,6 +102,7 @@ if not exist "%FPTDIR%\\run_app.py" (
 
 cd /d "%FPTDIR%"
 
+REM 1. Always use bundled Python 3.11 embeddable runtime
 if exist "%FPTDIR%\\py_embed_win\\python.exe" (
     echo [*] Starting FPTester server with bundled Python runtime...
     "%FPTDIR%\\py_embed_win\\python.exe" run_app.py
@@ -114,21 +113,7 @@ if exist "%FPTDIR%\\py_embed_win\\python.exe" (
     goto end
 )
 
-where py >nul 2>nul
-if %errorlevel%==0 (
-    echo [*] Starting FPTester server with system py...
-    py run_app.py
-    goto end
-)
-
-where python >nul 2>nul
-if %errorlevel%==0 (
-    echo [*] Starting FPTester server with system python...
-    python run_app.py
-    goto end
-)
-
-echo [ERROR] Python environment not found in %FPTDIR%.
+echo [ERROR] Could not find bundled Python runtime in %FPTDIR%\\py_embed_win.
 pause
 
 :end
@@ -144,7 +129,6 @@ exit /b
 
     size_mb = round(len(bat_bytes) / (1024 * 1024), 2)
     print(f"✅ Built Instant SFX: {out_bat} ({size_mb} MB)")
-    print("Extracts in 0.2 seconds via native PowerShell byte array indexing!")
 
 if __name__ == "__main__":
     build_instant_sfx()
