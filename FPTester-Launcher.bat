@@ -28,46 +28,57 @@ if not exist "run_app.py" (
     exit /b
 )
 
-REM Check System Python and Launch Server
+REM 1. Check System 'py' launcher
 where py >nul 2>nul
 if %errorlevel%==0 (
-    echo [*] Starting FPTester server with py...
-    py run_app.py
-    if %errorlevel% neq 0 (
-        echo.
-        echo [ERROR] FPTester server exited with error code %errorlevel%.
-        pause
+    py -c "import sys" >nul 2>nul
+    if %errorlevel%==0 (
+        echo [*] Starting FPTester server with py...
+        py run_app.py
+        if %errorlevel% neq 0 (
+            echo.
+            echo [ERROR] FPTester server exited with error code %errorlevel%.
+            pause
+        )
+        goto end
     )
-    goto end
 )
 
+REM 2. Check System 'python' (and verify it is not Microsoft Store stub)
 where python >nul 2>nul
 if %errorlevel%==0 (
-    echo [*] Starting FPTester server with python...
-    python run_app.py
-    if %errorlevel% neq 0 (
-        echo.
-        echo [ERROR] FPTester server exited with error code %errorlevel%.
-        pause
+    python -c "import sys" >nul 2>nul
+    if %errorlevel%==0 (
+        echo [*] Starting FPTester server with python...
+        python run_app.py
+        if %errorlevel% neq 0 (
+            echo.
+            echo [ERROR] FPTester server exited with error code %errorlevel%.
+            pause
+        )
+        goto end
     )
-    goto end
 )
 
+REM 3. Check System 'python3'
 where python3 >nul 2>nul
 if %errorlevel%==0 (
-    echo [*] Starting FPTester server with python3...
-    python3 run_app.py
-    if %errorlevel% neq 0 (
-        echo.
-        echo [ERROR] FPTester server exited with error code %errorlevel%.
-        pause
+    python3 -c "import sys" >nul 2>nul
+    if %errorlevel%==0 (
+        echo [*] Starting FPTester server with python3...
+        python3 run_app.py
+        if %errorlevel% neq 0 (
+            echo.
+            echo [ERROR] FPTester server exited with error code %errorlevel%.
+            pause
+        )
+        goto end
     )
-    goto end
 )
 
-REM No Python Found: Auto-Download Portable Python Runtime
-echo [*] Python not detected on your system.
-echo [*] Automatically downloading Portable Python Runtime (10MB, no install required)...
+REM 4. No Working Python Found: Auto-Download Portable Python Runtime
+echo [*] System Python not found.
+echo [*] Automatically setting up Portable Python Runtime (10MB, no install required)...
 echo.
 
 set PORTABLE_PY=%TEMP%\FPTester_Python

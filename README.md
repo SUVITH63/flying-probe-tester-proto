@@ -11,29 +11,26 @@
 
 ---
 
-## 💾 1-Click Standalone Downloads & Releases
+## 💾 1-Click Standalone Direct Downloads
 
 Click below to download the application package for your operating system:
 
 <div align="center">
 
-| Operating System | Direct 1-Click Download Link | Package Format | Launch Instructions |
+| Operating System | Direct 1-Click Download Link | Format | Instructions |
 | :---: | :---: | :---: | :--- |
-| 🪟 **Windows** | [⬇ **Download FPTester for Windows (.zip)**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-Windows-1Click.zip) | Portable 1-Click `.zip` | Extract ZIP → Double-click **`FPTester-Launcher.bat`** (or `start_windows.bat`) |
-| 🪟 **Windows (Alt)** | [⬇ **Download FPTester-Windows.bat**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-Windows.bat) | Direct `.bat` File | Double-click `FPTester-Windows.bat` |
+| 🪟 **Windows** | [⬇ **Download FPTester for Windows (.zip)**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-Windows-1Click.zip) | Portable 1-Click `.zip` (Python Included) | Extract ZIP ➔ Double-click **`FPTester-Launcher.bat`** |
 | 🍎 **macOS** | [⬇ **Download FPTester for macOS**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-macOS) | Standalone Executable | Double-click `FPTester-macOS` |
 
 </div>
 
-> ⚡ **Quick Launch Steps for Windows**:
-> 1. Click [**Download FPTester for Windows (.zip)**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-Windows-1Click.zip)
-> 2. Extract the downloaded `.zip` file
+> ⚡ **Quick 3-Step Guide for Windows**:
+> 1. Download [**FPTester-Windows-1Click.zip**](https://github.com/SUVITH63/flying-probe-tester-proto/releases/download/v1.2.0/FPTester-Windows-1Click.zip)
+> 2. Right-click the `.zip` file ➔ Click **"Extract All..."** ➔ Click **"Extract"**
 > 3. Double-click **`FPTester-Launcher.bat`**
-> 4. The server starts and opens **`http://localhost:8000`** in your web browser automatically!
+> 4. The server starts and opens **`http://localhost:8000`** in your browser automatically!
 
 > 🍎 **macOS Gatekeeper Tip**: If macOS blocks execution on first click, right-click `FPTester-macOS` → select **Open** → click **Open Anyway**.
-
-> 🪟 **Windows SmartScreen Tip**: If SmartScreen appears on first launch, click **More info** → **Run anyway**.
 
 ---
 
