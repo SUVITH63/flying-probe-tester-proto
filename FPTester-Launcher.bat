@@ -5,15 +5,34 @@ echo    FPTester — Automated Flying Probe PCB Tester
 echo =========================================================
 echo.
 
-set TARGET_DIR=%~dp0
-if "%TARGET_DIR:~-1%"=="\" set TARGET_DIR=%TARGET_DIR:~0,-1%
-if not exist "%TARGET_DIR%\run_app.py" set TARGET_DIR=%TEMP%\FPTester
+cd /d "%~dp0"
+
+REM ── Check if user ran directly inside an un-extracted ZIP file ─────────────
+if not exist "run_app.py" (
+    echo.
+    echo ====================================================================
+    echo  [!] IMPORTANT: YOU MUST EXTRACT THE ZIP FILE FIRST!
+    echo ====================================================================
+    echo.
+    echo  You clicked FPTester-Launcher.bat directly inside the ZIP folder.
+    echo  Windows cannot start the Python server from inside a compressed ZIP.
+    echo.
+    echo  HOW TO FIX THIS (2 Easy Steps):
+    echo   1. Right-click "FPTester-Windows-1Click.zip"
+    echo   2. Select "Extract All..." -> Click "Extract"
+    echo   3. Open the new extracted folder and run FPTester-Launcher.bat!
+    echo.
+    echo ====================================================================
+    echo.
+    pause
+    exit /b
+)
 
 REM ── Check System Python & Launch Server ───────────────────────────────────
 where py >nul 2>nul
 if %errorlevel%==0 (
     echo [*] Starting FPTester server with py...
-    py "%TARGET_DIR%\run_app.py"
+    py run_app.py
     if %errorlevel% neq 0 (
         echo.
         echo [ERROR] FPTester server exited with error code %errorlevel%.
@@ -25,7 +44,7 @@ if %errorlevel%==0 (
 where python >nul 2>nul
 if %errorlevel%==0 (
     echo [*] Starting FPTester server with python...
-    python "%TARGET_DIR%\run_app.py"
+    python run_app.py
     if %errorlevel% neq 0 (
         echo.
         echo [ERROR] FPTester server exited with error code %errorlevel%.
@@ -37,7 +56,7 @@ if %errorlevel%==0 (
 where python3 >nul 2>nul
 if %errorlevel%==0 (
     echo [*] Starting FPTester server with python3...
-    python3 "%TARGET_DIR%\run_app.py"
+    python3 run_app.py
     if %errorlevel% neq 0 (
         echo.
         echo [ERROR] FPTester server exited with error code %errorlevel%.
@@ -74,7 +93,7 @@ if not exist "%PORTABLE_PY%\python.exe" (
 
 if exist "%PORTABLE_PY%\python.exe" (
     echo [*] Starting FPTester server with Portable Python...
-    "%PORTABLE_PY%\python.exe" "%TARGET_DIR%\run_app.py"
+    "%PORTABLE_PY%\python.exe" run_app.py
     if %errorlevel% neq 0 (
         echo.
         echo [ERROR] FPTester server exited with error code %errorlevel%.

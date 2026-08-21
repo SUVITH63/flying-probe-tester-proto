@@ -1,10 +1,11 @@
 """
-FPTester Windows Self-Extracting Launcher Builder (Auto-Bootstrapping Python & Force Clean Extract)
+FPTester Windows Self-Extracting Launcher Builder (CertUtil + Auto-Bootstrap + Diagnostics)
 Creates a standalone FPTester-Windows.bat that:
- - Decodes embedded ZIP payload via certutil to %TEMP%/FPTester (force overwrites stale files)
+ - Decodes embedded ZIP payload via certutil to %TEMP%/FPTester
+ - Verifies extraction success
  - Starts server on dynamic free port (8000/8001/8002/8080)
  - Opens browser ONLY when socket connection succeeds
- - Pauses on error so window never closes silently
+ - Pauses on error with clear diagnostic messages
  - Requires ZERO user setup, NO manual Python installation, and NO admin rights!
 """
 import os
@@ -33,7 +34,7 @@ INCLUDE = [
 ]
 
 def build_sfx_bat():
-    print("Building FPTester Windows Self-Extracting .bat (Clean-Extract & Dynamic Port)...")
+    print("Building FPTester Windows Self-Extracting .bat...")
 
     buf = io.BytesIO()
     added_files = set()
@@ -89,6 +90,13 @@ def build_sfx_bat():
         "    if exist \"%ZIPFILE%\" del /f /q \"%ZIPFILE%\"",
         "    echo [*] File extraction complete.",
         "    echo.",
+        "",
+        "if not exist \"%FPTDIR%\\run_app.py\" (",
+        "    echo [ERROR] Could not extract FPTester files to %FPTDIR%.",
+        "    echo Please download FPTester-Windows-1Click.zip directly from GitHub instead!",
+        "    pause",
+        "    exit /b",
+        ")",
         "",
         "REM ── System Python Check ─────────────────────────────────────────────",
         "where py >nul 2>nul",
