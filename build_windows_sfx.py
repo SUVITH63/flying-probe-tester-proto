@@ -1,9 +1,9 @@
 """
-FPTester Windows Self-Extracting Launcher Builder (Auto-Bootstrapping Python)
+FPTester Windows Self-Extracting Launcher Builder (Auto-Bootstrapping Python & Native Browser Trigger)
 Creates a standalone FPTester-Windows.bat that:
  - Decodes embedded ZIP payload via certutil to %TEMP%/FPTester
+ - Uses background delayed Windows OS shell command to open default browser at http://localhost:8000
  - Checks for system Python; if missing, auto-downloads Portable Python 3.11 in 3 seconds
- - Automatically opens http://localhost:8000 AFTER server socket is ready
  - Requires ZERO user setup, NO manual Python installation, and NO admin rights!
 """
 import os
@@ -32,7 +32,7 @@ INCLUDE = [
 ]
 
 def build_sfx_bat():
-    print("Building FPTester Windows Self-Extracting .bat (Socket-Ready Auto-Bootstrap)...")
+    print("Building FPTester Windows Self-Extracting .bat (Native OS Browser Trigger)...")
 
     buf = io.BytesIO()
     added_files = set()
@@ -91,24 +91,27 @@ def build_sfx_bat():
         "    echo.",
         ")",
         "",
+        "REM ── Trigger background browser opener (waits 2s for server, then opens default browser) ──",
+        "start /B cmd /c \"timeout /t 2 >nul & start \"\" http://localhost:8000\"",
+        "",
         "REM ── System Python Check ─────────────────────────────────────────────",
         "where py >nul 2>nul",
         "if %errorlevel%==0 (",
-        "    echo [*] Starting FPTester server...",
+        "    echo [*] Starting FPTester server with py...",
         "    py \"%FPTDIR%\\run_app.py\"",
         "    goto end",
         ")",
         "",
         "where python >nul 2>nul",
         "if %errorlevel%==0 (",
-        "    echo [*] Starting FPTester server...",
+        "    echo [*] Starting FPTester server with python...",
         "    python \"%FPTDIR%\\run_app.py\"",
         "    goto end",
         ")",
         "",
         "where python3 >nul 2>nul",
         "if %errorlevel%==0 (",
-        "    echo [*] Starting FPTester server...",
+        "    echo [*] Starting FPTester server with python3...",
         "    python3 \"%FPTDIR%\\run_app.py\"",
         "    goto end",
         ")",

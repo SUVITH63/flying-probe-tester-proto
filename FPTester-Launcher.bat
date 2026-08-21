@@ -9,7 +9,10 @@ set TARGET_DIR=%~dp0
 if "%TARGET_DIR:~-1%"=="\" set TARGET_DIR=%TARGET_DIR:~0,-1%
 if not exist "%TARGET_DIR%\run_app.py" set TARGET_DIR=%TEMP%\FPTester
 
-REM ── Check System Python ──────────────────────────────────────────────────
+REM ── Trigger background browser opener (waits 2s for server, then opens default browser) ──
+start /B cmd /c "timeout /t 2 >nul & start "" http://localhost:8000"
+
+REM ── Check System Python & Launch Server ───────────────────────────────────
 where py >nul 2>nul
 if %errorlevel%==0 (
     echo [*] Starting FPTester server with py...
