@@ -3,7 +3,7 @@ FPTester Windows Self-Extracting Launcher Builder (Auto-Bootstrapping Python)
 Creates a standalone FPTester-Windows.bat that:
  - Decodes embedded ZIP payload via certutil to %TEMP%/FPTester
  - Checks for system Python; if missing, auto-downloads Portable Python 3.11 in 3 seconds
- - Automatically opens http://localhost:8000
+ - Automatically opens http://localhost:8000 AFTER server socket is ready
  - Requires ZERO user setup, NO manual Python installation, and NO admin rights!
 """
 import os
@@ -32,7 +32,7 @@ INCLUDE = [
 ]
 
 def build_sfx_bat():
-    print("Building FPTester Windows Self-Extracting .bat (Auto-Bootstrap)...")
+    print("Building FPTester Windows Self-Extracting .bat (Socket-Ready Auto-Bootstrap)...")
 
     buf = io.BytesIO()
     added_files = set()
@@ -95,7 +95,6 @@ def build_sfx_bat():
         "where py >nul 2>nul",
         "if %errorlevel%==0 (",
         "    echo [*] Starting FPTester server...",
-        "    start \"\" \"http://localhost:8000\"",
         "    py \"%FPTDIR%\\run_app.py\"",
         "    goto end",
         ")",
@@ -103,7 +102,6 @@ def build_sfx_bat():
         "where python >nul 2>nul",
         "if %errorlevel%==0 (",
         "    echo [*] Starting FPTester server...",
-        "    start \"\" \"http://localhost:8000\"",
         "    python \"%FPTDIR%\\run_app.py\"",
         "    goto end",
         ")",
@@ -111,7 +109,6 @@ def build_sfx_bat():
         "where python3 >nul 2>nul",
         "if %errorlevel%==0 (",
         "    echo [*] Starting FPTester server...",
-        "    start \"\" \"http://localhost:8000\"",
         "    python3 \"%FPTDIR%\\run_app.py\"",
         "    goto end",
         ")",
@@ -142,7 +139,6 @@ def build_sfx_bat():
         "",
         "if exist \"%PORTABLE_PY%\\python.exe\" (",
         "    echo [*] Starting FPTester server with Portable Python...",
-        "    start \"\" \"http://localhost:8000\"",
         "    \"%PORTABLE_PY%\\python.exe\" \"%FPTDIR%\\run_app.py\"",
         "    goto end",
         ")",

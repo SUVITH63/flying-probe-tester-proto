@@ -12,24 +12,21 @@ if not exist "%TARGET_DIR%\run_app.py" set TARGET_DIR=%TEMP%\FPTester
 REM ── Check System Python ──────────────────────────────────────────────────
 where py >nul 2>nul
 if %errorlevel%==0 (
-    echo [*] Found system Python. Starting FPTester server...
-    start "" "http://localhost:8000"
+    echo [*] Starting FPTester server with py...
     py "%TARGET_DIR%\run_app.py"
     goto end
 )
 
 where python >nul 2>nul
 if %errorlevel%==0 (
-    echo [*] Found system Python. Starting FPTester server...
-    start "" "http://localhost:8000"
+    echo [*] Starting FPTester server with python...
     python "%TARGET_DIR%\run_app.py"
     goto end
 )
 
 where python3 >nul 2>nul
 if %errorlevel%==0 (
-    echo [*] Found system Python3. Starting FPTester server...
-    start "" "http://localhost:8000"
+    echo [*] Starting FPTester server with python3...
     python3 "%TARGET_DIR%\run_app.py"
     goto end
 )
@@ -62,7 +59,6 @@ if not exist "%PORTABLE_PY%\python.exe" (
 
 if exist "%PORTABLE_PY%\python.exe" (
     echo [*] Starting FPTester server with Portable Python...
-    start "" "http://localhost:8000"
     "%PORTABLE_PY%\python.exe" "%TARGET_DIR%\run_app.py"
     goto end
 )
