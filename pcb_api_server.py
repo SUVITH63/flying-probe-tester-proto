@@ -2,7 +2,7 @@
 FPTester Production Web & REST API Server (Synced with Major_proect_server_host)
 Runs natively on any laptop without requiring external pip packages.
 Provides endpoints for PCB file uploading, AI test plan generation, 2D dual-arm laptop simulation,
-ESP32 / Arduino USB hardware dispatch, and real-time USB Serial Monitor polling.
+and ESP32 / Arduino USB hardware dispatch.
 """
 import os
 import sys
@@ -73,6 +73,7 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
+        global _hw_dispatcher, _hw_port, _hw_device_type
         url_path = urllib.parse.urlparse(self.path).path
 
         if url_path == "/" or url_path == "/index.html":
@@ -84,14 +85,13 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                 self._send_html("<h1>FPTester Server Online</h1><p>Frontend index.html not found.</p>")
 
         elif url_path == "/api/health":
-            self._send_json({"status": "online", "system": "FPTester HTTP Server", "version": "2.2.0"})
+            self._send_json({"status": "online", "system": "FPTester HTTP Server", "version": "2.1.0"})
 
         elif url_path == "/api/ports":
             ports = SerialDispatcher.list_available_ports()
             self._send_json({"ports": ports})
 
         elif url_path == "/api/connection-status":
-            global _hw_dispatcher, _hw_port, _hw_device_type
             with _hw_lock:
                 if _hw_dispatcher and _hw_dispatcher.is_connected:
                     self._send_json({
@@ -102,26 +102,6 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                     })
                 else:
                     self._send_json({"connected": False, "port": None, "device_type": None})
-
-        elif url_path == "/api/serial-log":
-            global _hw_dispatcher, _hw_port, _hw_device_type
-            with _hw_lock:
-                if _hw_dispatcher:
-                    logs = list(_hw_dispatcher.logs)
-                    connected = _hw_dispatcher.is_connected
-                    port = _hw_port or "SIMULATED_COM1"
-                    device_type = _hw_device_type or "Simulation"
-                else:
-                    logs = []
-                    connected = False
-                    port = None
-                    device_type = None
-            self._send_json({
-                "connected": connected,
-                "port": port,
-                "device_type": device_type,
-                "logs": logs
-            })
 
         elif url_path.startswith("/api/board/"):
             board_id = url_path.split("/")[-1]
@@ -200,28 +180,6 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                 _hw_device_type = None
             logger.info("Hardware disconnected by user request.")
             self._send_json({"status": "disconnected"})
-
-        elif url_path == "/api/send-raw-command":
-            try:
-                payload = json.loads(post_data.decode('utf-8')) if post_data else {}
-            except Exception:
-                payload = {}
-
-            cmd = payload.get("command", "")
-            with _hw_lock:
-                if not _hw_dispatcher:
-                    _hw_dispatcher = SerialDispatcher(port="SIMULATED_COM1")
-                    _hw_dispatcher.connect()
-                    _hw_port = "SIMULATED_COM1"
-                    _hw_device_type = "Simulation"
-
-                response = _hw_dispatcher.send_raw_command(cmd)
-
-            self._send_json({
-                "status": "success",
-                "command": cmd,
-                "response": response
-            })
 
         # PCB Upload
         elif url_path.startswith("/api/upload"):
