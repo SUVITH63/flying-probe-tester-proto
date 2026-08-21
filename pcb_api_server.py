@@ -2,7 +2,7 @@
 FPTester Production Web & REST API Server (Synced with Major_proect_server_host)
 Runs natively on any laptop without requiring external pip packages.
 Provides endpoints for PCB file uploading, AI test plan generation, 2D dual-arm laptop simulation,
-ESP32 / Arduino USB hardware dispatch, and Serial Monitor log stream.
+ESP32 / Arduino USB hardware dispatch, and Arduino IDE style Serial Monitor stream.
 """
 import os
 import sys
@@ -79,7 +79,7 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                 self._send_html("<h1>FPTester Server Online</h1><p>Frontend index.html not found.</p>")
 
         elif url_path == "/api/health":
-            self._send_json({"status": "online", "system": "FPTester HTTP Server", "version": "2.2.0"})
+            self._send_json({"status": "online", "system": "FPTester HTTP Server", "version": "2.3.0"})
 
         elif url_path == "/api/ports":
             ports = SerialDispatcher.list_available_ports()
@@ -188,9 +188,13 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
             except Exception:
                 payload = {}
             cmd_text = payload.get("command", "")
+            line_ending_type = payload.get("line_ending", "both")
+            ending_map = {"none": "", "nl": "\n", "cr": "\r", "both": "\r\n"}
+            line_ending = ending_map.get(line_ending_type, "\r\n")
+
             with _hw_lock:
                 if _hw_dispatcher and _hw_dispatcher.is_connected:
-                    resp = _hw_dispatcher.send_raw_command(cmd_text)
+                    resp = _hw_dispatcher.send_raw_command(cmd_text, line_ending=line_ending)
                     self._send_json({"status": "ok", "response": resp, "logs": _hw_dispatcher.logs})
                 else:
                     self._send_json({"status": "error", "message": "No serial connection active."}, 400)

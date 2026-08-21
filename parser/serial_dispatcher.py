@@ -2,7 +2,7 @@
 FPTester USB Serial Dispatcher
 Handles real COM port communication with ESP32 & Arduino microcontrollers,
 includes USB VID/PID device identification, rolling serial monitor logs,
-and raw serial command execution.
+and raw serial command execution with customizable line endings (Arduino IDE style).
 """
 import json
 import time
@@ -19,23 +19,10 @@ except ImportError:
     SERIAL_AVAILABLE = False
     logger.info("pyserial module not installed. Running in Simulated Serial Mode.")
 
-# Known USB VID:PID signatures for device identification
-_ESP32_VIDS = {
-    "10C4",  # Silicon Labs CP210x (most common ESP32 USB-UART)
-    "303A",  # Espressif native USB (ESP32-S2, S3, C3)
-    "1A86",  # CH340 / CH341 — shared with Arduino clones but very common on ESP32 boards
-}
-_ARDUINO_VIDS = {
-    "2341",  # Arduino SA (Uno, Mega, Leonardo, Nano, etc.)
-    "0403",  # FTDI — used on Arduino Uno R1/R2 and many official boards
-    "1781",  # Multiple 8U2/16U2 based Arduinos
-}
+_ESP32_VIDS = {"10C4", "303A", "1A86"}
+_ARDUINO_VIDS = {"2341", "0403", "1781"}
 
 def identify_device_type(hwid: str, description: str = "") -> str:
-    """
-    Determine whether a USB serial port belongs to an ESP32, Arduino, or is Unknown.
-    Uses VID extracted from the hwid string (format: 'USB VID:PID=XXXX:YYYY ...').
-    """
     hwid_upper = hwid.upper()
     desc_upper = description.upper()
 
@@ -54,9 +41,9 @@ def identify_device_type(hwid: str, description: str = "") -> str:
             return "ESP32"
 
     if vid in _ARDUINO_VIDS:
-        return "Arduino"
+        return "Arduino Uno / Mega"
     if any(kw in desc_upper for kw in ("ARDUINO", "UNO", "MEGA", "NANO", "LEONARDO", "PRO MICRO")):
-        return "Arduino"
+        return "Arduino Uno"
     if any(kw in desc_upper for kw in ("ESP32", "ESP8266", "ESPRESSIF", "CP210")):
         return "ESP32"
 
@@ -70,14 +57,10 @@ class SerialDispatcher:
         self.conn = None
         self.is_connected = False
         self.logs: List[Dict[str, str]] = []
-        self._max_logs = 150
-        self._log_system(f"SerialDispatcher initialized for {port or 'SIMULATED_COM1'} @ {baudrate} baud.")
-
-    def _log_system(self, text: str):
-        self._add_log("SYS", text)
+        self._max_logs = 200
 
     def _add_log(self, direction: str, data: str):
-        t_str = time.strftime("%H:%M:%S")
+        t_str = time.strftime("%H:%M:%S") + f".{int((time.time() % 1) * 1000):03d}"
         entry = {"timestamp": t_str, "direction": direction, "data": data}
         self.logs.append(entry)
         if len(self.logs) > self._max_logs:
@@ -112,20 +95,17 @@ class SerialDispatcher:
     def connect(self) -> bool:
         if not self.port or self.port == "SIMULATED_COM1" or not SERIAL_AVAILABLE:
             self.is_connected = True
-            self._log_system("Connected to SIMULATED_COM1 virtual port.")
-            logger.info("Connected to SIMULATED_COM1 hardware port.")
+            self._add_log("SYS", f"Connected to SIMULATED_COM1 at {self.baudrate} baud.")
             return True
 
         try:
-            self.conn = serial.Serial(self.port, self.baudrate, timeout=2.0)
+            self.conn = serial.Serial(self.port, self.baudrate, timeout=1.0)
             self.is_connected = True
-            self._log_system(f"Connected to physical port {self.port} at {self.baudrate} baud.")
-            logger.info(f"Connected to physical COM port: {self.port}")
+            self._add_log("SYS", f"Connected to {self.port} at {self.baudrate} baud.")
             return True
         except Exception as e:
             self.is_connected = False
-            self._log_system(f"Failed to connect to {self.port}: {e}")
-            logger.error(f"Failed to connect to COM port {self.port}: {e}")
+            self._add_log("SYS", f"Could not open {self.port}: {e}")
             return False
 
     def send_test_command(self, cmd_dict: Dict[str, Any]) -> Dict[str, Any]:
@@ -154,7 +134,7 @@ class SerialDispatcher:
         try:
             self.conn.write((msg_str + "\n").encode('utf-8'))
             self.conn.flush()
-            line = self.conn.readline().decode('utf-8').strip()
+            line = self.conn.readline().decode('utf-8', errors='ignore').strip()
             if line:
                 self._add_log("RX", line)
                 try:
@@ -162,26 +142,26 @@ class SerialDispatcher:
                 except Exception:
                     return {"status": "ok", "raw_response": line}
             else:
-                self._add_log("RX", "[TIMEOUT - No response]")
-                return {"status": "error", "message": "Serial timeout waiting for response."}
+                self._add_log("RX", "[Timeout waiting for response]")
+                return {"status": "error", "message": "Serial timeout."}
         except Exception as e:
             self._add_log("SYS", f"Serial Error: {e}")
-            return {"status": "error", "message": f"Serial communication failure: {str(e)}"}
+            return {"status": "error", "message": f"Serial failure: {str(e)}"}
 
-    def send_raw_command(self, raw_str: str) -> str:
+    def send_raw_command(self, raw_str: str, line_ending: str = "\r\n") -> str:
         """
-        Sends custom string command over serial and returns string response.
-        Used by Serial Monitor console input.
+        Sends custom string command over serial with Arduino IDE style line endings (NL, CR, BOTH, NONE).
         """
         self._add_log("TX", raw_str)
+        payload = raw_str + line_ending
+
         if not self.conn or not SERIAL_AVAILABLE or self.port == "SIMULATED_COM1":
-            sim_resp = f"OK [SIMULATED ACK: {raw_str.upper()}] ADC=4095 VOLT=3.30V"
+            sim_resp = f"ACK: {raw_str} [Simulated response]"
             self._add_log("RX", sim_resp)
             return sim_resp
 
         try:
-            cmd = raw_str.strip() + "\r\n"
-            self.conn.write(cmd.encode('utf-8'))
+            self.conn.write(payload.encode('utf-8'))
             self.conn.flush()
             time.sleep(0.1)
             lines = []
@@ -191,13 +171,13 @@ class SerialDispatcher:
                     lines.append(line)
                     self._add_log("RX", line)
             if not lines:
-                lines = ["[ACK - Executed]"]
+                lines = ["ACK"]
                 self._add_log("RX", lines[0])
             return "\n".join(lines)
         except Exception as e:
-            err_msg = f"[ERROR: {str(e)}]"
-            self._add_log("SYS", err_msg)
-            return err_msg
+            err = f"[Serial Error: {e}]"
+            self._add_log("SYS", err)
+            return err
 
     def disconnect(self):
         if self.conn and self.conn.is_open:
@@ -205,5 +185,5 @@ class SerialDispatcher:
                 self.conn.close()
             except Exception:
                 pass
-        self._log_system(f"Disconnected from {self.port or 'SIMULATED_COM1'}.")
+        self._add_log("SYS", f"Disconnected from {self.port or 'COM port'}.")
         self.is_connected = False
