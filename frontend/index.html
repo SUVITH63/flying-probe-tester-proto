@@ -3,484 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FPTester — Automated Flying Probe PCB Tester</title>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>FPTester — Automated Flying Probe PCB Evaluation System</title>
     <style>
         :root {
-            --bg-dark: #0a0d14;
-            --panel-bg: #121824;
-            --border-color: #1e293b;
-            --accent-amber: #f59e0b;
+            --bg-color: #0b0f19;
+            --panel-bg: #111827;
+            --border-color: #1f2937;
+            --accent-blue: #3b82f6;
             --accent-cyan: #06b6d4;
             --accent-green: #10b981;
+            --accent-amber: #f59e0b;
             --accent-red: #ef4444;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --arduino-teal: #00878f;
+            --text-bright: #f9fafb;
+            --text-muted: #9ca3af;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-bright); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
-        }
-
-        /* Header Bar */
+        /* HEADER */
         header {
             background-color: var(--panel-bg);
             border-bottom: 1px solid var(--border-color);
-            padding: 16px 32px;
+            padding: 10px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
+        .logo-group { display: flex; align-items: center; gap: 12px; }
+        .logo-icon { background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan)); color: #fff; font-weight: 800; font-size: 16px; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 12px rgba(6,182,212,0.3); }
+        .logo-title { font-weight: 700; font-size: 15px; letter-spacing: -0.3px; }
 
-        .logo-group {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logo-icon {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, var(--accent-amber), #d97706);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            color: #000;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .logo-title {
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .mode-badge {
-            background: rgba(245, 158, 11, 0.15);
-            border: 1px solid var(--accent-amber);
-            color: var(--accent-amber);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 600;
-        }
-
-        /* Hardware Top Bar */
-        .hw-bar {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .hw-status-pill {
+        .header-status-badge {
             display: flex;
             align-items: center;
             gap: 8px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
+            background: rgba(31, 41, 55, 0.7);
+            border: 1px solid var(--border-color);
             padding: 6px 14px;
             border-radius: 20px;
-            border: 1px solid var(--border-color);
-            background: rgba(15, 23, 42, 0.8);
-            transition: all 0.3s ease;
-        }
-        .hw-status-pill.disconnected {
-            border-color: rgba(239, 68, 68, 0.4);
-            color: var(--accent-red);
-            background: rgba(239, 68, 68, 0.08);
-        }
-        .hw-status-pill.connected-esp {
-            border-color: rgba(16, 185, 129, 0.5);
-            color: var(--accent-green);
-            background: rgba(16, 185, 129, 0.12);
-            box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
-        }
-        .hw-status-pill.connected-arduino {
-            border-color: rgba(6, 182, 212, 0.5);
-            color: var(--accent-cyan);
-            background: rgba(6, 182, 212, 0.12);
-            box-shadow: 0 0 12px rgba(6, 182, 212, 0.2);
-        }
-        .hw-status-pill.connecting {
-            border-color: rgba(245, 158, 11, 0.5);
-            color: var(--accent-amber);
-            background: rgba(245, 158, 11, 0.12);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
-        .hw-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: currentColor;
-            display: inline-block;
+        /* LAYOUT PANELS */
+        main { display: grid; grid-template-columns: 280px 1fr 380px; gap: 12px; padding: 12px; flex: 1; height: calc(100vh - 60px); overflow: hidden; }
+        .panel { background-color: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 10px; display: flex; flex-direction: column; padding: 12px; gap: 10px; overflow-y: auto; }
+        .panel-title { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
+
+        /* DROPZONE */
+        .dropzone { border: 2px dashed var(--border-color); border-radius: 8px; padding: 16px 12px; text-align: center; cursor: pointer; transition: all 0.2s; background: rgba(31, 41, 55, 0.2); }
+        .dropzone:hover, .dropzone.dragover { border-color: var(--accent-cyan); background: rgba(6, 182, 212, 0.05); }
+
+        /* STATS GRID */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .stat-box { background: rgba(31, 41, 55, 0.4); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; text-align: center; }
+        .stat-value { font-size: 14px; font-weight: 700; color: var(--accent-cyan); }
+        .stat-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
+
+        /* BUTTONS */
+        .btn { background: var(--accent-blue); color: #fff; border: none; border-radius: 6px; padding: 8px 12px; font-weight: 600; font-size: 12px; cursor: pointer; transition: all 0.2s; text-align: center; width: 100%; }
+        .btn:hover:not(:disabled) { opacity: 0.9; box-shadow: 0 0 10px rgba(59, 130, 246, 0.4); }
+        .btn-secondary { background: rgba(31, 41, 55, 0.8); border: 1px solid var(--border-color); color: var(--text-bright); }
+        .btn-secondary:hover:not(:disabled) { background: rgba(55, 65, 81, 0.8); }
+
+        /* CANVAS */
+        .canvas-container { position: relative; flex: 1; min-height: 380px; background: #030712; border-radius: 8px; border: 1px solid var(--border-color); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        canvas { width: 100%; height: 100%; display: block; }
+        .canvas-overlay { position: absolute; top: 10px; left: 10px; background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(4px); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 12px; font-size: 11px; font-family: monospace; }
+
+        /* TEST LIST */
+        .test-list { flex: 1; max-height: 180px; min-height: 120px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background: #030712; padding: 4px; }
+        .test-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 11px; font-family: monospace; }
+        .test-item:last-child { border-bottom: none; }
+        .badge-pass { background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 9px; }
+        .badge-fail { background: rgba(239,68,68,0.2); color: var(--accent-red); padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 9px; }
+
+        /* ELECTRICAL LOG CONSOLE */
+        .console-log { height: 100px; overflow-y: auto; background: #030712; border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 10px; color: var(--accent-green); line-height: 1.4; }
+
+        /* HARDWARE STATUS PILL */
+        .hw-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
         }
-        .hw-status-pill.connected-esp .hw-dot,
-        .hw-status-pill.connected-arduino .hw-dot {
-            animation: pulse-dot 1.5s infinite;
-        }
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(1.3); }
-        }
+        .hw-status-pill.disconnected { background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #ef4444; }
+        .hw-status-pill.connected-esp { background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #10b981; }
+        .hw-status-pill.connected-arduino { background: rgba(6, 182, 212, 0.15); border: 1px solid #06b6d4; color: #06b6d4; }
+
+        .hw-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; display: inline-block; }
+        .connected-esp .hw-dot, .connected-arduino .hw-dot { animation: pulse-dot 1.5s infinite; }
+        @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
 
         .hw-select {
-            background: #090d16;
+            background: rgba(30,41,59,0.9);
+            color: var(--text-bright);
             border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 6px 12px;
             border-radius: 6px;
-            font-size: 12px;
-            font-family: 'JetBrains Mono', monospace;
+            padding: 5px 8px;
+            font-size: 11px;
+            outline: none;
         }
         .hw-btn {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(30,41,59,0.9);
+            color: var(--text-bright);
             border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 6px 12px;
             border-radius: 6px;
-            font-size: 12px;
+            padding: 5px 10px;
+            font-size: 11px;
             cursor: pointer;
             transition: all 0.2s;
         }
-        .hw-btn:hover { background: rgba(255, 255, 255, 0.12); }
-        .hw-btn.connect-btn {
-            background: rgba(16, 185, 129, 0.15);
-            border-color: var(--accent-green);
-            color: var(--accent-green);
-        }
-        .hw-btn.connect-btn:hover { background: rgba(16, 185, 129, 0.3); }
-        .hw-btn.disconnect-btn {
-            background: rgba(239, 68, 68, 0.15);
-            border-color: var(--accent-red);
-            color: var(--accent-red);
-        }
-        .hw-btn.disconnect-btn:hover { background: rgba(239, 68, 68, 0.3); }
+        .hw-btn:hover { background: rgba(51,65,85,0.9); border-color: var(--accent-cyan); }
+        .hw-btn.connect-btn { background: rgba(16,185,129,0.2); border-color: var(--accent-green); color: var(--accent-green); }
+        .hw-btn.connect-btn:hover { background: rgba(16,185,129,0.35); }
+        .hw-btn.disconnect-btn { background: rgba(239,68,68,0.2); border-color: var(--accent-red); color: var(--accent-red); }
+        .hw-btn.disconnect-btn:hover { background: rgba(239,68,68,0.35); }
 
-        /* Main Grid */
-        main {
-            display: grid;
-            grid-template-columns: 360px 1fr 380px;
-            gap: 20px;
-            padding: 24px;
-            flex: 1;
-        }
-
-        .panel {
-            background: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .panel-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--accent-cyan);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* File Upload */
-        .drop-zone {
-            border: 2px dashed var(--border-color);
-            border-radius: 8px;
-            padding: 24px;
-            text-align: center;
-            cursor: pointer;
-            transition: border-color 0.2s;
-            background: rgba(255, 255, 255, 0.01);
-        }
-        .drop-zone:hover {
-            border-color: var(--accent-amber);
-        }
-        .drop-zone p {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 8px;
-        }
-
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-        .stat-card {
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--border-color);
-            padding: 12px;
-            border-radius: 8px;
-        }
-        .stat-card .value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 20px;
-            font-weight: 800;
-            color: var(--accent-amber);
-        }
-        .stat-card .label {
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-
-        /* Test List */
-        .test-list {
-            flex: 1;
+        /* SERIAL MONITOR TERMINAL */
+        .serial-terminal {
+            height: 140px;
             overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            max-height: 220px;
-        }
-        .test-item {
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 10px 12px;
-            font-size: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .test-item .net-name {
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 600;
-            color: var(--text-main);
-        }
-        .status-badge {
+            font-family: 'JetBrains Mono', Consolas, monospace;
             font-size: 10px;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 4px;
-            text-transform: uppercase;
-        }
-        .status-pending { background: rgba(148, 163, 184, 0.1); color: var(--text-muted); }
-        .status-pass { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
-        .status-fail { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
-
-        /* Canvas Container */
-        .canvas-container {
-            position: relative;
-            flex: 1;
-            background: #05070c;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-            min-height: 400px;
-        }
-        canvas {
-            width: 100%;
-            height: 100%;
-        }
-
-        .btn {
-            background: var(--accent-amber);
-            color: #000;
-            border: none;
-            padding: 12px;
+            line-height: 1.4;
+            background: #030712;
+            padding: 8px;
             border-radius: 6px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: opacity 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
-        }
-        .btn:hover:not(:disabled) { opacity: 0.9; }
-        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-        .btn-secondary {
-            background: transparent;
             border: 1px solid var(--border-color);
-            color: var(--text-main);
+            margin-bottom: 6px;
         }
-        .btn-secondary:hover:not(:disabled) {
-            background: rgba(255, 255, 255, 0.05);
-        }
+        .st-line { margin-bottom: 2px; word-break: break-all; }
+        .st-time { color: #64748b; margin-right: 6px; }
+        .st-tx { color: #10b981; font-weight: 600; }
+        .st-rx { color: #38bdf8; }
+        .st-info { color: #f59e0b; }
+        .st-err { color: #ef4444; font-weight: 700; }
 
-        .console-box {
-            background: #05070c;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 12px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            color: var(--accent-green);
-            height: 100px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-        }
-
-        /* ── ARDUINO IDE STYLE SERIAL MONITOR CARD ──────────────────────────── */
-        .arduino-card {
-            background: #0f1724;
-            border: 1px solid #00878f;
-            border-radius: 8px;
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            box-shadow: 0 4px 16px rgba(0, 135, 143, 0.15);
-        }
-        .arduino-top-bar {
-            display: flex;
-            gap: 8px;
-        }
-        .arduino-input {
-            flex: 1;
-            background: #000000;
-            border: 1px solid #1e293b;
-            color: #00ff66;
-            padding: 7px 12px;
-            border-radius: 4px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-        }
-        .arduino-input:focus {
-            outline: none;
-            border-color: #00878f;
-        }
-        .arduino-btn-send {
-            background: #00878f;
-            color: #ffffff;
-            border: none;
-            padding: 7px 18px;
-            border-radius: 4px;
-            font-weight: 700;
-            font-size: 12px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .arduino-btn-send:hover { background: #00a3ac; }
-
-        .arduino-console {
-            background: #000000;
-            border: 1px solid #1e293b;
-            border-radius: 4px;
-            height: 150px;
-            overflow-y: auto;
-            padding: 10px;
-            font-family: 'JetBrains Mono', 'Consolas', monospace;
-            font-size: 11px;
-            line-height: 1.6;
-            color: #00ff66;
-        }
-        .arduino-line { margin-bottom: 2px; word-break: break-all; }
-        .arduino-line.tx { color: #00d2ff; }
-        .arduino-line.rx { color: #00ff66; }
-        .arduino-line.sys { color: #f59e0b; font-style: italic; }
-
-        .arduino-bottom-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 8px;
-            font-size: 11px;
-            color: #94a3b8;
-            padding-top: 4px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-        }
-        .arduino-control-group {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .arduino-checkbox-label {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        /* Toast notification element */
+        /* TOAST NOTIFICATION */
         #hwToast {
             position: fixed;
-            bottom: 24px;
-            right: 24px;
-            background: rgba(17, 24, 39, 0.95);
-            border: 1px solid var(--accent-green);
-            color: var(--text-main);
-            padding: 12px 18px;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 16px;
             border-radius: 8px;
             font-size: 12px;
+            font-weight: 600;
             display: flex;
             align-items: center;
             gap: 10px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
             z-index: 9999;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            background: rgba(17, 24, 39, 0.95);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(8px);
         }
-        #hwToast.show { transform: translateY(0); opacity: 1; }
+        #hwToast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        #hwToast.toast-success { border-color: var(--accent-green); color: var(--accent-green); }
         #hwToast.toast-error { border-color: var(--accent-red); color: var(--accent-red); }
         #hwToast.toast-warn { border-color: var(--accent-amber); color: var(--accent-amber); }
 
-        .btn-hw {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2));
-            color: var(--accent-green);
-            border: 1px solid var(--accent-green);
-        }
-        .btn-hw:hover:not(:disabled) {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.35), rgba(6, 182, 212, 0.35));
-            box-shadow: 0 0 16px rgba(16, 185, 129, 0.3);
-        }
+        .btn-hw { background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(6,182,212,0.2)); color: var(--accent-green); border: 1px solid var(--accent-green); }
+        .btn-hw:hover:not(:disabled) { background: linear-gradient(135deg, rgba(16,185,129,0.35), rgba(6,182,212,0.35)); box-shadow: 0 0 16px rgba(16,185,129,0.3); }
+        .btn:disabled { opacity: 0.35; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
     <header>
         <div class="logo-group">
-            <div class="logo-icon">FP</div>
+            <div class="logo-icon">FPT</div>
             <div>
-                <div class="logo-title">FPTester</div>
-                <div style="font-size: 12px; color: var(--text-muted);">Automated Flying Probe PCB Evaluator</div>
+                <div class="logo-title">FPTester — Flying Probe PCB Evaluation System</div>
+                <div style="font-size: 11px; color: var(--text-muted);">Automated ESP32 / Arduino Dual-Arm Kinematics Engine</div>
             </div>
         </div>
 
-        <div class="hw-bar">
-            <!-- Header status pill -->
-            <div class="hw-status-pill disconnected" id="hwStatusPill">
-                <span class="hw-dot"></span>
-                <span id="hwStatusText">DISCONNECTED</span>
-            </div>
-
-            <!-- Arduino Board / COM Port selector -->
-            <select class="hw-select" id="comPortSelect">
-                <option value="SIMULATED_COM1">Arduino Uno (SIMULATED_COM1)</option>
-            </select>
-
-            <!-- Refresh available ports button -->
-            <button class="hw-btn" id="btnRefreshPorts" title="Refresh available ports">↺</button>
-
-            <!-- Connect / Disconnect button -->
-            <button class="hw-btn connect-btn" id="btnConnectHw">🔌 Connect Board</button>
-
-            <!-- Mode badge -->
-            <div class="mode-badge" id="modeBadge">LAPTOP SIMULATION MODE</div>
+        <div class="header-status-badge">
+            <span style="color: var(--text-muted);">ACTIVE MODE:</span>
+            <span id="headerModeBadge" style="color: var(--accent-cyan);">LAPTOP SIMULATION</span>
         </div>
     </header>
 
@@ -488,115 +201,136 @@
         <!-- LEFT PANEL: File Upload & Board Summary -->
         <div class="panel">
             <div class="panel-title">1. Design Upload</div>
-            <div class="drop-zone" id="dropZone">
-                <div style="font-size: 32px;">📄</div>
-                <div style="font-weight: 700; margin-top: 8px;">Upload PCB Design</div>
-                <p>Supports KiCad (.kicad_pcb) & Gerber (.gbr) files</p>
-                <input type="file" id="fileInput" accept=".kicad_pcb,.gbr" style="display: none;">
+            <div class="dropzone" id="dropzone">
+                <input type="file" id="fileInput" accept=".kicad_pcb,.gbr,.pho" style="display: none;">
+                <div style="font-size: 32px; margin-bottom: 8px;">📁</div>
+                <div style="font-weight: 600; margin-bottom: 4px;">Drag & Drop PCB File</div>
+                <div style="font-size: 11px; color: var(--text-muted);">Supports KiCad (.kicad_pcb) & Gerber (.gbr)</div>
             </div>
 
             <div class="panel-title">2. Board Analysis</div>
             <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="value" id="valPads">0</div>
-                    <div class="label">Total Test Pads</div>
+                <div class="stat-box">
+                    <div class="stat-value" id="statPads">0</div>
+                    <div class="stat-label">Total PCB Pads</div>
                 </div>
-                <div class="stat-card">
-                    <div class="value" id="valNets">0</div>
-                    <div class="label">Nets Identified</div>
+                <div class="stat-box">
+                    <div class="stat-value" id="statComps">0</div>
+                    <div class="stat-label">Components</div>
                 </div>
-                <div class="stat-card">
-                    <div class="value" id="valComps">0</div>
-                    <div class="label">Components</div>
+                <div class="stat-box">
+                    <div class="stat-value" id="statNets">0</div>
+                    <div class="stat-label">Nets Identified</div>
                 </div>
-                <div class="stat-card">
-                    <div class="value" id="valSize">0 x 0</div>
-                    <div class="label">Board Size (mm)</div>
+                <div class="stat-box">
+                    <div class="stat-value" id="statSize">0 x 0</div>
+                    <div class="stat-label">Size (mm)</div>
                 </div>
             </div>
 
-            <div class="panel-title">3. AI Engine Provider</div>
-            <select id="aiProviderSelect" class="hw-select" style="width: 100%; padding: 8px;">
-                <option value="ollama" selected>🦙 Local Ollama LLM (http://localhost:11434)</option>
-                <option value="gemini">✨ Google Gemini API (Public Key)</option>
-                <option value="openai">🤖 OpenAI GPT-4o API (Public Key)</option>
-            </select>
+            <div class="panel-title">3. AI Engine Configuration</div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <label style="font-size: 11px; color: var(--text-muted);">Select AI Engine Provider:</label>
+                <select id="aiProviderSelect" class="btn btn-secondary" style="padding: 8px; font-size: 12px; width: 100%; text-align: left;">
+                    <option value="ollama" selected>🦙 Local Ollama LLM (http://localhost:11434)</option>
+                    <option value="gemini">✨ Google Gemini API (Public API Key)</option>
+                    <option value="openai">🤖 OpenAI GPT-4o API (Public API Key)</option>
+                </select>
+
+                <div id="apiKeyGroup" style="display: none; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 11px; color: var(--text-muted);" id="apiKeyLabel">API Key:</label>
+                    <input type="password" id="aiApiKey" placeholder="Enter API key..." style="background: #05070a; border: 1px solid var(--border-color); color: #fff; padding: 8px; border-radius: 6px; font-size: 12px; font-family: monospace;">
+                </div>
+            </div>
 
             <button class="btn" id="btnGenPlan" disabled>⚡ Generate AI Test Plan</button>
             <button class="btn btn-secondary" id="btnSimulate" disabled>▶ Run Dual-Arm Simulation</button>
             <button class="btn btn-hw" id="btnHwRun" disabled>🔬 Run on Hardware</button>
         </div>
 
-        <!-- CENTER PANEL: Original Kinematics Visualizer & Probe Arms -->
-        <div class="panel" style="padding: 16px;">
+        <!-- CENTER PANEL: Interactive 2D Dual-Arm Kinematics Canvas -->
+        <div class="panel" style="padding: 12px;">
             <div class="panel-title">
-                <span>Dual 5-Bar Kinematics & Probe Visualizer</span>
-                <span style="font-size: 12px; color: var(--accent-amber);" id="statusIndicator">READY</span>
+                <span>3. Live Dual 5-Bar Arm Kinematics & PCB Visualizer</span>
+                <span style="font-size: 11px; color: var(--accent-cyan);" id="statusIndicator">Ready</span>
             </div>
-
+            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                <button class="btn btn-secondary" id="btnRotateBlue" style="padding: 6px 12px; font-size: 11px;">🔄 Rotate Blue Arm Up</button>
+                <button class="btn btn-secondary" id="btnAlignProbes" style="padding: 6px 12px; font-size: 11px;">🎯 Align Probes</button>
+                <button class="btn btn-secondary" id="btnResetArms" style="padding: 6px 12px; font-size: 11px;">↺ Reset Arms</button>
+            </div>
             <div class="canvas-container">
                 <canvas id="simCanvas"></canvas>
+                <div class="canvas-overlay">
+                    <div>ARM 0 (Top): <span id="arm0Coords" style="color: var(--accent-amber);">(0.0, 57.5)</span></div>
+                    <div>ARM 1 (Bot): <span id="arm1Coords" style="color: var(--accent-cyan);">(0.0, 57.5)</span></div>
+                    <div style="font-size: 10px; color: #94a3b8; margin-top: 4px;">💡 Drag flex handles on canvas to rotate arms</div>
+                </div>
             </div>
         </div>
 
-        <!-- RIGHT PANEL: Test Sequence, Electrical Log & Arduino Serial Monitor -->
+        <!-- RIGHT PANEL: Test Sequence, Electrical Log, Hardware Controller & Serial Monitor -->
         <div class="panel">
-            <div class="panel-title">4. Probing Sequence</div>
+            <div class="panel-title">4. AI Test Plan & Sequence</div>
             <div class="test-list" id="testList">
                 <div style="text-align: center; color: var(--text-muted); margin-top: 40px; font-size: 12px;">
-                    Upload design file to generate probing sequence.
+                    Upload a PCB design file to generate probing sequence.
                 </div>
             </div>
 
-            <div class="panel-title">5. Electrical Diagnostics Log</div>
-            <div class="console-box" id="consoleBox">> FPTester System Ready. Upload .kicad_pcb or .gbr file.</div>
+            <div class="panel-title">5. Electrical Log & Diagnostic Card</div>
+            <div class="console-log" id="consoleLog">> FPTester System Ready. Upload .kicad_pcb or .gbr design file to begin.</div>
 
-            <!-- 6. ARDUINO IDE STYLE SERIAL MONITOR CARD -->
-            <div class="panel-title" style="margin-top: 8px;">
-                <span>Arduino IDE Serial Monitor</span>
-                <span id="arduinoBoardTag" style="font-size: 11px; color: var(--accent-amber); font-weight: 500;">Arduino Uno</span>
+            <!-- CARD 6: Hardware Controller & USB Auto-Detect (Located below Electrical Log) -->
+            <div class="panel-title" style="margin-top: 14px;">6. Hardware Controller & USB Auto-Detect</div>
+            <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+                    <!-- Status Pill with COM Port -->
+                    <div class="hw-status-pill disconnected" id="hwStatusPill">
+                        <span class="hw-dot"></span>
+                        <span id="hwStatusText">DISCONNECTED</span>
+                    </div>
+                    <div class="mode-badge" id="modeBadge" style="font-size: 10px; padding: 3px 8px; border-radius: 12px; font-weight: 700; border: 1px solid var(--border-color);">LAPTOP SIMULATION MODE</div>
+                </div>
+
+                <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+                    <!-- COM Port Selector -->
+                    <select class="hw-select" id="comPortSelect" style="flex: 2; min-width: 130px;">
+                        <option value="SIMULATED_COM1">SIMULATED_COM1 (Simulation)</option>
+                    </select>
+
+                    <!-- Baud Rate Selector -->
+                    <select class="hw-select" id="baudRateSelect" style="flex: 1; min-width: 85px;">
+                        <option value="115200" selected>115200</option>
+                        <option value="9600">9600</option>
+                        <option value="57600">57600</option>
+                        <option value="230400">230400</option>
+                    </select>
+
+                    <button class="hw-btn connect-btn" id="btnConnectHw">🔌 Connect</button>
+                    <button class="hw-btn" id="btnRefreshPorts" title="Refresh ports">↺</button>
+                </div>
+                <div style="font-size: 10px; color: var(--text-muted);">
+                    ⚡ Instant USB Auto-detect: Plug in ESP32 / Arduino for immediate connection (&lt;0.5s).
+                </div>
             </div>
 
-            <div class="arduino-card">
-                <div class="arduino-top-bar">
-                    <input type="text" id="arduinoInput" class="arduino-input" placeholder="Message / Command...">
-                    <button id="btnArduinoSend" class="arduino-btn-send">Send</button>
+            <!-- CARD 7: Interactive USB Serial Monitor -->
+            <div class="panel-title" style="margin-top: 14px;">7. USB Serial Monitor</div>
+            <div style="background: #090d16; border: 1px solid var(--border-color); border-radius: 8px; padding: 8px;">
+                <!-- Serial Terminal Output -->
+                <div class="serial-terminal" id="serialTerminal">
+                    <div class="st-line"><span class="st-time">[00:00:00.000]</span> <span class="st-info">INFO ℹ</span> Serial Monitor initialized. Ready for USB connection.</div>
                 </div>
 
-                <div class="arduino-console" id="arduinoConsole">
-                    <div class="arduino-line sys">--- Arduino IDE Serial Monitor Standby ---</div>
-                </div>
-
-                <div class="arduino-bottom-bar">
-                    <div class="arduino-control-group">
-                        <label class="arduino-checkbox-label">
-                            <input type="checkbox" id="chkAutoscroll" checked> Autoscroll
-                        </label>
-                        <label class="arduino-checkbox-label">
-                            <input type="checkbox" id="chkShowTimestamp" checked> Show timestamp
-                        </label>
-                    </div>
-
-                    <div class="arduino-control-group">
-                        <select id="selLineEnding" class="hw-select" style="font-size: 10px; padding: 2px 4px; background: #000; color: #fff;">
-                            <option value="both" selected>Both NL & CR</option>
-                            <option value="nl">Newline</option>
-                            <option value="cr">Carriage return</option>
-                            <option value="none">No line ending</option>
-                        </select>
-
-                        <select id="selBaudRate" class="hw-select" style="font-size: 10px; padding: 2px 4px; background: #000; color: #fff;">
-                            <option value="9600">9600 baud</option>
-                            <option value="19200">19200 baud</option>
-                            <option value="38400">38400 baud</option>
-                            <option value="57600">57600 baud</option>
-                            <option value="115200" selected>115200 baud</option>
-                            <option value="230400">230400 baud</option>
-                            <option value="921600">921600 baud</option>
-                        </select>
-
-                        <button id="btnClearOutput" class="hw-btn" style="font-size: 10px; padding: 2px 6px; background: #1e293b; color: #fff;">Clear output</button>
-                    </div>
+                <!-- Command Bar -->
+                <div style="display: flex; gap: 4px; align-items: center;">
+                    <input type="text" id="txtSerialCmd" placeholder="Type G-code / serial command (e.g. PING, STATUS, M114)..." style="flex: 1; padding: 5px 8px; font-size: 11px; background: rgba(30,41,59,0.9); color: var(--text-bright); border: 1px solid var(--border-color); border-radius: 6px; outline: none;">
+                    <button class="btn" id="btnSendSerialCmd" style="width: auto; padding: 5px 10px; font-size: 11px;">📤 Send</button>
+                    <button class="btn btn-secondary" id="btnClearSerialLog" style="width: auto; padding: 5px 8px; font-size: 11px;" title="Clear Monitor">🗑️</button>
+                    <label style="font-size: 10px; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; gap: 3px; white-space: nowrap;">
+                        <input type="checkbox" id="chkAutoScroll" checked> Auto
+                    </label>
                 </div>
             </div>
         </div>
@@ -617,9 +351,9 @@
         let hwDeviceType = null;
         let _lastKnownPorts = [];
         let _autoConnectInFlight = false;
-        let _lastLogCount = 0;
+        let _lastRenderedLogCount = 0;
 
-        // Toast Helper
+        // ── Toast Helper ───────────────────────────────────────────────────────
         let _toastTimer = null;
         function showToast(msg, type = 'success', durationMs = 4000) {
             const toast = document.getElementById('hwToast');
@@ -632,7 +366,7 @@
             _toastTimer = setTimeout(() => { toast.classList.remove('show'); }, durationMs);
         }
 
-        // Hardware UI Update
+        // ── Hardware Status UI Update ──────────────────────────────────────────
         function updateHwUI(connected, port, deviceType) {
             hwConnected = connected;
             hwPort = port;
@@ -641,41 +375,45 @@
             const pill = document.getElementById('hwStatusPill');
             const statusText = document.getElementById('hwStatusText');
             const modeBadge = document.getElementById('modeBadge');
+            const headerModeBadge = document.getElementById('headerModeBadge');
             const btnConnect = document.getElementById('btnConnectHw');
             const btnHwRun = document.getElementById('btnHwRun');
-            const arduinoTag = document.getElementById('arduinoBoardTag');
 
             if (connected) {
                 const isESP = (deviceType || '').toLowerCase().includes('esp');
-                const labelStr = `${(deviceType || 'Arduino Uno').toUpperCase()} · ${port}`;
-
                 pill.className = `hw-status-pill ${isESP ? 'connected-esp' : 'connected-arduino'}`;
-                statusText.innerText = labelStr;
-                arduinoTag.innerText = `${deviceType || 'Arduino Uno'} on ${port}`;
-
+                statusText.innerText = `${(deviceType || 'HARDWARE').toUpperCase()} (${port})`;
+                
                 modeBadge.style.background = isESP ? 'rgba(16,185,129,0.15)' : 'rgba(6,182,212,0.15)';
                 modeBadge.style.borderColor = isESP ? '#10b981' : '#06b6d4';
                 modeBadge.style.color = isESP ? '#10b981' : '#06b6d4';
-                modeBadge.innerText = `HARDWARE MODE · ${(deviceType || '').toUpperCase()}`;
-                btnConnect.textContent = '⏏ Disconnect Board';
+                modeBadge.innerText = `${(deviceType || '').toUpperCase()} (${port})`;
+
+                headerModeBadge.style.color = isESP ? '#10b981' : '#06b6d4';
+                headerModeBadge.innerText = `HARDWARE ONLINE · ${(deviceType || '').toUpperCase()} (${port})`;
+
+                btnConnect.textContent = '⏏ Disconnect';
                 btnConnect.className = 'hw-btn disconnect-btn';
                 if (currentTestPlan) btnHwRun.disabled = false;
             } else {
                 pill.className = 'hw-status-pill disconnected';
                 statusText.innerText = 'DISCONNECTED';
-                arduinoTag.innerText = 'Board Disconnected';
 
                 modeBadge.style.background = '';
                 modeBadge.style.borderColor = '';
                 modeBadge.style.color = '';
                 modeBadge.innerText = 'LAPTOP SIMULATION MODE';
-                btnConnect.textContent = '🔌 Connect Board';
+
+                headerModeBadge.style.color = 'var(--accent-cyan)';
+                headerModeBadge.innerText = 'LAPTOP SIMULATION';
+
+                btnConnect.textContent = '🔌 Connect';
                 btnConnect.className = 'hw-btn connect-btn';
                 btnHwRun.disabled = true;
             }
         }
 
-        // Port Refresh & Instant USB Detection (Every 500ms)
+        // ── Fast USB Serial Port Listing & Instant Auto-Connect (<0.5s) ──────────
         async function refreshPorts(silent = false) {
             try {
                 const res = await fetch('/api/ports');
@@ -690,7 +428,7 @@
                     const opt = document.createElement('option');
                     opt.value = p.port;
                     const typeLabel = p.device_type && p.device_type !== 'Simulation' && p.device_type !== 'Unknown'
-                        ? ` (${p.device_type})` : '';
+                        ? ` [${p.device_type}]` : '';
                     opt.textContent = `${p.port}${typeLabel}`;
                     select.appendChild(opt);
                 });
@@ -699,7 +437,7 @@
                     select.value = prevVal;
                 }
 
-                // Check for newly plugged hardware ports
+                // Instant Auto-detect: detect newly plugged USB physical serial port
                 const newRealPorts = ports.filter(p =>
                     p.device_type !== 'Simulation' &&
                     !_lastKnownPorts.some(lp => lp.port === p.port)
@@ -707,393 +445,422 @@
 
                 if (newRealPorts.length > 0 && !hwConnected && !_autoConnectInFlight) {
                     const candidate = newRealPorts[0];
-                    const typeLabel = candidate.device_type || 'Arduino Board';
-                    showToast(`INSTANT CONNECT: ${typeLabel} on ${candidate.port}`, 'info', 4000);
-                    log(`[Arduino IDE] ${typeLabel} plugged into ${candidate.port}. Connecting...`);
+                    const typeLabel = candidate.device_type || 'Hardware';
+                    showToast(`🔌 ${typeLabel} plugged into ${candidate.port} — Connecting!`, 'success', 5000);
+                    log(`[USB Auto-Detect] ${typeLabel} plugged into ${candidate.port}. Connecting instantly…`);
                     select.value = candidate.port;
                     await connectToPort(candidate.port, true);
                 }
 
-                // Check for unplugged hardware ports
-                if (hwConnected && hwPort) {
+                // Instant Unplug detection: check if active connected COM port was disconnected
+                if (hwConnected && hwPort && hwPort !== 'SIMULATED_COM1') {
                     const stillPresent = ports.some(p => p.port === hwPort);
                     if (!stillPresent) {
-                        showToast(`INSTANT DISCONNECT: ${hwDeviceType || 'Board'} on ${hwPort} unplugged.`, 'warn');
-                        log(`[Arduino IDE] Board on ${hwPort} was unplugged. Reverting to simulation.`);
-                        appendArduinoLog('sys', `--- [Board Disconnected from ${hwPort}] ---`);
-                        updateHwUI(false, null, null);
+                        showToast(`⚠️ USB device unplugged from ${hwPort} — Reverted to simulation mode`, 'warn', 5000);
+                        log(`[USB Unplug] Device removed from ${hwPort}. Reverting to simulation mode.`);
+                        await disconnectHardware(true);
                     }
                 }
 
                 _lastKnownPorts = ports;
-                if (!silent) log(`Ports refreshed: ${ports.map(p => p.port).join(', ')}`);
             } catch (err) {
-                if (!silent) log(`Port refresh error: ${err.message}`);
+                if (!silent) log(`[Error] Failed to fetch ports: ${err.message}`);
             }
         }
 
-        async function connectToPort(port, isAuto = false) {
+        // ── Hardware Connect Handler ───────────────────────────────────────────
+        async function connectToPort(portName, isAuto = false) {
             _autoConnectInFlight = true;
-            const pill = document.getElementById('hwStatusPill');
-            pill.className = 'hw-status-pill connecting';
-            document.getElementById('hwStatusText').innerText = 'CONNECTING…';
+            const baud = parseInt(document.getElementById('baudRateSelect').value) || 115200;
             try {
-                const baud = document.getElementById('selBaudRate')?.value || 115200;
                 const res = await fetch('/api/connect', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ port, baudrate: baud })
+                    body: JSON.stringify({ port: portName, baudrate: baud })
                 });
                 const data = await res.json();
                 if (data.status === 'connected') {
                     updateHwUI(true, data.port, data.device_type);
-                    const autoLabel = isAuto ? '(auto-connected)' : '';
-                    showToast(`Connected to ${data.device_type} on ${data.port} ${autoLabel}`, 'success');
-                    log(`[Arduino IDE] Serial port open: ${data.device_type} @ ${data.port} at ${data.baudrate} baud`);
-                    appendArduinoLog('sys', `--- Serial port opened: ${data.port} @ ${data.baudrate} baud ---`);
+                    log(`[Hardware Connected] ${data.device_type} on ${data.port} @ ${baud} baud`);
+                    if (!isAuto) showToast(`Connected to ${data.device_type} (${data.port})`, 'success');
                 } else {
                     updateHwUI(false, null, null);
-                    showToast(`Connection failed: ${data.message || 'Unknown error'}`, 'error');
-                    log(`[Arduino IDE] Connection error: ${data.message}`);
+                    log(`[Hardware Error] ${data.message}`);
+                    showToast(`Connection failed: ${data.message}`, 'error');
                 }
             } catch (err) {
-                updateHwUI(false, null, null);
+                log(`[Hardware Error] ${err.message}`);
                 showToast(`Connection error: ${err.message}`, 'error');
-                log(`[Arduino IDE] Fetch error: ${err.message}`);
+            } finally {
+                _autoConnectInFlight = false;
             }
-            _autoConnectInFlight = false;
         }
 
-        async function disconnectHardware() {
+        async function disconnectHardware(isAuto = false) {
             try {
                 await fetch('/api/disconnect', { method: 'POST' });
-            } catch (_) {}
-            updateHwUI(false, null, null);
-            showToast('Board disconnected.', 'warn');
-            log('[Arduino IDE] Serial port closed.');
-            appendArduinoLog('sys', '--- Serial port closed ---');
+                updateHwUI(false, null, null);
+                log(`[Hardware] Disconnected. Reverted to Simulation Mode.`);
+                if (!isAuto) showToast(`Disconnected from hardware`, 'info');
+            } catch (err) {
+                log(`[Error] Disconnect failed: ${err.message}`);
+            }
         }
 
-        // Arduino IDE Serial Monitor Stream & Controls
-        async function fetchSerialLogs() {
+        // ── Serial Monitor Polling & Command Handling ──────────────────────────
+        async function pollSerialLog() {
             try {
                 const res = await fetch('/api/serial-log');
                 const data = await res.json();
                 const logs = data.logs || [];
-                if (logs.length !== _lastLogCount) {
-                    _lastLogCount = logs.length;
-                    renderArduinoLogs(logs);
+                const term = document.getElementById('serialTerminal');
+
+                if (logs.length > _lastRenderedLogCount) {
+                    const newEntries = logs.slice(_lastRenderedLogCount);
+                    newEntries.forEach(item => {
+                        const lineDiv = document.createElement('div');
+                        lineDiv.className = 'st-line';
+                        
+                        let dirClass = 'st-info';
+                        let dirTag = 'INFO ℹ';
+                        if (item.dir === 'TX') { dirClass = 'st-tx'; dirTag = 'TX ➔'; }
+                        else if (item.dir === 'RX') { dirClass = 'st-rx'; dirTag = 'RX ⬅'; }
+                        else if (item.dir === 'ERROR') { dirClass = 'st-err'; dirTag = 'ERR ❌'; }
+
+                        lineDiv.innerHTML = `<span class="st-time">[${item.timestamp}]</span> <span class="${dirClass}">${dirTag}</span> ${escapeHtml(item.text)}`;
+                        term.appendChild(lineDiv);
+                    });
+
+                    _lastRenderedLogCount = logs.length;
+
+                    if (document.getElementById('chkAutoScroll').checked) {
+                        term.scrollTop = term.scrollHeight;
+                    }
                 }
-            } catch (_) {}
-        }
-
-        function appendArduinoLog(type, text) {
-            const consoleElem = document.getElementById('arduinoConsole');
-            if (!consoleElem) return;
-            const div = document.createElement('div');
-            div.className = `arduino-line ${type}`;
-
-            const showTime = document.getElementById('chkShowTimestamp')?.checked;
-            const timePrefix = showTime ? `${new Date().toLocaleTimeString()} -> ` : '';
-            div.innerText = `${timePrefix}${text}`;
-            consoleElem.appendChild(div);
-
-            if (document.getElementById('chkAutoscroll')?.checked) {
-                consoleElem.scrollTop = consoleElem.scrollHeight;
+            } catch (err) {
+                // silent background catch
             }
         }
 
-        function renderArduinoLogs(logs) {
-            const consoleElem = document.getElementById('arduinoConsole');
-            if (!consoleElem) return;
-            consoleElem.innerHTML = '';
-            const showTime = document.getElementById('chkShowTimestamp')?.checked;
-
-            logs.forEach(l => {
-                const div = document.createElement('div');
-                const dirClass = l.direction ? l.direction.toLowerCase() : 'sys';
-                div.className = `arduino-line ${dirClass}`;
-                const timePrefix = showTime ? `${l.timestamp} -> ` : '';
-                div.innerText = `${timePrefix}[${l.direction}] ${l.data}`;
-                consoleElem.appendChild(div);
-            });
-
-            if (document.getElementById('chkAutoscroll')?.checked) {
-                consoleElem.scrollTop = consoleElem.scrollHeight;
-            }
-        }
-
-        async function sendArduinoCommand() {
-            const input = document.getElementById('arduinoInput');
+        async function sendSerialCommand() {
+            const input = document.getElementById('txtSerialCmd');
             const cmd = input.value.trim();
             if (!cmd) return;
 
-            const lineEnding = document.getElementById('selLineEnding')?.value || 'both';
             input.value = '';
-
             try {
-                const res = await fetch('/api/serial-send', {
+                await fetch('/api/send-raw-command', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ command: cmd, line_ending: lineEnding })
+                    body: JSON.stringify({ command: cmd })
                 });
-                const data = await res.json();
-                if (data.logs) {
-                    _lastLogCount = data.logs.length;
-                    renderArduinoLogs(data.logs);
-                }
+                pollSerialLog();
             } catch (err) {
-                showToast(`Send error: ${err.message}`, 'error');
+                log(`[Serial Error] ${err.message}`);
             }
         }
 
-        document.getElementById('btnConnectHw').addEventListener('click', async () => {
-            if (hwConnected) {
-                await disconnectHardware();
-            } else {
-                const port = document.getElementById('comPortSelect').value;
-                await connectToPort(port, false);
-            }
-        });
-
-        document.getElementById('btnRefreshPorts').addEventListener('click', () => refreshPorts(false));
-        document.getElementById('btnArduinoSend').addEventListener('click', sendArduinoCommand);
-        document.getElementById('arduinoInput').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') sendArduinoCommand();
-        });
-        document.getElementById('btnClearOutput').addEventListener('click', () => {
-            document.getElementById('arduinoConsole').innerHTML = '<div class="arduino-line sys">--- Console Cleared ---</div>';
-            _lastLogCount = 0;
-        });
-
-        // Background polling every 500ms for instant port detection
-        refreshPorts(true);
-        setInterval(() => refreshPorts(true), 500);
-        setInterval(fetchSerialLogs, 500);
-
-        (async () => {
-            try {
-                const res = await fetch('/api/connection-status');
-                const data = await res.json();
-                if (data.connected) {
-                    updateHwUI(true, data.port, data.device_type);
-                    log(`[Arduino IDE] Connected: ${data.device_type} @ ${data.port}`);
-                }
-            } catch (_) {}
-        })();
-
-        // ── ORIGINAL PROBE DESIGN & DUAL-ARM KINEMATICS VISUALIZER ────────────
-        let boardPads = [];
-        let boardNets = [];
-        let testPairs = [];
-
-        // Dual-Arm Kinematics Setup
-        const canvas = document.getElementById('simCanvas');
-        const ctx = canvas.getContext('2d');
-        const consoleBox = document.getElementById('consoleBox');
-
-        let arm0 = { x: 50, y: 50, color: '#f59e0b' }; // Top Arm (Amber)
-        let arm1 = { x: 150, y: 100, color: '#06b6d4' }; // Bottom Arm (Cyan)
-
-        function resizeCanvas() {
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
-            drawVisualizer();
+        function clearSerialLog() {
+            const term = document.getElementById('serialTerminal');
+            term.innerHTML = '<div class="st-line"><span class="st-time">[00:00:00.000]</span> <span class="st-info">INFO ℹ</span> Serial Monitor cleared.</div>';
+            _lastRenderedLogCount = 0;
         }
 
-        window.addEventListener('resize', resizeCanvas);
+        function escapeHtml(str) {
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
 
+        // ── Console Log Helper ─────────────────────────────────────────────────
         function log(msg) {
-            consoleBox.innerText += '\n> ' + msg;
-            consoleBox.scrollTop = consoleBox.scrollHeight;
+            const consoleEl = document.getElementById('consoleLog');
+            const timeStr = new Date().toLocaleTimeString();
+            consoleEl.innerHTML += `\n[${timeStr}] ${msg}`;
+            consoleEl.scrollTop = consoleEl.scrollHeight;
         }
 
-        // File Upload
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
+        // ── Event Listeners & Fast Interval Init ───────────────────────────────
+        document.addEventListener('DOMContentLoaded', () => {
+            // Fast USB auto-detection polling (500ms interval)
+            refreshPorts(true);
+            setInterval(() => refreshPorts(true), 500);
 
-        dropZone.addEventListener('click', () => fileInput.click());
-        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = '#f59e0b'; });
-        dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = '#1e293b'; });
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.style.borderColor = '#1e293b';
-            if (e.dataTransfer.files.length) uploadFile(e.dataTransfer.files[0]);
+            // Serial Monitor Polling (400ms interval)
+            setInterval(pollSerialLog, 400);
+
+            document.getElementById('btnRefreshPorts').addEventListener('click', () => refreshPorts(false));
+            
+            document.getElementById('btnConnectHw').addEventListener('click', () => {
+                if (hwConnected) {
+                    disconnectHardware(false);
+                } else {
+                    const port = document.getElementById('comPortSelect').value;
+                    connectToPort(port, false);
+                }
+            });
+
+            document.getElementById('btnSendSerialCmd').addEventListener('click', sendSerialCommand);
+            document.getElementById('txtSerialCmd').addEventListener('keydown', e => {
+                if (e.key === 'Enter') sendSerialCommand();
+            });
+            document.getElementById('btnClearSerialLog').addEventListener('click', clearSerialLog);
+
+            // File Upload & Kinematics visualizer initializations...
+            initAppLogic();
         });
-        fileInput.addEventListener('change', (e) => { if (e.target.files.length) uploadFile(e.target.files[0]); });
 
-        async function uploadFile(file) {
-            log(`Uploading PCB design: ${file.name}...`);
+        // ── PCB File Upload & AI Plan Execution Logic ──────────────────────────
+        function initAppLogic() {
+            const dropzone = document.getElementById('dropzone');
+            const fileInput = document.getElementById('fileInput');
+
+            dropzone.addEventListener('click', () => fileInput.click());
+            dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('dragover'); });
+            dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+            dropzone.addEventListener('drop', e => {
+                e.preventDefault();
+                dropzone.classList.remove('dragover');
+                if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+            });
+            fileInput.addEventListener('change', e => {
+                if (e.target.files.length) handleFile(e.target.files[0]);
+            });
+
+            document.getElementById('aiProviderSelect').addEventListener('change', e => {
+                const group = document.getElementById('apiKeyGroup');
+                group.style.display = (e.target.value === 'ollama') ? 'none' : 'flex';
+            });
+
+            document.getElementById('btnGenPlan').addEventListener('click', generatePlan);
+            document.getElementById('btnSimulate').addEventListener('click', runSimulation);
+            document.getElementById('btnHwRun').addEventListener('click', runHardwarePlan);
+
+            initCanvas();
+        }
+
+        async function handleFile(file) {
+            log(`Uploading PCB File: ${file.name}...`);
             const formData = new FormData();
             formData.append('file', file);
 
             try {
                 const res = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, {
                     method: 'POST',
-                    body: formData
+                    body: file
                 });
                 const data = await res.json();
                 if (data.status === 'success') {
                     currentBoardId = data.board_id;
-                    document.getElementById('valPads').innerText = data.total_pads;
-                    document.getElementById('valNets').innerText = data.total_nets;
-                    document.getElementById('valComps').innerText = data.total_components;
-                    document.getElementById('valSize').innerText = `${data.dimensions.width} x ${data.dimensions.height}`;
-
-                    boardPads = data.pads || [];
+                    document.getElementById('statPads').innerText = data.total_pads;
+                    document.getElementById('statComps').innerText = data.total_components;
+                    document.getElementById('statNets').innerText = data.total_nets;
+                    document.getElementById('statSize').innerText = `${data.dimensions.width}x${data.dimensions.height}`;
+                    
                     document.getElementById('btnGenPlan').disabled = false;
-                    log(`Parsed successfully! ${data.total_pads} pads, ${data.total_nets} nets identified.`);
-                    showToast(`Uploaded ${file.name}: ${data.total_pads} pads`, 'success');
-                    drawVisualizer();
+                    log(`PCB Parsed Successfully: ${data.total_pads} pads, ${data.total_nets} nets identified.`);
+                    showToast(`Parsed ${file.name} (${data.total_pads} pads)`, 'success');
                 } else {
-                    log(`Upload failed: ${data.message}`);
+                    log(`[Error] ${data.message}`);
                     showToast(`Upload failed: ${data.message}`, 'error');
                 }
             } catch (err) {
-                log(`Upload network error: ${err.message}`);
+                log(`[Error] ${err.message}`);
+                showToast(`Upload error: ${err.message}`, 'error');
             }
         }
 
-        document.getElementById('btnGenPlan').addEventListener('click', async () => {
+        async function generatePlan() {
             if (!currentBoardId) return;
-            log('Generating AI probing sequence...');
+            log("Generating AI Test Plan & Kinematics Probe Sequence...");
             const provider = document.getElementById('aiProviderSelect').value;
+            const apiKey = document.getElementById('aiApiKey').value;
 
             try {
                 const res = await fetch(`/api/generate-plan/${currentBoardId}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ provider })
+                    body: JSON.stringify({ provider, api_key: apiKey })
                 });
                 const data = await res.json();
                 if (data.status === 'success') {
                     currentTestPlan = data.test_plan;
-                    testPairs = data.test_plan.test_pairs || [];
                     renderTestPlan(data.test_plan);
                     document.getElementById('btnSimulate').disabled = false;
                     if (hwConnected) document.getElementById('btnHwRun').disabled = false;
-                    log(`AI Test Plan Ready! ${testPairs.length} test pairs generated.`);
-                    showToast(`Generated AI Plan: ${testPairs.length} test pairs`, 'success');
-                } else {
-                    log(`Plan generation error: ${data.error}`);
+                    log(`AI Test Plan Ready: ${data.total_tests} test pairs generated.`);
+                    showToast(`Generated ${data.total_tests} test pairs`, 'success');
                 }
             } catch (err) {
-                log(`Network error: ${err.message}`);
+                log(`[Error] ${err.message}`);
             }
-        });
+        }
 
         function renderTestPlan(plan) {
             const list = document.getElementById('testList');
             list.innerHTML = '';
-            plan.test_pairs.forEach(tp => {
+            (plan.test_pairs || []).forEach(tp => {
                 const item = document.createElement('div');
                 item.className = 'test-item';
-                item.id = `test-pair-${tp.test_id}`;
                 item.innerHTML = `
-                    <div>
-                        <div class="net-name">#${tp.test_id} Net: ${tp.net_name}</div>
-                        <div style="font-size: 10px; color: var(--text-muted);">${tp.pad_a.pad_id} ➔ ${tp.pad_b.pad_id}</div>
-                    </div>
-                    <span class="status-badge status-pending" id="badge-${tp.test_id}">PENDING</span>
+                    <div><strong>#${tp.test_id}</strong> ${tp.net_name} (${tp.pad_a.pad_id} ➔ ${tp.pad_b.pad_id})</div>
+                    <div id="tp-badge-${tp.test_id}" style="color: var(--text-muted);">READY</div>
                 `;
                 list.appendChild(item);
             });
         }
 
-        document.getElementById('btnSimulate').addEventListener('click', () => runExecution(false));
-        document.getElementById('btnHwRun').addEventListener('click', () => runExecution(true));
-
-        async function runExecution(isHardware = false) {
+        async function runSimulation() {
             if (!currentBoardId || isSimulating) return;
             isSimulating = true;
-            document.getElementById('btnSimulate').disabled = true;
-            document.getElementById('btnHwRun').disabled = true;
-
-            const modeStr = isHardware ? `Hardware (${hwDeviceType} @ ${hwPort})` : 'Laptop Simulation';
-            log(`Starting execution [${modeStr}]...`);
-            showToast(`Started probing on ${modeStr}...`, 'info');
-
-            const endpoint = isHardware ? `/api/hardware-run/${currentBoardId}` : `/api/simulate-run/${currentBoardId}`;
-
+            log("Starting Dual-Arm 5-Bar Linkage Kinematics Simulation...");
+            
             try {
-                const res = await fetch(endpoint, { method: 'POST' });
+                const res = await fetch(`/api/simulate-run/${currentBoardId}`);
                 const data = await res.json();
                 if (data.status === 'success') {
-                    for (const r of data.results) {
-                        const item = document.getElementById(`test-pair-${r.test_id}`);
-                        const badge = document.getElementById(`badge-${r.test_id}`);
-
-                        arm0.x = r.pad_a.x * 2.5 + 50;
-                        arm0.y = r.pad_a.y * 2.5 + 50;
-                        arm1.x = r.pad_b.x * 2.5 + 50;
-                        arm1.y = r.pad_b.y * 2.5 + 50;
-                        drawVisualizer();
-
-                        await new Promise(resolve => setTimeout(resolve, 350));
-
-                        if (badge) {
-                            badge.className = r.verdict === 'PASS' ? 'status-badge status-pass' : 'status-badge status-fail';
-                            badge.innerText = `${r.verdict} (${r.measured_voltage}V)`;
-                        }
-                        log(`[${modeStr}] Test #${r.test_id} Net ${r.net}: ${r.verdict} | ${r.measured_voltage}V`);
-                    }
-                    log(`Completed probing sequence!`);
-                    showToast(`Probing completed successfully on ${modeStr}`, 'success');
-                } else {
-                    log(`Execution error: ${data.message}`);
-                    showToast(`Execution error: ${data.message}`, 'error');
+                    await animateProbeSequence(data.results);
+                    log("Dual-Arm Simulation Complete. All probes reached successfully.");
+                    showToast("Simulation Complete", 'success');
                 }
             } catch (err) {
-                log(`Network error: ${err.message}`);
+                log(`[Error] ${err.message}`);
+            } finally {
+                isSimulating = false;
             }
-
-            isSimulating = false;
-            document.getElementById('btnSimulate').disabled = false;
-            if (hwConnected) document.getElementById('btnHwRun').disabled = false;
         }
 
-        // Draw Visualizer & Original Probe Arm Rendering
-        function drawVisualizer() {
-            if (!canvas.width) resizeCanvas();
-            const w = canvas.width;
-            const h = canvas.height;
+        async function runHardwarePlan() {
+            if (!currentBoardId || !hwConnected || isSimulating) return;
+            isSimulating = true;
+            log(`[HARDWARE RUN] Executing Test Plan on ${hwDeviceType} (${hwPort})...`);
+            showToast(`Running test plan on ${hwDeviceType}...`, 'info', 5000);
 
+            try {
+                const res = await fetch(`/api/hardware-run/${currentBoardId}`);
+                const data = await res.json();
+                if (data.status === 'success') {
+                    await animateProbeSequence(data.results);
+                    log(`[HARDWARE DONE] Executed ${data.total_executed} tests on ${hwDeviceType} (${hwPort}).`);
+                    showToast(`Hardware execution completed!`, 'success');
+                } else {
+                    log(`[HARDWARE ERROR] ${data.message}`);
+                    showToast(`Hardware run error: ${data.message}`, 'error');
+                }
+            } catch (err) {
+                log(`[HARDWARE ERROR] ${err.message}`);
+            } finally {
+                isSimulating = false;
+            }
+        }
+
+        // ── 2D Dual 5-Bar Linkage Kinematics Canvas Renderer ──────────────────
+        let canvas, ctx;
+        let arm0AngleA = 0.5, arm0AngleB = 0.5;
+        let arm1AngleA = 0.5, arm1AngleB = 0.5;
+
+        function initCanvas() {
+            canvas = document.getElementById('simCanvas');
+            ctx = canvas.getContext('2d');
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            drawKinematics();
+
+            document.getElementById('btnRotateBlue').addEventListener('click', () => {
+                arm0AngleA += 0.2; arm0AngleB += 0.2; drawKinematics();
+            });
+            document.getElementById('btnAlignProbes').addEventListener('click', () => {
+                arm0AngleA = 0.8; arm0AngleB = 0.4; arm1AngleA = -0.8; arm1AngleB = -0.4; drawKinematics();
+            });
+            document.getElementById('btnResetArms').addEventListener('click', () => {
+                arm0AngleA = 0.5; arm0AngleB = 0.5; arm1AngleA = 0.5; arm1AngleB = 0.5; drawKinematics();
+            });
+        }
+
+        function resizeCanvas() {
+            if (!canvas) return;
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+            drawKinematics();
+        }
+
+        function drawKinematics() {
+            if (!ctx) return;
+            const w = canvas.width, h = canvas.height;
             ctx.clearRect(0, 0, w, h);
 
-            // Draw Background Grid
-            ctx.strokeStyle = '#1e293b';
+            // Grid background
+            ctx.strokeStyle = '#111827';
             ctx.lineWidth = 1;
-            for (let x = 0; x < w; x += 30) {
-                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
-            }
-            for (let y = 0; y < h; y += 30) {
-                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
-            }
+            for (let x = 0; x < w; x += 20) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+            for (let y = 0; y < h; y += 20) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
 
-            // Draw PCB Pads
-            boardPads.forEach(p => {
-                const px = p.x * 2.5 + 50;
-                const py = p.y * 2.5 + 50;
-                ctx.fillStyle = '#06b6d4';
-                ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2); ctx.fill();
-            });
+            const centerX = w / 2;
+            const centerY = h / 2;
 
-            // Draw Probe Arm 0 (Top / Amber)
-            ctx.strokeStyle = arm0.color;
-            ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.moveTo(20, 20); ctx.lineTo(arm0.x, arm0.y); ctx.stroke();
-            ctx.fillStyle = arm0.color;
-            ctx.beginPath(); ctx.arc(arm0.x, arm0.y, 6, 0, Math.PI * 2); ctx.fill();
+            // Render PCB Board Outline
+            ctx.fillStyle = '#064e3b';
+            ctx.strokeStyle = '#10b981';
+            ctx.lineWidth = 2;
+            ctx.fillRect(centerX - 100, centerY - 60, 200, 120);
+            ctx.strokeRect(centerX - 100, centerY - 60, 200, 120);
 
-            // Draw Probe Arm 1 (Bottom / Cyan)
-            ctx.strokeStyle = arm1.color;
-            ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.moveTo(w - 20, h - 20); ctx.lineTo(arm1.x, arm1.y); ctx.stroke();
-            ctx.fillStyle = arm1.color;
-            ctx.beginPath(); ctx.arc(arm1.x, arm1.y, 6, 0, Math.PI * 2); ctx.fill();
+            // ARM 0 (Amber Top Arm)
+            const base0X = centerX - 40, base0Y = centerY - 110;
+            const base1X = centerX + 40, base1Y = centerY - 110;
+
+            const joint0X = base0X + Math.cos(arm0AngleA) * 55, joint0Y = base0Y + Math.sin(arm0AngleA) * 55;
+            const joint1X = base1X + Math.cos(arm0AngleB) * 55, joint1Y = base1Y + Math.sin(arm0AngleB) * 55;
+            const probe0X = (joint0X + joint1X) / 2, probe0Y = (joint0Y + joint1Y) / 2 + 30;
+
+            ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(base0X, base0Y); ctx.lineTo(joint0X, joint0Y); ctx.lineTo(probe0X, probe0Y); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(base1X, base1Y); ctx.lineTo(joint1X, joint1Y); ctx.lineTo(probe0X, probe0Y); ctx.stroke();
+
+            // Probe Tip 0
+            ctx.fillStyle = '#f59e0b';
+            ctx.beginPath(); ctx.arc(probe0X, probe0Y, 6, 0, Math.PI * 2); ctx.fill();
+
+            // ARM 1 (Cyan Bottom Arm)
+            const bbase0X = centerX - 40, bbase0Y = centerY + 110;
+            const bbase1X = centerX + 40, bbase1Y = centerY + 110;
+
+            const bjoint0X = bbase0X + Math.cos(arm1AngleA) * 55, bjoint0Y = bbase0Y - Math.sin(arm1AngleA) * 55;
+            const bjoint1X = bbase1X + Math.cos(arm1AngleB) * 55, bjoint1Y = bbase1Y - Math.sin(arm1AngleB) * 55;
+            const probe1X = (bjoint0X + bjoint1X) / 2, probe1Y = (bjoint0Y + bjoint1Y) / 2 - 30;
+
+            ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(bbase0X, bbase0Y); ctx.lineTo(bjoint0X, bjoint0Y); ctx.lineTo(probe1X, probe1Y); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(bbase1X, bbase1Y); ctx.lineTo(bjoint1X, bjoint1Y); ctx.lineTo(probe1X, probe1Y); ctx.stroke();
+
+            // Probe Tip 1
+            ctx.fillStyle = '#06b6d4';
+            ctx.beginPath(); ctx.arc(probe1X, probe1Y, 6, 0, Math.PI * 2); ctx.fill();
+
+            document.getElementById('arm0Coords').innerText = `(${round(probe0X - centerX)}, ${round(centerY - probe0Y)})`;
+            document.getElementById('arm1Coords').innerText = `(${round(probe1X - centerX)}, ${round(centerY - probe1Y)})`;
         }
 
-        setTimeout(resizeCanvas, 100);
+        async function animateProbeSequence(results) {
+            for (let i = 0; i < results.length; i++) {
+                const item = results[i];
+                arm0AngleA = (i % 5) * 0.3 + 0.4;
+                arm0AngleB = (i % 4) * 0.2 + 0.3;
+                arm1AngleA = -(i % 5) * 0.3 - 0.4;
+                arm1AngleB = -(i % 4) * 0.2 - 0.3;
+                drawKinematics();
+
+                const badge = document.getElementById(`tp-badge-${item.test_id}`);
+                if (badge) {
+                    badge.className = item.verdict === 'PASS' ? 'badge-pass' : 'badge-fail';
+                    badge.innerText = `${item.verdict} (${item.measured_voltage}V)`;
+                }
+
+                log(`[Test #${item.test_id}] ${item.net}: ${item.measured_voltage}V -> ${item.verdict}`);
+                await sleep(350);
+            }
+        }
+
+        function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+        function round(v) { return Math.round(v * 10) / 10; }
     </script>
 </body>
 </html>
