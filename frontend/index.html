@@ -568,7 +568,7 @@
         }
 
         // ── Hardware Status UI Update ──────────────────────────────────────────
-        function updateHwUI(connected, port, deviceType) {
+        function updateHwUI(connected, port, deviceType, detectedOnly = false) {
             hwConnected = connected;
             hwPort = port;
             hwDeviceType = deviceType;
@@ -591,6 +591,17 @@
                 btnConnect.textContent = '⏏ Disconnect';
                 btnConnect.className = 'hw-btn disconnect-btn';
                 if (currentTestPlan) btnHwRun.disabled = false;
+            } else if (detectedOnly && port) {
+                const isESP = (deviceType || '').toLowerCase().includes('esp');
+                pill.className = `hw-status-pill ${isESP ? 'connected-esp' : 'connected-arduino'}`;
+                statusText.innerText = `HARDWARE DETECTED: ${(deviceType || 'HARDWARE').toUpperCase()} on ${port}`;
+                modeBadge.style.background = 'rgba(59,130,246,0.15)';
+                modeBadge.style.borderColor = '#3b82f6';
+                modeBadge.style.color = '#60a5fa';
+                modeBadge.innerText = `HARDWARE DETECTED · ${(deviceType || '').toUpperCase()} on ${port} (Ready to Connect)`;
+                btnConnect.textContent = '🔌 Connect';
+                btnConnect.className = 'hw-btn connect-btn';
+                btnHwRun.disabled = true;
             } else {
                 pill.className = 'hw-status-pill disconnected';
                 statusText.innerText = 'NO HARDWARE FOUND';
@@ -620,6 +631,7 @@
                     opt.value = '';
                     opt.textContent = 'No COM ports detected in Device Manager';
                     select.appendChild(opt);
+                    if (!hwConnected) updateHwUI(false, null, null);
                 } else {
                     ports.forEach(p => {
                         const opt = document.createElement('option');
@@ -629,11 +641,17 @@
                         opt.textContent = `${p.port}${descLabel}${typeLabel}`;
                         select.appendChild(opt);
                     });
-                }
 
-                // Restore previous selection if still present
-                if ([...select.options].some(o => o.value === prevVal)) {
-                    select.value = prevVal;
+                    // Restore previous selection if still present
+                    if ([...select.options].some(o => o.value === prevVal)) {
+                        select.value = prevVal;
+                    }
+
+                    // If not currently connected, update status to show detected hardware
+                    if (!hwConnected) {
+                        const selPort = ports.find(p => p.port === select.value) || ports[0];
+                        updateHwUI(false, selPort.port, selPort.device_type || 'Hardware', true);
+                    }
                 }
 
                 // ── Auto-detect: check for newly appeared real hardware ports ──
@@ -644,9 +662,9 @@
 
                 if (newRealPorts.length > 0 && !hwConnected && !_autoConnectInFlight) {
                     const candidate = newRealPorts[0];
-                    const typeLabel = candidate.device_type || 'Device';
-                    showToast(`${typeLabel} detected on ${candidate.port} — Connecting…`, 'info', 6000);
-                    log(`[Auto-detect] ${typeLabel} found on ${candidate.port}. Auto-connecting…`);
+                    const typeLabel = candidate.device_type || 'Hardware';
+                    showToast(`Hardware successfully detected: ${typeLabel} on ${candidate.port}`, 'success', 6000);
+                    log(`[Auto-detect] Hardware successfully detected: ${typeLabel} on ${candidate.port}. Connecting…`);
                     select.value = candidate.port;
                     await connectToPort(candidate.port, true);
                 }
@@ -656,7 +674,7 @@
                     const stillPresent = ports.some(p => p.port === hwPort);
                     if (!stillPresent) {
                         showToast(`${hwDeviceType || 'Hardware'} on ${hwPort} disconnected.`, 'warn');
-                        log(`[Hardware] Device on ${hwPort} was unplugged. No hardware found.`);
+                        log(`[Hardware] Device on ${hwPort} was unplugged.`);
                         updateHwUI(false, null, null);
                     }
                 }
