@@ -2,7 +2,7 @@
 FPTester Production Web & REST API Server (Synced with Major_proect_server_host)
 Runs natively on any laptop without requiring external pip packages.
 Provides endpoints for PCB file uploading, AI test plan generation, 2D dual-arm laptop simulation,
-and ESP32 USB hardware dispatch.
+and ESP32 / Arduino USB hardware dispatch.
 """
 import os
 import sys
@@ -29,6 +29,12 @@ logger = logging.getLogger("FPTester_HTTP_Server")
 # In-Memory Session Store (thread-safe writes via lock)
 BOARD_SESSIONS: dict = {}
 _sessions_lock = threading.Lock()
+
+# Global active hardware connection (thread-safe)
+_hw_dispatcher: SerialDispatcher = None
+_hw_port: str = None
+_hw_device_type: str = None
+_hw_lock = threading.Lock()
 
 # Pre-warm parsers at import time so the very first upload request is instant
 _kicad_parser = KiCadPCBParser()
@@ -78,10 +84,24 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                 self._send_html("<h1>FPTester Server Online</h1><p>Frontend index.html not found.</p>")
 
         elif url_path == "/api/health":
-            self._send_json({"status": "online", "system": "FPTester HTTP Server", "version": "2.0.0"})
+            self._send_json({"status": "online", "system": "FPTester HTTP Server", "version": "2.1.0"})
 
         elif url_path == "/api/ports":
-            self._send_json({"ports": SerialDispatcher.list_available_ports()})
+            ports = SerialDispatcher.list_available_ports()
+            self._send_json({"ports": ports})
+
+        elif url_path == "/api/connection-status":
+            global _hw_dispatcher, _hw_port, _hw_device_type
+            with _hw_lock:
+                if _hw_dispatcher and _hw_dispatcher.is_connected:
+                    self._send_json({
+                        "connected": True,
+                        "port": _hw_port,
+                        "device_type": _hw_device_type or "Unknown",
+                        "baudrate": _hw_dispatcher.baudrate
+                    })
+                else:
+                    self._send_json({"connected": False, "port": None, "device_type": None})
 
         elif url_path.startswith("/api/board/"):
             board_id = url_path.split("/")[-1]
@@ -103,11 +123,74 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
             self._send_json({"error": "Endpoint not found"}, 404)
 
     def do_POST(self):
+        global _hw_dispatcher, _hw_port, _hw_device_type
         url_path = urllib.parse.urlparse(self.path).path
         content_length = int(self.headers.get('Content-Length', 0))
         post_data = self.rfile.read(content_length) if content_length > 0 else b""
 
-        if url_path.startswith("/api/upload"):
+        # ------------------------------------------------------------------ #
+        #  Hardware Connection Endpoints                                        #
+        # ------------------------------------------------------------------ #
+
+        if url_path == "/api/connect":
+            try:
+                payload = json.loads(post_data.decode('utf-8')) if post_data else {}
+            except Exception:
+                payload = {}
+
+            port = payload.get("port", "SIMULATED_COM1")
+            baudrate = int(payload.get("baudrate", 115200))
+
+            # Look up device_type from port list
+            device_type = "Simulation"
+            for p in SerialDispatcher.list_available_ports():
+                if p["port"] == port:
+                    device_type = p.get("device_type", "Unknown")
+                    break
+
+            with _hw_lock:
+                # Disconnect any existing connection first
+                if _hw_dispatcher and _hw_dispatcher.is_connected:
+                    _hw_dispatcher.disconnect()
+
+                dispatcher = SerialDispatcher(port=port, baudrate=baudrate)
+                success = dispatcher.connect()
+
+                if success:
+                    _hw_dispatcher = dispatcher
+                    _hw_port = port
+                    _hw_device_type = device_type
+                    logger.info(f"Hardware connected: {port} ({device_type})")
+                    self._send_json({
+                        "status": "connected",
+                        "port": port,
+                        "device_type": device_type,
+                        "baudrate": baudrate
+                    })
+                else:
+                    _hw_dispatcher = None
+                    _hw_port = None
+                    _hw_device_type = None
+                    self._send_json({
+                        "status": "error",
+                        "message": f"Failed to open serial port: {port}"
+                    }, 500)
+
+        elif url_path == "/api/disconnect":
+            with _hw_lock:
+                if _hw_dispatcher:
+                    _hw_dispatcher.disconnect()
+                _hw_dispatcher = None
+                _hw_port = None
+                _hw_device_type = None
+            logger.info("Hardware disconnected by user request.")
+            self._send_json({"status": "disconnected"})
+
+        # ------------------------------------------------------------------ #
+        #  PCB Upload                                                           #
+        # ------------------------------------------------------------------ #
+
+        elif url_path.startswith("/api/upload"):
             content_str = post_data.decode('utf-8', errors='ignore')
             session_id = str(uuid.uuid4())[:8]
 
@@ -187,6 +270,10 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                 logger.error(f"Error parsing PCB file '{filename}': {e}")
                 self._send_json({"status": "error", "message": f"Failed to parse PCB file: {str(e)}"}, 400)
 
+        # ------------------------------------------------------------------ #
+        #  AI Test Plan Generation                                              #
+        # ------------------------------------------------------------------ #
+
         elif url_path.startswith("/api/generate-plan/"):
             board_id = url_path.split("/")[-1]
             if board_id not in BOARD_SESSIONS:
@@ -223,6 +310,10 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                 "skipped_out_of_reach": 0,
                 "test_plan": job.to_dict()
             })
+
+        # ------------------------------------------------------------------ #
+        #  Laptop Simulation Run                                                #
+        # ------------------------------------------------------------------ #
 
         elif url_path.startswith("/api/simulate-run/"):
             board_id = url_path.split("/")[-1]
@@ -264,6 +355,78 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                 "board_id": board_id,
                 "mode": "Simulation (Laptop Screen)",
                 "total_executed": len(results),
+                "results": results
+            })
+
+        # ------------------------------------------------------------------ #
+        #  Real Hardware Run (ESP32 / Arduino)                                  #
+        # ------------------------------------------------------------------ #
+
+        elif url_path.startswith("/api/hardware-run/"):
+            board_id = url_path.split("/")[-1]
+            if board_id not in BOARD_SESSIONS:
+                self._send_json({"error": "Board session not found"}, 404)
+                return
+
+            with _hw_lock:
+                if not _hw_dispatcher or not _hw_dispatcher.is_connected:
+                    self._send_json({
+                        "status": "error",
+                        "message": "No hardware connected. Please connect an ESP32 or Arduino first."
+                    }, 400)
+                    return
+                active_dispatcher = _hw_dispatcher
+                active_port = _hw_port
+                active_device_type = _hw_device_type
+
+            session = BOARD_SESSIONS[board_id]
+            job = session.get("test_job")
+            if not job:
+                planner = AITestPlanner()
+                job = planner.generate_plan(session["board"])
+                session["test_job"] = job
+
+            results = []
+            errors = []
+            for tp in job.test_pairs:
+                cmd = tp.to_hardware_command(job.job_id)
+                res = active_dispatcher.send_test_command(cmd)
+                if res.get("status") == "error":
+                    errors.append(res.get("message", "Unknown error"))
+                    results.append({
+                        "test_id": tp.test_id,
+                        "net": tp.net_name,
+                        "description": tp.description,
+                        "pad_a": {"ref": tp.pad_a.pad_id, "x": round(tp.pad_a.x, 3), "y": round(tp.pad_a.y, 3)},
+                        "pad_b": {"ref": tp.pad_b.pad_id, "x": round(tp.pad_b.x, 3), "y": round(tp.pad_b.y, 3)},
+                        "expected_min_v": tp.expected_min_v,
+                        "expected_max_v": tp.expected_max_v,
+                        "measured_voltage": 0.0,
+                        "adc_raw": 0,
+                        "verdict": "ERROR"
+                    })
+                else:
+                    results.append({
+                        "test_id": tp.test_id,
+                        "net": tp.net_name,
+                        "description": tp.description,
+                        "pad_a": {"ref": tp.pad_a.pad_id, "x": round(tp.pad_a.x, 3), "y": round(tp.pad_a.y, 3)},
+                        "pad_b": {"ref": tp.pad_b.pad_id, "x": round(tp.pad_b.x, 3), "y": round(tp.pad_b.y, 3)},
+                        "expected_min_v": tp.expected_min_v,
+                        "expected_max_v": tp.expected_max_v,
+                        "measured_voltage": res["result"]["adc_voltage"],
+                        "adc_raw": res["result"]["adc_raw"],
+                        "verdict": res["result"]["verdict"]
+                    })
+
+            self._send_json({
+                "status": "success",
+                "board_id": board_id,
+                "mode": f"Hardware ({active_device_type} @ {active_port})",
+                "port": active_port,
+                "device_type": active_device_type,
+                "total_executed": len(results),
+                "errors": errors,
                 "results": results
             })
 
