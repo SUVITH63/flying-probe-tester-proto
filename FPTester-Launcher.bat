@@ -1,13 +1,13 @@
 @echo off
-title FPTester — Automated Flying Probe PCB Tester
+title FPTester - Automated Flying Probe PCB Tester
 echo =========================================================
-echo    FPTester — Automated Flying Probe PCB Tester
+echo    FPTester - Automated Flying Probe PCB Tester Web App
 echo =========================================================
 echo.
 
 cd /d "%~dp0"
 
-REM ── Check if user ran directly inside an un-extracted ZIP file ─────────────
+REM Check if user ran directly inside an un-extracted ZIP file
 if not exist "run_app.py" (
     echo.
     echo ====================================================================
@@ -28,7 +28,7 @@ if not exist "run_app.py" (
     exit /b
 )
 
-REM ── Check System Python & Launch Server ───────────────────────────────────
+REM Check System Python and Launch Server
 where py >nul 2>nul
 if %errorlevel%==0 (
     echo [*] Starting FPTester server with py...
@@ -65,7 +65,7 @@ if %errorlevel%==0 (
     goto end
 )
 
-REM ── No Python Found: Auto-Download Portable Python Runtime ───────────────
+REM No Python Found: Auto-Download Portable Python Runtime
 echo [*] Python not detected on your system.
 echo [*] Automatically downloading Portable Python Runtime (10MB, no install required)...
 echo.
@@ -107,3 +107,4 @@ echo [ERROR] Automatic Portable Python setup failed. Please check internet conne
 pause
 
 :end
+pause

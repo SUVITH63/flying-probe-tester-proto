@@ -1,12 +1,7 @@
 """
-FPTester Windows Self-Extracting Launcher Builder (CertUtil + Auto-Bootstrap + Diagnostics)
-Creates a standalone FPTester-Windows.bat that:
- - Decodes embedded ZIP payload via certutil to %TEMP%/FPTester
- - Verifies extraction success
- - Starts server on dynamic free port (8000/8001/8002/8080)
- - Opens browser ONLY when socket connection succeeds
- - Pauses on error with clear diagnostic messages
- - Requires ZERO user setup, NO manual Python installation, and NO admin rights!
+FPTester Windows Self-Extracting Launcher Builder (Pure ASCII)
+Creates a standalone FPTester-Windows.bat using 100% pure 7-bit ASCII characters
+to ensure zero syntax/encoding crashes on any Windows CMD environment.
 """
 import os
 import sys
@@ -34,7 +29,7 @@ INCLUDE = [
 ]
 
 def build_sfx_bat():
-    print("Building FPTester Windows Self-Extracting .bat...")
+    print("Building FPTester Windows Self-Extracting .bat (Pure ASCII)...")
 
     buf = io.BytesIO()
     added_files = set()
@@ -98,7 +93,7 @@ def build_sfx_bat():
         "    exit /b",
         ")",
         "",
-        "REM ── System Python Check ─────────────────────────────────────────────",
+        "REM Check System Python",
         "where py >nul 2>nul",
         "if %errorlevel%==0 (",
         "    echo [*] Starting FPTester server with py...",
@@ -135,7 +130,7 @@ def build_sfx_bat():
         "    goto end",
         ")",
         "",
-        "REM ── Auto-Bootstrap Portable Python Environment ────────────────────────",
+        "REM Auto-Bootstrap Portable Python Environment",
         "echo [*] Python not detected on system.",
         "echo [*] Auto-setting up Portable Python (10MB, zero install required)...",
         "echo.",
@@ -174,6 +169,7 @@ def build_sfx_bat():
         "pause",
         "",
         ":end",
+        "pause",
     ]
 
     out_path = os.path.join(SRC_DIR, "dist", "FPTester-Windows.bat")

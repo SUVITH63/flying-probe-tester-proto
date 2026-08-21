@@ -1,9 +1,11 @@
 @echo off
 title FPTester Flying Probe PCB Tester Web App
 echo =========================================================
-echo    FPTester — Automated Flying Probe PCB Tester Web App
+echo    FPTester - Automated Flying Probe PCB Tester Web App
 echo =========================================================
 echo.
+
+cd /d "%~dp0"
 
 where py >nul 2>nul
 if %errorlevel%==0 (
@@ -13,6 +15,11 @@ if %errorlevel%==0 (
     )
     echo [*] Launching FPTester server with py...
     py run_app.py
+    if %errorlevel% neq 0 (
+        echo.
+        echo [ERROR] Server exited with code %errorlevel%.
+        pause
+    )
     goto end
 )
 
@@ -24,6 +31,11 @@ if %errorlevel%==0 (
     )
     echo [*] Launching FPTester server with python...
     python run_app.py
+    if %errorlevel% neq 0 (
+        echo.
+        echo [ERROR] Server exited with code %errorlevel%.
+        pause
+    )
     goto end
 )
 
@@ -35,6 +47,11 @@ if %errorlevel%==0 (
     )
     echo [*] Launching FPTester server with python3...
     python3 run_app.py
+    if %errorlevel% neq 0 (
+        echo.
+        echo [ERROR] Server exited with code %errorlevel%.
+        pause
+    )
     goto end
 )
 
@@ -47,8 +64,9 @@ if exist FPTester-Windows.exe (
 
 echo.
 echo [ERROR] Could not start Python server automatically.
-echo Please install Python (https://www.python.org) or download FPTester-Windows.exe directly from GitHub Releases!
+echo Please install Python (https://www.python.org) or run FPTester-Launcher.bat!
 echo.
 pause
 
 :end
+pause
