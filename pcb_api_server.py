@@ -176,7 +176,7 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                     _hw_dispatcher.disconnect()
 
                 dispatcher = SerialDispatcher(port=target_port, baudrate=baudrate)
-                success = dispatcher.connect()
+                success, err_msg = dispatcher.connect()
 
                 if success:
                     _hw_dispatcher = dispatcher
@@ -196,7 +196,7 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                     _hw_device_type = None
                     self._send_json({
                         "status": "error",
-                        "message": f"Failed to connect to USB port {target_port}. No hardware found."
+                        "message": err_msg
                     }, 400)
 
         elif url_path == "/api/disconnect":

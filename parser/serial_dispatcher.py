@@ -2,6 +2,7 @@
 FPTester USB Serial Dispatcher
 Scans Windows Device Manager & PySerial to discover ALL COM ports on the laptop.
 Preserves exact Windows Device Manager naming (e.g. "Arduino Uno (COM18)") and numerical sorting.
+Provides accurate connection error diagnostics (e.g., port busy in Arduino IDE).
 """
 import os
 import sys
@@ -9,7 +10,7 @@ import json
 import time
 import subprocess
 import logging
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 
 logger = logging.getLogger("FPTester_SerialDispatcher")
 
@@ -71,7 +72,7 @@ def scan_windows_device_manager() -> List[Dict[str, str]]:
             if isinstance(data, dict):
                 data = [data]
             for item in data:
-                name = item.get("Name", "")  # e.g. "Arduino Uno (COM18)"
+                name = item.get("Name", "")
                 desc = item.get("Description", "") or name
                 hwid = item.get("DeviceID", "")
                 if "(COM" in name:
@@ -130,7 +131,7 @@ class SerialDispatcher:
             except Exception as e:
                 logger.warning(f"PySerial port scan error: {e}")
 
-        # 2. Direct Windows Device Manager PnP Scan (Overrides with exact Device Manager strings)
+        # 2. Direct Windows Device Manager PnP Scan
         dm_ports = scan_windows_device_manager()
         for dp in dm_ports:
             port_name = dp["port"]
@@ -157,24 +158,29 @@ class SerialDispatcher:
         sorted_ports = sorted(list(found_map.values()), key=port_sort_key)
         return sorted_ports
 
-    def connect(self) -> bool:
+    def connect(self) -> Tuple[bool, str]:
         if not self.port or self.port == "SIMULATED_COM1":
             self.is_connected = False
-            return False
+            return False, "No physical COM port specified."
 
         if not SERIAL_AVAILABLE:
             self.is_connected = False
-            return False
+            return False, "pyserial module is not installed."
 
         try:
             self.conn = serial.Serial(self.port, self.baudrate, timeout=2.0)
             self.is_connected = True
             logger.info(f"Successfully opened physical COM port: {self.port} at {self.baudrate} baud")
-            return True
+            return True, f"Successfully connected to {self.port}"
         except Exception as e:
-            logger.error(f"Failed to open COM port {self.port}: {e}")
+            err_str = str(e)
+            if "Access is denied" in err_str or "PermissionError" in err_str or "Permission" in err_str:
+                msg = f"Port {self.port} is currently in use by another program (e.g. Arduino IDE or Serial Monitor). Please close Arduino IDE and try again."
+            else:
+                msg = f"Could not open {self.port}: {err_str}"
+            logger.error(f"Failed to open COM port {self.port}: {err_str}")
             self.is_connected = False
-            return False
+            return False, msg
 
     def send_test_command(self, cmd_dict: Dict[str, Any]) -> Dict[str, Any]:
         """

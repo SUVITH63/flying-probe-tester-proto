@@ -686,10 +686,11 @@
 
         // ── Connect to port ────────────────────────────────────────────────────
         async function connectToPort(port, isAuto = false) {
+            if (!port) return;
             _autoConnectInFlight = true;
             const pill = document.getElementById('hwStatusPill');
             pill.className = 'hw-status-pill connecting';
-            document.getElementById('hwStatusText').innerText = 'CONNECTING…';
+            document.getElementById('hwStatusText').innerText = `CONNECTING TO ${port}…`;
             try {
                 const res = await fetch('/api/connect', {
                     method: 'POST',
@@ -703,13 +704,15 @@
                     showToast(`Connected to ${data.device_type} on ${data.port} ${autoLabel}`, 'success');
                     log(`[Hardware] Connected: ${data.device_type} @ ${data.port} | ${data.baudrate} baud`);
                 } else {
-                    updateHwUI(false, null, null);
-                    showToast(`Connection failed: ${data.message || 'Unknown error'}`, 'error');
-                    log(`[Hardware] Connection error: ${data.message}`);
+                    if (!isAuto) {
+                        showToast(`Connection error: ${data.message || 'Port unavailable'}`, 'error');
+                    }
+                    log(`[Hardware] Connection error on ${port}: ${data.message}`);
                 }
             } catch (err) {
-                updateHwUI(false, null, null);
-                showToast(`Connection error: ${err.message}`, 'error');
+                if (!isAuto) {
+                    showToast(`Connection error: ${err.message}`, 'error');
+                }
                 log(`[Hardware] Fetch error: ${err.message}`);
             }
             _autoConnectInFlight = false;
