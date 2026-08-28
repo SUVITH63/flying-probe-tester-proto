@@ -1,54 +1,50 @@
 @echo off
-title FPTester Flying Probe PCB Tester Web App
-echo =========================================================
-echo    FPTester — Automated Flying Probe PCB Tester Web App
-echo =========================================================
+title FPTester Flying Probe PCB Tester
+color 0A
+echo.
+echo  =========================================================
+echo     FPTester - Automated Flying Probe PCB Tester
+echo  =========================================================
 echo.
 
+cd /d "%~dp0"
+
+REM Try system Python
 where py >nul 2>nul
 if %errorlevel%==0 (
-    if not exist "llm\models\fptester-circuit-llm.gguf" (
-        echo [*] Downloading local GGUF LLM Model for offline AI reasoning...
-        py download_model.py
-    )
-    echo [*] Launching FPTester server with py...
+    echo  [*] Starting FPTester with Python...
     py run_app.py
     goto end
 )
 
 where python >nul 2>nul
 if %errorlevel%==0 (
-    if not exist "llm\models\fptester-circuit-llm.gguf" (
-        echo [*] Downloading local GGUF LLM Model for offline AI reasoning...
-        python download_model.py
-    )
-    echo [*] Launching FPTester server with python...
+    echo  [*] Starting FPTester with Python...
     python run_app.py
     goto end
 )
 
 where python3 >nul 2>nul
 if %errorlevel%==0 (
-    if not exist "llm\models\fptester-circuit-llm.gguf" (
-        echo [*] Downloading local GGUF LLM Model for offline AI reasoning...
-        python3 download_model.py
-    )
-    echo [*] Launching FPTester server with python3...
+    echo  [*] Starting FPTester with Python...
     python3 run_app.py
     goto end
 )
 
-echo [!] Python command was not detected in your system PATH.
-echo [!] Attempting to run direct executable or script...
-if exist FPTester-Windows.exe (
-    start FPTester-Windows.exe
+REM Try bundled exe
+if exist "FPTester-Windows.exe" (
+    echo  [*] Starting FPTester standalone app...
+    start "" "FPTester-Windows.exe"
+    timeout /t 3 /nobreak >nul
+    start "" "http://localhost:8000"
     goto end
 )
 
 echo.
-echo [ERROR] Could not start Python server automatically.
-echo Please install Python (https://www.python.org) or download FPTester-Windows.exe directly from GitHub Releases!
+echo  [ERROR] Python not found. Please run FPTester-Launcher.bat instead,
+echo  which will automatically download everything needed.
 echo.
 pause
 
 :end
+pause
