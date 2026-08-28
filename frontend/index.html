@@ -253,6 +253,170 @@
             overflow-y: auto;
             white-space: pre-wrap;
         }
+
+        /* ── Hardware Status Bar ── */
+        .hw-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hw-status-pill {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            border: 1px solid transparent;
+            transition: all 0.4s ease;
+            white-space: nowrap;
+        }
+        .hw-status-pill.disconnected {
+            background: rgba(239, 68, 68, 0.12);
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+        .hw-status-pill.connecting {
+            background: rgba(245, 158, 11, 0.12);
+            border-color: var(--accent-amber);
+            color: var(--accent-amber);
+            animation: pulse-amber 1s ease-in-out infinite;
+        }
+        .hw-status-pill.connected-esp {
+            background: rgba(16, 185, 129, 0.12);
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+        }
+        .hw-status-pill.connected-arduino {
+            background: rgba(6, 182, 212, 0.12);
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+            box-shadow: 0 0 12px rgba(6, 182, 212, 0.25);
+        }
+        .hw-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .disconnected .hw-dot  { background: #ef4444; }
+        .connecting .hw-dot    { background: var(--accent-amber); animation: pulse-amber 1s ease-in-out infinite; }
+        .connected-esp .hw-dot { background: var(--accent-green); animation: glow-green 2s ease-in-out infinite; }
+        .connected-arduino .hw-dot { background: var(--accent-cyan); animation: glow-cyan 2s ease-in-out infinite; }
+
+        @keyframes pulse-amber {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.4; }
+        }
+        @keyframes glow-green {
+            0%, 100% { box-shadow: 0 0 4px #10b981; }
+            50%       { box-shadow: 0 0 10px #10b981; }
+        }
+        @keyframes glow-cyan {
+            0%, 100% { box-shadow: 0 0 4px #06b6d4; }
+            50%       { box-shadow: 0 0 10px #06b6d4; }
+        }
+
+        .hw-select {
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: var(--text-main);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            cursor: pointer;
+            max-width: 220px;
+        }
+        .hw-select:focus { outline: none; border-color: var(--accent-amber); }
+
+        .hw-btn {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: var(--text-main);
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .hw-btn:hover { background: #334155; }
+        .hw-btn.connect-btn {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+        .hw-btn.connect-btn:hover { background: rgba(16, 185, 129, 0.25); }
+        .hw-btn.disconnect-btn {
+            background: rgba(239, 68, 68, 0.12);
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+        .hw-btn.disconnect-btn:hover { background: rgba(239, 68, 68, 0.22); }
+
+        /* ── Toast Notification ── */
+        #hwToast {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid transparent;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            transform: translateY(80px);
+            opacity: 0;
+            transition: transform 0.35s cubic-bezier(.4,0,.2,1), opacity 0.35s ease;
+            pointer-events: none;
+        }
+        #hwToast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        #hwToast.toast-success {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+        #hwToast.toast-info {
+            background: rgba(6, 182, 212, 0.15);
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+        #hwToast.toast-error {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+        #hwToast.toast-warn {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: var(--accent-amber);
+            color: var(--accent-amber);
+        }
+
+        /* Hardware Run button variant */
+        .btn-hw {
+            background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(6,182,212,0.2));
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+        }
+        .btn-hw:hover:not(:disabled) {
+            background: linear-gradient(135deg, rgba(16,185,129,0.35), rgba(6,182,212,0.35));
+            box-shadow: 0 0 16px rgba(16,185,129,0.3);
+        }
+        .btn:disabled { opacity: 0.35; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -265,11 +429,26 @@
                 <div style="font-size: 11px; color: var(--text-muted);">AI-Powered Camera-less Dual-Arm Electrical Evaluation System</div>
             </div>
         </div>
-        <div style="display: flex; gap: 16px; align-items: center;">
-            <div class="mode-badge" id="modeBadge">LAPTOP SIMULATION MODE</div>
-            <select id="comPortSelect" class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">
-                <option value="SIMULATED_COM1">SIMULATED_COM1 (Laptop Screen)</option>
+        <div class="hw-bar">
+            <!-- Live hardware status pill -->
+            <div class="hw-status-pill disconnected" id="hwStatusPill">
+                <span class="hw-dot"></span>
+                <span id="hwStatusText">DISCONNECTED</span>
+            </div>
+
+            <!-- Port selector -->
+            <select class="hw-select" id="comPortSelect">
+                <option value="SIMULATED_COM1">SIMULATED_COM1 (Simulation)</option>
             </select>
+
+            <!-- Refresh ports button -->
+            <button class="hw-btn" id="btnRefreshPorts" title="Refresh available ports">↺</button>
+
+            <!-- Connect / Disconnect toggle -->
+            <button class="hw-btn connect-btn" id="btnConnectHw">🔌 Connect</button>
+
+            <!-- Legacy mode badge (updates dynamically) -->
+            <div class="mode-badge" id="modeBadge">LAPTOP SIMULATION MODE</div>
         </div>
     </header>
 
@@ -321,6 +500,7 @@
 
             <button class="btn" id="btnGenPlan" disabled>⚡ Generate AI Test Plan</button>
             <button class="btn btn-secondary" id="btnSimulate" disabled>▶ Run Dual-Arm Simulation</button>
+            <button class="btn btn-hw" id="btnHwRun" disabled>🔬 Run on Hardware</button>
         </div>
 
         <!-- CENTER PANEL: Interactive 2D Dual-Arm Kinematics Canvas -->
@@ -358,11 +538,198 @@
         </div>
     </main>
 
+    <!-- Toast notification element -->
+    <div id="hwToast"><span id="hwToastIcon">✅</span><span id="hwToastMsg">Connected</span></div>
+
     <script>
-        // State
+        // ── State ──────────────────────────────────────────────────────────────
         let currentBoardId = null;
         let currentTestPlan = null;
         let isSimulating = false;
+
+        // Hardware connection state
+        let hwConnected = false;
+        let hwPort = null;
+        let hwDeviceType = null;
+        let _lastKnownPorts = [];   // used for auto-detect diff
+        let _autoConnectInFlight = false;
+
+        // ── Toast Helper ───────────────────────────────────────────────────────
+        let _toastTimer = null;
+        function showToast(msg, type = 'success', durationMs = 4000) {
+            const toast = document.getElementById('hwToast');
+            const toastMsg = document.getElementById('hwToastMsg');
+            const icons = { success: '✅', info: 'ℹ️', error: '❌', warn: '⚠️' };
+            document.getElementById('hwToastIcon').innerText = icons[type] || '✅';
+            toastMsg.innerText = msg;
+            toast.className = `show toast-${type}`;
+            if (_toastTimer) clearTimeout(_toastTimer);
+            _toastTimer = setTimeout(() => { toast.classList.remove('show'); }, durationMs);
+        }
+
+        // ── Hardware Status UI Update ──────────────────────────────────────────
+        function updateHwUI(connected, port, deviceType) {
+            hwConnected = connected;
+            hwPort = port;
+            hwDeviceType = deviceType;
+
+            const pill = document.getElementById('hwStatusPill');
+            const statusText = document.getElementById('hwStatusText');
+            const modeBadge = document.getElementById('modeBadge');
+            const btnConnect = document.getElementById('btnConnectHw');
+            const btnHwRun = document.getElementById('btnHwRun');
+
+            if (connected) {
+                const isESP = (deviceType || '').toLowerCase().includes('esp');
+                pill.className = `hw-status-pill ${isESP ? 'connected-esp' : 'connected-arduino'}`;
+                statusText.innerText = `${(deviceType || 'HARDWARE').toUpperCase()} · ${port}`;
+                modeBadge.style.background = isESP
+                    ? 'rgba(16,185,129,0.15)' : 'rgba(6,182,212,0.15)';
+                modeBadge.style.borderColor = isESP ? '#10b981' : '#06b6d4';
+                modeBadge.style.color = isESP ? '#10b981' : '#06b6d4';
+                modeBadge.innerText = `HARDWARE MODE · ${(deviceType || '').toUpperCase()}`;
+                btnConnect.textContent = '⏏ Disconnect';
+                btnConnect.className = 'hw-btn disconnect-btn';
+                if (currentTestPlan) btnHwRun.disabled = false;
+            } else {
+                pill.className = 'hw-status-pill disconnected';
+                statusText.innerText = 'DISCONNECTED';
+                modeBadge.style.background = '';
+                modeBadge.style.borderColor = '';
+                modeBadge.style.color = '';
+                modeBadge.innerText = 'LAPTOP SIMULATION MODE';
+                btnConnect.textContent = '🔌 Connect';
+                btnConnect.className = 'hw-btn connect-btn';
+                btnHwRun.disabled = true;
+            }
+        }
+
+        // ── Port Listing ───────────────────────────────────────────────────────
+        async function refreshPorts(silent = false) {
+            try {
+                const res = await fetch('/api/ports');
+                const data = await res.json();
+                const ports = data.ports || [];
+
+                const select = document.getElementById('comPortSelect');
+                const prevVal = select.value;
+                select.innerHTML = '';
+
+                ports.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.port;
+                    const typeLabel = p.device_type && p.device_type !== 'Simulation' && p.device_type !== 'Unknown'
+                        ? ` [${p.device_type}]` : '';
+                    opt.textContent = `${p.port}${typeLabel}`;
+                    select.appendChild(opt);
+                });
+
+                // Restore previous selection if still present
+                if ([...select.options].some(o => o.value === prevVal)) {
+                    select.value = prevVal;
+                }
+
+                // ── Auto-detect: check for newly appeared real hardware ports ──
+                const newRealPorts = ports.filter(p =>
+                    p.device_type !== 'Simulation' &&
+                    !_lastKnownPorts.some(lp => lp.port === p.port)
+                );
+
+                if (newRealPorts.length > 0 && !hwConnected && !_autoConnectInFlight) {
+                    const candidate = newRealPorts[0];
+                    const typeLabel = candidate.device_type || 'Device';
+                    showToast(`${typeLabel} detected on ${candidate.port} — Connecting…`, 'info', 6000);
+                    log(`[Auto-detect] ${typeLabel} found on ${candidate.port}. Auto-connecting…`);
+                    select.value = candidate.port;
+                    await connectToPort(candidate.port, true);
+                }
+
+                // Check for removed ports (device unplugged)
+                if (hwConnected && hwPort) {
+                    const stillPresent = ports.some(p => p.port === hwPort);
+                    if (!stillPresent) {
+                        showToast(`${hwDeviceType || 'Hardware'} on ${hwPort} disconnected.`, 'warn');
+                        log(`[Hardware] Device on ${hwPort} was unplugged. Reverting to simulation.`);
+                        updateHwUI(false, null, null);
+                    }
+                }
+
+                _lastKnownPorts = ports;
+                if (!silent) log(`Ports refreshed: ${ports.map(p => p.port).join(', ')}`);
+            } catch (err) {
+                if (!silent) log(`Port refresh error: ${err.message}`);
+            }
+        }
+
+        // ── Connect to port ────────────────────────────────────────────────────
+        async function connectToPort(port, isAuto = false) {
+            _autoConnectInFlight = true;
+            const pill = document.getElementById('hwStatusPill');
+            pill.className = 'hw-status-pill connecting';
+            document.getElementById('hwStatusText').innerText = 'CONNECTING…';
+            try {
+                const res = await fetch('/api/connect', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ port })
+                });
+                const data = await res.json();
+                if (data.status === 'connected') {
+                    updateHwUI(true, data.port, data.device_type);
+                    const autoLabel = isAuto ? '(auto)' : '';
+                    showToast(`Connected to ${data.device_type} on ${data.port} ${autoLabel}`, 'success');
+                    log(`[Hardware] Connected: ${data.device_type} @ ${data.port} | ${data.baudrate} baud`);
+                } else {
+                    updateHwUI(false, null, null);
+                    showToast(`Connection failed: ${data.message || 'Unknown error'}`, 'error');
+                    log(`[Hardware] Connection error: ${data.message}`);
+                }
+            } catch (err) {
+                updateHwUI(false, null, null);
+                showToast(`Connection error: ${err.message}`, 'error');
+                log(`[Hardware] Fetch error: ${err.message}`);
+            }
+            _autoConnectInFlight = false;
+        }
+
+        // ── Disconnect ─────────────────────────────────────────────────────────
+        async function disconnectHardware() {
+            try {
+                await fetch('/api/disconnect', { method: 'POST' });
+            } catch (_) {}
+            updateHwUI(false, null, null);
+            showToast('Hardware disconnected.', 'warn');
+            log('[Hardware] Disconnected from hardware. Simulation mode active.');
+        }
+
+        // ── Connect / Disconnect button handler ────────────────────────────────
+        document.getElementById('btnConnectHw').addEventListener('click', async () => {
+            if (hwConnected) {
+                await disconnectHardware();
+            } else {
+                const port = document.getElementById('comPortSelect').value;
+                await connectToPort(port, false);
+            }
+        });
+
+        // ── Refresh ports button ───────────────────────────────────────────────
+        document.getElementById('btnRefreshPorts').addEventListener('click', () => refreshPorts(false));
+
+        // ── Background port polling every 2 seconds ────────────────────────────
+        refreshPorts(true);
+        setInterval(() => refreshPorts(true), 2000);
+
+        // ── Poll /api/connection-status on load (in case server already has hw) ─
+        (async () => {
+            try {
+                const res = await fetch('/api/connection-status');
+                const data = await res.json();
+                if (data.connected) {
+                    updateHwUI(true, data.port, data.device_type);
+                    log(`[Hardware] Restored connection: ${data.device_type} @ ${data.port}`);
+                }
+            } catch (_) {}
+        })();
 
         // Kinematics & Arm State (Local PCB mm coords: (x, y))
         let arm0Target = { x: -15, y: 50 };
@@ -416,6 +783,8 @@
 
                     btnGenPlan.disabled = false;
                     log(`Parsed successfully! ${data.total_pads} pads, ${data.total_components} components.`);
+                    // Enable hw run button if hardware already connected
+                    if (hwConnected) document.getElementById('btnHwRun').disabled = false;
                     drawCanvas(null, null);
                 } else {
                     log(`Upload failed: ${data.message || 'Parsing error'}`);
@@ -460,8 +829,10 @@
                 if (data.status === 'success') {
                     currentTestPlan = data.test_plan;
                     btnSimulate.disabled = false;
+                    if (hwConnected) document.getElementById('btnHwRun').disabled = false;
                     renderTestPlan(data.test_plan);
                     log(`AI Test Plan generated! Total probe pairs: ${data.total_tests}`);
+                    if (hwConnected) showToast('Test plan ready — hardware run available!', 'success');
                 }
             } catch (err) {
                 log(`Error generating test plan: ${err.message}`);
@@ -487,42 +858,81 @@
             });
         }
 
+        // ── Shared result rendering helper ─────────────────────────────────────
+        async function renderRunResults(data, mode) {
+            for (let step of data.results) {
+                const card = document.getElementById(`test-card-${step.test_id}`);
+                if (card) card.classList.add('active');
+
+                // Animate arms
+                await animateArmMove(step.pad_a, step.pad_b);
+
+                const verdictTag = document.getElementById(`verdict-${step.test_id}`);
+                const verdict = step.verdict || 'ERROR';
+                if (verdictTag) {
+                    const vLabel = verdict === 'ERROR' ? 'ERR' : `${step.measured_voltage}V [${verdict}]`;
+                    verdictTag.innerText = vLabel;
+                    verdictTag.className = `verdict-tag ${
+                        verdict === 'PASS' ? 'verdict-pass' : 'verdict-fail'
+                    }`;
+                }
+
+                if (card) {
+                    card.classList.remove('active');
+                    card.classList.add(verdict === 'PASS' ? 'pass' : 'fail');
+                }
+
+                log(`Test #${step.test_id} (${step.net}): ${step.pad_a.ref} -> ${step.pad_b.ref} = ${step.measured_voltage}V (${verdict})`);
+                await new Promise(r => setTimeout(r, 350));
+            }
+            log(`${mode} probing sequence complete! ${data.total_executed} tests executed.`);
+        }
+
+        // ── Simulation run ─────────────────────────────────────────────────────
         btnSimulate.addEventListener('click', async () => {
             if (!currentBoardId || isSimulating) return;
             isSimulating = true;
             log('Starting dual 5-bar robotic arm simulation...');
             document.getElementById('statusIndicator').innerText = 'Simulating Probe Cycle...';
-
             try {
                 const res = await fetch(`/api/simulate-run/${currentBoardId}`, { method: 'POST' });
                 const data = await res.json();
-                
-                for (let step of data.results) {
-                    // Highlight active card
-                    const card = document.getElementById(`test-card-${step.test_id}`);
-                    if (card) card.classList.add('active');
-
-                    // Animate arms moving to target pad coordinates
-                    await animateArmMove(step.pad_a, step.pad_b);
-
-                    // Update result tag
-                    const verdictTag = document.getElementById(`verdict-${step.test_id}`);
-                    if (verdictTag) {
-                        verdictTag.innerText = `${step.measured_voltage}V [${step.verdict}]`;
-                        verdictTag.className = `verdict-tag ${step.verdict === 'PASS' ? 'verdict-pass' : 'verdict-fail'}`;
-                    }
-
-                    if (card) {
-                        card.classList.remove('active');
-                        card.classList.add(step.verdict.toLowerCase());
-                    }
-
-                    log(`Test #${step.test_id} (${step.net}): ${step.pad_a.ref} -> ${step.pad_b.ref} = ${step.measured_voltage}V (${step.verdict})`);
-                    await new Promise(r => setTimeout(r, 350)); // Pause so user can see each test result
-                }
-                log('Dual-arm probing sequence complete! All nets verified.');
+                await renderRunResults(data, 'Simulation');
             } catch (err) {
                 log(`Simulation error: ${err.message}`);
+            }
+            isSimulating = false;
+            document.getElementById('statusIndicator').innerText = 'Ready';
+        });
+
+        // ── Hardware run ───────────────────────────────────────────────────────
+        const btnHwRun = document.getElementById('btnHwRun');
+        btnHwRun.addEventListener('click', async () => {
+            if (!currentBoardId || isSimulating) return;
+            if (!hwConnected) {
+                showToast('No hardware connected. Plug in an ESP32 or Arduino first.', 'error');
+                return;
+            }
+            isSimulating = true;
+            log(`[Hardware] Dispatching test plan to ${hwDeviceType} @ ${hwPort}…`);
+            document.getElementById('statusIndicator').innerText = `Running on ${hwDeviceType}…`;
+            showToast(`Sending tests to ${hwDeviceType} @ ${hwPort}…`, 'info', 8000);
+            try {
+                const res = await fetch(`/api/hardware-run/${currentBoardId}`, { method: 'POST' });
+                const data = await res.json();
+                if (data.status === 'error') {
+                    log(`[Hardware] Error: ${data.message}`);
+                    showToast(data.message, 'error');
+                } else {
+                    if (data.errors && data.errors.length > 0) {
+                        log(`[Hardware] ⚠ ${data.errors.length} serial error(s) occurred.`);
+                    }
+                    await renderRunResults(data, `Hardware (${hwDeviceType})`);
+                    showToast(`Hardware run complete! ${data.total_executed} tests executed.`, 'success');
+                }
+            } catch (err) {
+                log(`[Hardware] Fetch error: ${err.message}`);
+                showToast(`Hardware run failed: ${err.message}`, 'error');
             }
             isSimulating = false;
             document.getElementById('statusIndicator').innerText = 'Ready';
