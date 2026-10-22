@@ -675,50 +675,180 @@
             box-shadow: 0 0 16px rgba(16,185,129,0.3);
         }
 
+        /* ── Modern Professional Engineering Controls (No Emojis) ── */
+        .engine-select {
+            width: 100%;
+            background: #090d16;
+            color: #e2e8f0;
+            border: 1px solid #1e293b;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 28px;
+        }
+        .engine-select:hover {
+            border-color: #334155;
+            background-color: #0d1424;
+        }
+        .engine-select:focus {
+            border-color: #06b6d4;
+            box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.2);
+        }
+
+        .btn-ctrl {
+            width: 100%;
+            padding: 9px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-sizing: border-box;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .btn-ctrl svg {
+            flex-shrink: 0;
+        }
+
+        /* 1. Generate AI Test Plan */
+        #btnGenPlan {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            color: #ffffff;
+            border: 1px solid #f59e0b;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        #btnGenPlan:not(:disabled):hover {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            border-color: #fbbf24;
+            transform: translateY(-1px);
+        }
+        #btnGenPlan:disabled {
+            background: #151d2c !important;
+            border: 1px solid #1e293b !important;
+            color: #475569 !important;
+            box-shadow: none !important;
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 2. Run Dual-Arm Simulation */
+        #btnSimulate {
+            background: #0d1527;
+            color: #93c5fd;
+            border: 1px solid #1e3a8a;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        #btnSimulate:not(:disabled):hover {
+            background: #1e3a8a;
+            color: #ffffff;
+            border-color: #3b82f6;
+            box-shadow: 0 3px 12px rgba(59, 130, 246, 0.35);
+            transform: translateY(-1px);
+        }
+        #btnSimulate:disabled {
+            background: #0b1120 !important;
+            border: 1px solid #1e293b !important;
+            color: #334155 !important;
+            box-shadow: none !important;
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 3. Upload Test Plan to Hardware */
         #btnHwRun {
             background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
             color: #ffffff !important;
-            font-weight: 800 !important;
-            font-size: 13px !important;
-            letter-spacing: 0.2px;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
             border: 1px solid #34d399 !important;
-            transition: all 0.2s ease;
+            box-shadow: 0 2px 10px rgba(16, 185, 129, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+            font-size: 12px !important;
+            font-weight: 700 !important;
         }
         #btnHwRun span {
             color: #ffffff !important;
-            font-weight: 800 !important;
-        }
-        #btnHwRun:disabled {
-            opacity: 0.55 !important;
-            cursor: not-allowed;
-            color: rgba(255, 255, 255, 0.75) !important;
-            box-shadow: none !important;
-        }
-        #btnHwRun:not(:disabled) {
-            opacity: 1 !important;
-            color: #ffffff !important;
-            cursor: pointer;
-            box-shadow: 0 0 16px rgba(16, 185, 129, 0.5) !important;
+            font-weight: 700 !important;
         }
         #btnHwRun:not(:disabled):hover {
-            box-shadow: 0 0 22px rgba(16, 185, 129, 0.75) !important;
+            background: linear-gradient(135deg, #047857 0%, #059669 100%) !important;
+            box-shadow: 0 4px 18px rgba(16, 185, 129, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+            border-color: #6ee7b7 !important;
             transform: translateY(-1px);
+        }
+        #btnHwRun:disabled {
+            background: #091a14 !important;
+            border: 1px solid #12382b !important;
+            color: #059669 !important;
+            opacity: 0.5 !important;
+            box-shadow: none !important;
+            cursor: not-allowed;
+            transform: none;
+        }
+        #btnHwRun:disabled span {
+            color: #059669 !important;
         }
 
         #btnUploadPlanTab {
-            background: rgba(16, 185, 129, 0.25) !important;
-            border-color: var(--accent-emerald) !important;
+            background: rgba(16, 185, 129, 0.15) !important;
+            border: 1px solid var(--accent-emerald) !important;
             color: #34d399 !important;
-            font-weight: 800 !important;
+            font-weight: 700 !important;
         }
         #btnUploadPlanTab span {
             color: #34d399 !important;
-            font-weight: 800 !important;
+            font-weight: 700 !important;
         }
         #btnUploadPlanTab:not(:disabled) {
-            color: #34d399 !important;
             cursor: pointer;
+        }
+        #btnUploadPlanTab:not(:disabled):hover {
+            background: rgba(16, 185, 129, 0.3) !important;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.4) !important;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        .dot-online {
+            background: #10b981;
+            box-shadow: 0 0 6px #10b981;
+        }
+        .dot-offline {
+            background: #64748b;
+        }
+        .dot-ready {
+            background: #06b6d4;
+            box-shadow: 0 0 6px #06b6d4;
+        }
+
+        .spin-icon {
+            animation: spin-icon 0.85s linear infinite;
+        }
+        @keyframes spin-icon {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* ── Reset Icon Spinning Animation ── */
@@ -996,13 +1126,13 @@
             <button class="hw-btn" id="btnRefreshPorts" title="Reset & Rescan COM Ports (Refresh Serial Bus)">↺</button>
 
             <!-- Primary Connect / Disconnect Action Button (Directly beside port selector!) -->
-            <button class="hw-btn" id="btnConnectHw">⚡ Connect COM5</button>
+            <button class="hw-btn" id="btnConnectHw">Connect COM5</button>
 
             <!-- Live Bridge Graphic (Laptop <-> Device) -->
             <div class="bridge-widget" id="bridgeWidget" title="Laptop to Hardware Link Status">
-                <span id="laptopPill">💻</span>
+                <span id="laptopPill"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="2" y1="20" x2="22" y2="20"></line></svg></span>
                 <div class="bridge-wire disconnected" id="bridgeWire"></div>
-                <span id="esp32Emoji">📡</span>
+                <span id="esp32Emoji"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M9 9h6v6H9zM9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"></path></svg></span>
                 <span id="esp32Label" style="font-weight: 700;">No COM (Sim)</span>
             </div>
 
@@ -1017,26 +1147,26 @@
         <div class="header-actions">
             <!-- Mode badge -->
             <div class="mode-badge" id="modeBadge" title="Selected COM Port & Board Annotation Status">
-                <span id="modeBadgeDot">⚪</span>
+                <span id="modeBadgeDot"><span class="status-dot dot-offline"></span></span>
                 <span id="modeBadgeText">SIMULATION MODE</span>
             </div>
 
             <!-- Quick Serial Monitor Toggle Button -->
-            <button class="hw-btn" id="btnHeaderSerial" style="background: rgba(6, 182, 212, 0.15); border-color: var(--accent-cyan); color: var(--accent-cyan);" title="Open Live Serial Monitor">📟 Serial Monitor</button>
+            <button class="hw-btn" id="btnHeaderSerial" style="background: rgba(6, 182, 212, 0.15); border-color: var(--accent-cyan); color: var(--accent-cyan);" title="Open Live Serial Monitor"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg><span>Serial Monitor</span></button>
 
             <!-- Firmware Code Modal Button -->
-            <button class="hw-btn" id="btnHeaderFirmware" title="View & Copy Hardware Firmware Sketch (.ino)">📄 Code</button>
+            <button class="hw-btn" id="btnHeaderFirmware" title="View & Copy Hardware Firmware Sketch (.ino)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg><span>Firmware</span></button>
         </div>
     </header>
 
     <!-- Port Conflict Banner (Displays if Arduino IDE or another program locks the port) -->
     <div id="portConflictBanner" class="conflict-banner">
         <div style="display: flex; align-items: center; gap: 8px;">
-            <span>⚠️</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
             <span id="conflictBannerText">COM5 is busy: Arduino IDE has this COM port open. Close Arduino IDE or click Free Port below.</span>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
-            <button class="hw-btn" id="btnFreePort" style="background: rgba(245, 158, 11, 0.35); border-color: var(--accent-amber); color: #fff; font-weight: 700;">⚡ Free Port & Connect</button>
+            <button class="hw-btn" id="btnFreePort" style="background: rgba(245, 158, 11, 0.35); border-color: var(--accent-amber); color: #fff; font-weight: 700;">Free Port & Connect</button>
             <button class="hw-btn" id="btnCloseConflictBanner" style="padding: 3px 8px;">✕</button>
         </div>
     </div>
@@ -1047,7 +1177,13 @@
             <div class="panel-title">1. Design Upload</div>
             <div class="dropzone" id="dropzone">
                 <input type="file" id="fileInput" accept=".kicad_pcb,.gbr,.pho" style="display: none;">
-                <div style="font-size: 28px; margin-bottom: 4px;">📁</div>
+                <div style="margin-bottom: 6px;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                </div>
                 <div style="font-weight: 600; margin-bottom: 2px;">Drag & Drop PCB File</div>
                 <div style="font-size: 10.5px; color: var(--text-muted);">Supports KiCad (.kicad_pcb) & Gerber (.gbr)</div>
             </div>
@@ -1074,12 +1210,12 @@
 
             <div class="panel-title">3. AI Engine Configuration</div>
             <div style="display: flex; flex-direction: column; gap: 6px;">
-                <label style="font-size: 10.5px; color: var(--text-muted);">Select AI Engine Provider:</label>
-                <select id="aiProviderSelect" class="btn btn-secondary" style="padding: 6px 8px; font-size: 11px; width: 100%; text-align: left;">
-                    <option value="built_in" selected>⚡ Built-in Offline Neural AI Engine (Zero Setup)</option>
-                    <option value="ollama">🦙 Local Ollama LLM (http://localhost:11434)</option>
-                    <option value="gemini">✨ Google Gemini API (Public API Key)</option>
-                    <option value="openai">🤖 OpenAI GPT-4o API (Public API Key)</option>
+                <label style="font-size: 10.5px; color: var(--text-muted); font-weight: 500;">AI Engine Provider</label>
+                <select id="aiProviderSelect" class="engine-select">
+                    <option value="built_in" selected>Offline Neural Engine (Embedded)</option>
+                    <option value="ollama">Local Ollama LLM (Port 11434)</option>
+                    <option value="gemini">Google Gemini Pro (Cloud API)</option>
+                    <option value="openai">OpenAI GPT-4o (Cloud API)</option>
                 </select>
 
                 <div id="apiKeyGroup" style="display: none; flex-direction: column; gap: 4px;">
@@ -1088,12 +1224,32 @@
                 </div>
             </div>
 
-            <button class="btn" id="btnGenPlan" disabled>⚡ Generate AI Test Plan</button>
-            <button class="btn btn-secondary" id="btnSimulate" disabled>▶ Run Dual-Arm Simulation</button>
-            <button class="btn btn-hw" id="btnHwRun" disabled style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #ffffff !important; font-weight: 800; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4); font-size: 12.5px; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                <span>🚀</span>
-                <span id="btnHwRunText" style="color: #ffffff !important; font-weight: 800;">Upload Test Plan to Hardware</span>
-            </button>
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 2px;">
+                <button class="btn-ctrl" id="btnGenPlan" disabled>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                        <rect x="9" y="9" width="6" height="6"></rect>
+                        <path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"></path>
+                    </svg>
+                    <span>Generate AI Test Plan</span>
+                </button>
+
+                <button class="btn-ctrl" id="btnSimulate" disabled>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <polygon points="6 4 20 12 6 20 6 4"></polygon>
+                    </svg>
+                    <span id="btnSimulateText">Run Dual-Arm Simulation</span>
+                </button>
+
+                <button class="btn-ctrl" id="btnHwRun" disabled>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <span id="btnHwRunText">Upload Test Plan to Hardware</span>
+                </button>
+            </div>
         </div>
 
         <!-- CENTER PANEL: Interactive 2D Dual-Arm Kinematics Canvas -->
@@ -1103,33 +1259,33 @@
                 <span style="font-size: 10.5px; color: var(--accent-cyan);" id="statusIndicator">Ready</span>
             </div>
             <div style="display: flex; gap: 6px; margin-bottom: 6px;">
-                <button class="btn btn-secondary" id="btnRotateBlue" style="padding: 5px 10px; font-size: 10.5px;">🔄 Rotate Blue Arm Up</button>
-                <button class="btn btn-secondary" id="btnAlignProbes" style="padding: 5px 10px; font-size: 10.5px;">🎯 Align Probes</button>
-                <button class="btn btn-secondary" id="btnResetArms" style="padding: 5px 10px; font-size: 10.5px;">↺ Reset Arms</button>
+                <button class="btn btn-secondary" id="btnRotateBlue" style="padding: 5px 10px; font-size: 10.5px;">Rotate Blue Arm</button>
+                <button class="btn btn-secondary" id="btnAlignProbes" style="padding: 5px 10px; font-size: 10.5px;">Align Probes</button>
+                <button class="btn btn-secondary" id="btnResetArms" style="padding: 5px 10px; font-size: 10.5px;">Reset Kinematics</button>
             </div>
             <div class="canvas-container">
                 <canvas id="simCanvas"></canvas>
                 <div class="canvas-overlay">
                     <div>ARM 0 (Top): <span id="arm0Coords" style="color: var(--accent-amber);">(0.0, 57.5)</span></div>
                     <div>ARM 1 (Bot): <span id="arm1Coords" style="color: var(--accent-cyan);">(0.0, 57.5)</span></div>
-                    <div style="font-size: 9.5px; color: #94a3b8; margin-top: 3px;">💡 Drag flex handles on canvas to rotate arms</div>
+                    <div style="font-size: 9.5px; color: #94a3b8; margin-top: 3px;">Tip: Drag flex handles on canvas to rotate arms</div>
                 </div>
-                <div id="canvasFlasher" class="canvas-flasher">⚡ FLASHING HARDWARE ROUTE</div>
+                <div id="canvasFlasher" class="canvas-flasher">TRANSMITTING HARDWARE ROUTE</div>
             </div>
         </div>
 
         <!-- RIGHT PANEL: Test Sequence & Serial Monitor -->
         <div class="panel">
             <div class="panel-tab-bar">
-                <button class="panel-tab active" id="tabBtnTestPlan">📋 Test Plan (<span id="testPlanCount">0</span>)</button>
-                <button class="panel-tab" id="tabBtnSerial">📟 Serial Monitor <span class="serial-indicator" id="serialRxPulse">●</span></button>
+                <button class="panel-tab active" id="tabBtnTestPlan"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 5px; vertical-align: -1px;"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg><span>Test Plan</span> (<span id="testPlanCount">0</span>)</button>
+                <button class="panel-tab" id="tabBtnSerial"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 5px; vertical-align: -1px;"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg><span>Serial Monitor</span> <span class="serial-indicator" id="serialRxPulse">●</span></button>
             </div>
 
             <!-- Tab 1: AI Test Plan & Sequence -->
             <div id="tabContentTestPlan" style="display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 0; overflow: hidden;">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
                     <div class="panel-title" style="margin-bottom: 0;">4. Probing Route Plan</div>
-                    <button class="hw-btn" id="btnUploadPlanTab" style="background: rgba(16, 185, 129, 0.2); border-color: var(--accent-emerald); color: #34d399; font-weight: 700; font-size: 10.5px; padding: 4px 10px; display: flex; align-items: center; gap: 5px;" disabled title="Upload and stream test plan routes to ESP32 / Arduino"><span>🚀</span><span>Upload to Hardware</span></button>
+                    <button class="hw-btn" id="btnUploadPlanTab" style="background: rgba(16, 185, 129, 0.15); border: 1px solid var(--accent-emerald); color: #34d399; font-weight: 700; font-size: 10.5px; padding: 4px 10px; display: flex; align-items: center; gap: 6px;" disabled title="Upload and stream test plan routes to ESP32 / Arduino"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg><span>Upload to Hardware</span></button>
                 </div>
                 <div class="test-list" id="testList">
                     <div style="text-align: center; color: var(--text-muted); margin-top: 30px; font-size: 11px;">
@@ -1147,7 +1303,7 @@
                 <div id="hwStreamingBanner" class="streaming-banner">
                     <div style="display: flex; align-items: center; gap: 6px;">
                         <div class="banner-pulse-dot"></div>
-                        <span id="streamingBannerText">⚡ TRANSMITTING ROUTE TO HARDWARE...</span>
+                        <span id="streamingBannerText">TRANSMITTING ROUTE TO HARDWARE...</span>
                     </div>
                     <span id="streamingBannerStep">STEP 1/1</span>
                 </div>
@@ -1157,16 +1313,16 @@
                     <div class="sm-tools">
                         <label class="sm-check" title="Automatically scroll terminal on new data"><input type="checkbox" id="smAutoscroll" checked> Autoscroll</label>
                         <label class="sm-check" title="Show timestamps on log entries"><input type="checkbox" id="smTimestamps" checked> Timestamps</label>
-                        <button class="hw-btn sm-tool-btn" id="smBtnClear" title="Clear Serial Terminal">🗑️ Clear</button>
+                        <button class="hw-btn sm-tool-btn" id="smBtnClear" title="Clear Serial Terminal">Clear</button>
                     </div>
                 </div>
 
                 <!-- Quick Serial Test Actions -->
                 <div style="display: flex; gap: 4px; margin-bottom: 4px; flex-wrap: wrap; flex-shrink: 0;">
-                    <button class="hw-btn" onclick="sendQuickSerial('PING')" style="font-size: 9.5px; padding: 2px 6px;">📡 PING</button>
-                    <button class="hw-btn" onclick="sendQuickSerial('STATUS')" style="font-size: 9.5px; padding: 2px 6px;">ℹ️ STATUS</button>
-                    <button class="hw-btn" onclick="sendQuickSerial('HOME')" style="font-size: 9.5px; padding: 2px 6px;">🏠 HOME</button>
-                    <button class="hw-btn" onclick="sendQuickSerial('G0 X0=0 Y0=50 S0A=90 S0B=90')" style="font-size: 9.5px; padding: 2px 6px;">🎯 TEST G0</button>
+                    <button class="hw-btn" onclick="sendQuickSerial('PING')" style="font-size: 9.5px; padding: 2px 8px;">PING</button>
+                    <button class="hw-btn" onclick="sendQuickSerial('STATUS')" style="font-size: 9.5px; padding: 2px 8px;">STATUS</button>
+                    <button class="hw-btn" onclick="sendQuickSerial('HOME')" style="font-size: 9.5px; padding: 2px 8px;">HOME</button>
+                    <button class="hw-btn" onclick="sendQuickSerial('G0 X0=0 Y0=50 S0A=90 S0B=90')" style="font-size: 9.5px; padding: 2px 8px;">TEST G0</button>
                 </div>
 
                 <!-- Live Monospace Terminal Screen -->
@@ -1195,12 +1351,12 @@
         <div class="modal-box">
             <div class="modal-header">
                 <div style="font-weight: 700; display: flex; align-items: center; gap: 8px;">
-                    <span>📄</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
                     <span id="firmwareModalTitle">Hardware Firmware Sketch</span>
                 </div>
                 <div style="display: flex; gap: 6px;">
-                    <button class="hw-btn" id="btnTabFwESP32" style="font-size: 11px; padding: 3px 8px; background: rgba(16, 185, 129, 0.2); border-color: var(--accent-emerald); color: #34d399;">⚡ ESP32 (.ino)</button>
-                    <button class="hw-btn" id="btnTabFwArduino" style="font-size: 11px; padding: 3px 8px;">♾️ Arduino Uno (.ino)</button>
+                    <button class="hw-btn" id="btnTabFwESP32" style="font-size: 11px; padding: 3px 8px; background: rgba(16, 185, 129, 0.2); border-color: var(--accent-emerald); color: #34d399;">ESP32 (.ino)</button>
+                    <button class="hw-btn" id="btnTabFwArduino" style="font-size: 11px; padding: 3px 8px;">Arduino Uno (.ino)</button>
                     <button class="hw-btn" id="btnCloseFirmwareModal">✕</button>
                 </div>
             </div>
@@ -1209,7 +1365,7 @@
                     Open this sketch in <strong>Arduino IDE</strong>, select board <code>ESP32 Dev Module</code>, and upload to your ESP32. It controls the 5-bar linkage servos (GPIO 18, 19, 21, 22), lowers probe needles (GPIO 23, 25), and reads ADC voltages (GPIO 34).
                 </p>
                 <div style="position: relative;">
-                    <button class="hw-btn" id="btnCopyFirmware" style="position: absolute; right: 10px; top: 10px; z-index: 10;">📋 Copy Sketch</button>
+                    <button class="hw-btn" id="btnCopyFirmware" style="position: absolute; right: 10px; top: 10px; z-index: 10;">Copy Sketch</button>
                     <pre class="code-box" id="firmwareCodeBox">Loading firmware code...</pre>
                 </div>
             </div>
@@ -1217,7 +1373,7 @@
     </div>
 
     <!-- Toast notification element -->
-    <div id="hwToast"><span id="hwToastIcon">✅</span><span id="hwToastMsg">Connected</span></div>
+    <div id="hwToast"><span id="hwToastIcon" style="display: flex; align-items: center;"></span><span id="hwToastMsg">Connected</span></div>
 
     <script>
         // ── State ──────────────────────────────────────────────────────────────
@@ -1237,8 +1393,13 @@
         function showToast(msg, type = 'success', durationMs = 4000) {
             const toast = document.getElementById('hwToast');
             const toastMsg = document.getElementById('hwToastMsg');
-            const icons = { success: '✅', info: 'ℹ️', error: '❌', warn: '⚠️' };
-            document.getElementById('hwToastIcon').innerText = icons[type] || '✅';
+            const icons = {
+                success: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+                info: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',
+                error: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',
+                warn: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>'
+            };
+            document.getElementById('hwToastIcon').innerHTML = icons[type] || icons.success;
             toastMsg.innerText = msg;
             toast.className = `show toast-${type}`;
             if (_toastTimer) clearTimeout(_toastTimer);
@@ -1309,7 +1470,7 @@
                 const isConnArduino = (hwDeviceType || '').toLowerCase().includes('arduino');
                 const connTag = isConnESP ? 'ESP32' : (isConnArduino ? 'ARDUINO' : (hwDeviceType || 'HARDWARE').toUpperCase());
 
-                if (badgeDot) badgeDot.innerText = '🟢';
+                if (badgeDot) badgeDot.innerHTML = '<span class="status-dot dot-online"></span>';
                 if (badgeText) badgeText.innerText = `${hwPort} · ${connTag} [ONLINE]`;
 
                 if (badge) {
@@ -1320,13 +1481,13 @@
                     badge.style.color = isConnESP ? '#10b981' : '#06b6d4';
                 }
 
-                if (laptopPill) laptopPill.innerText = '💻';
+                if (laptopPill) laptopPill.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="2" y1="20" x2="22" y2="20"></line></svg>';
                 if (bridgeWire) bridgeWire.className = 'bridge-wire connected';
-                if (esp32Emoji) esp32Emoji.innerText = isConnESP ? '⚡' : (isConnArduino ? '♾️' : '🔌');
+                if (esp32Emoji) esp32Emoji.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M9 9h6v6H9zM9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"></path></svg>';
                 if (esp32Label) esp32Label.innerText = `${connTag} (${hwPort})`;
 
                 if (btnConnect) {
-                    btnConnect.innerText = `⏏ Disconnect ${hwPort}`;
+                    btnConnect.innerText = `Disconnect ${hwPort}`;
                     btnConnect.className = 'hw-btn btn-disconnect-active';
                 }
                 if (btnHwRun) btnHwRun.disabled = !currentTestPlan;
@@ -1342,7 +1503,7 @@
 
             // 2. Disconnected and SIMULATED_COM1 or no COM selected
             if (!selectedPort || selectedPort === 'SIMULATED_COM1') {
-                if (badgeDot) badgeDot.innerText = '⚪';
+                if (badgeDot) badgeDot.innerHTML = '<span class="status-dot dot-offline"></span>';
                 if (badgeText) badgeText.innerText = 'SIMULATION MODE';
 
                 if (badge) {
@@ -1351,13 +1512,13 @@
                     badge.style.color = '#94a3b8';
                 }
 
-                if (laptopPill) laptopPill.innerText = '💻';
+                if (laptopPill) laptopPill.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="2" y1="20" x2="22" y2="20"></line></svg>';
                 if (bridgeWire) bridgeWire.className = 'bridge-wire disconnected';
-                if (esp32Emoji) esp32Emoji.innerText = '📡';
+                if (esp32Emoji) esp32Emoji.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M9 9h6v6H9zM9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"></path></svg>';
                 if (esp32Label) esp32Label.innerText = 'No COM (Sim)';
 
                 if (btnConnect) {
-                    btnConnect.innerText = '⚡ Connect Sim';
+                    btnConnect.innerText = 'Connect Sim';
                     btnConnect.className = 'hw-btn';
                 }
                 if (btnHwRun) btnHwRun.disabled = !currentTestPlan;
@@ -1372,7 +1533,7 @@
             }
 
             // 3. A real COM port is SELECTED in dropdown, but NOT YET CONNECTED
-            if (badgeDot) badgeDot.innerText = '🟡';
+            if (badgeDot) badgeDot.innerHTML = '<span class="status-dot dot-ready"></span>';
             if (badgeText) badgeText.innerText = `${selectedPort} · ${boardTag} [READY]`;
 
             if (badge) {
@@ -1381,13 +1542,13 @@
                 badge.style.color = 'var(--accent-amber)';
             }
 
-            if (laptopPill) laptopPill.innerText = '💻';
+            if (laptopPill) laptopPill.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="2" y1="20" x2="22" y2="20"></line></svg>';
             if (bridgeWire) bridgeWire.className = 'bridge-wire disconnected';
-            if (esp32Emoji) esp32Emoji.innerText = isESP ? '⚡' : (isArduino ? '♾️' : '📡');
+            if (esp32Emoji) esp32Emoji.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M9 9h6v6H9zM9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"></path></svg>';
             if (esp32Label) esp32Label.innerText = `${boardTag} on ${selectedPort} (Ready)`;
 
             if (btnConnect) {
-                btnConnect.innerText = `⚡ Connect ${selectedPort}`;
+                btnConnect.innerText = `Connect ${selectedPort}`;
                 btnConnect.className = 'hw-btn btn-connect-ready';
             }
             if (btnHwRun) btnHwRun.disabled = !currentTestPlan;
@@ -1577,7 +1738,7 @@
         const btnFreePort = document.getElementById('btnFreePort');
         if (btnFreePort) {
             btnFreePort.addEventListener('click', async () => {
-                btnFreePort.innerText = '⏳ Freeing port...';
+                btnFreePort.innerText = 'Freeing port...';
                 btnFreePort.disabled = true;
                 try {
                     const res = await fetch('/api/free-port', { method: 'POST' });
@@ -1589,7 +1750,7 @@
                 } catch (err) {
                     showToast(`Failed to free port: ${err.message}`, 'error');
                 } finally {
-                    btnFreePort.innerText = '⚡ Free Port & Connect';
+                    btnFreePort.innerText = 'Free Port & Connect';
                     btnFreePort.disabled = false;
                 }
             });
@@ -1861,8 +2022,8 @@
         btnCopyFirmware.addEventListener('click', async () => {
             try {
                 await navigator.clipboard.writeText(firmwareCodeBox.innerText);
-                btnCopyFirmware.innerText = '✅ Copied!';
-                setTimeout(() => { btnCopyFirmware.innerText = '📋 Copy Sketch'; }, 2000);
+                btnCopyFirmware.innerText = 'Copied!';
+                setTimeout(() => { btnCopyFirmware.innerText = 'Copy Sketch'; }, 2000);
             } catch (err) {
                 btnCopyFirmware.innerText = 'Failed to copy';
             }
@@ -2097,7 +2258,7 @@
             const targetDev = hwDeviceType || 'Hardware';
             const targetPort = hwPort || 'COM';
 
-            log(`[🚀 Hardware Upload] Streaming test plan (${totalSteps} steps) to ${targetDev} @ ${targetPort}…`);
+            log(`[Hardware Upload] Streaming test plan (${totalSteps} steps) to ${targetDev} @ ${targetPort}…`);
             showToast(`Streaming ${totalSteps} test routes to ${targetDev} @ ${targetPort}…`, 'info', 6000);
 
             // Automatically switch right panel tab to Serial Monitor so user sees live commands & telemetry!
@@ -2111,11 +2272,15 @@
             const btnUploadPlanTabEl = document.getElementById('btnUploadPlanTab');
             if (btnHwRunEl) {
                 btnHwRunEl.classList.add('btn-flashing-upload');
-                btnHwRunEl.innerHTML = `<span>⚡</span><span>FLASHING TO ${targetDev.toUpperCase()}...</span>`;
+                btnHwRunEl.innerHTML = `
+                    <svg class="spin-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
+                    <span>Transmitting to ${targetDev}...</span>`;
             }
             if (btnUploadPlanTabEl) {
                 btnUploadPlanTabEl.classList.add('btn-flashing-upload');
-                btnUploadPlanTabEl.innerHTML = `<span>⚡</span><span>FLASHING...</span>`;
+                btnUploadPlanTabEl.innerHTML = `
+                    <svg class="spin-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
+                    <span>Uploading...</span>`;
             }
 
             const streamingBanner = document.getElementById('hwStreamingBanner');
@@ -2138,9 +2303,11 @@
 
                     document.getElementById('statusIndicator').innerText = `Step ${i + 1}/${totalSteps}: Probing ${net} (${targetDev})`;
 
-                    if (streamingBannerText) streamingBannerText.innerText = `⚡ FLASHING ROUTE ${i + 1}/${totalSteps} TO ${targetDev.toUpperCase()} [${targetPort}]...`;
+                    if (streamingBannerText) streamingBannerText.innerText = `TRANSMITTING ROUTE ${i + 1}/${totalSteps} TO ${targetDev.toUpperCase()} [${targetPort}]...`;
                     if (streamingBannerStep) streamingBannerStep.innerText = `STEP ${i + 1}/${totalSteps}`;
-                    if (btnHwRunEl) btnHwRunEl.innerHTML = `<span>⚡</span><span>FLASHING STEP ${i + 1}/${totalSteps}...</span>`;
+                    if (btnHwRunEl) btnHwRunEl.innerHTML = `
+                        <svg class="spin-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
+                        <span>Step ${i + 1}/${totalSteps} (${targetDev})</span>`;
 
                     // Highlight active test card in AI Test Plan
                     const card = document.getElementById(`test-card-${testId}`);
@@ -2203,11 +2370,23 @@
                 if (bridgeWire) bridgeWire.className = hwConnected ? 'bridge-wire connected' : 'bridge-wire disconnected';
                 if (btnHwRunEl) {
                     btnHwRunEl.classList.remove('btn-flashing-upload');
-                    btnHwRunEl.innerHTML = `<span>🚀</span><span>Upload Test Plan to Hardware</span>`;
+                    btnHwRunEl.innerHTML = `
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <span id="btnHwRunText">Upload Test Plan to Hardware</span>`;
                 }
                 if (btnUploadPlanTabEl) {
                     btnUploadPlanTabEl.classList.remove('btn-flashing-upload');
-                    btnUploadPlanTabEl.innerHTML = `<span>🚀</span><span>Upload to Hardware</span>`;
+                    btnUploadPlanTabEl.innerHTML = `
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <span>Upload to Hardware</span>`;
                 }
                 if (streamingBanner) streamingBanner.style.display = 'none';
                 if (canvasFlasher) canvasFlasher.style.display = 'none';
@@ -2217,7 +2396,8 @@
             }
 
             const summaryMsg = `Hardware run complete: ${passCount} PASS, ${failCount} FAIL (${totalSteps} total).`;
-            log(`[🚀 Hardware Complete] ${summaryMsg}`);
+            log(`[Hardware Complete] ${summaryMsg}`);
+            showToast(summaryMsg, failCount === 0 ? 'success' : 'info', 6000);
             showToast(summaryMsg, failCount === 0 ? 'success' : 'info', 6000);
         }
 
