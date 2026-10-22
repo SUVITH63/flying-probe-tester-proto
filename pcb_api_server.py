@@ -304,6 +304,38 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
             logger.info(f"Port free requested: {msg}")
             self._send_json({"status": "ok" if freed else "error", "message": msg})
 
+        elif url_path == "/api/reset-hardware":
+            # Resets active hardware dispatcher, releases port, and re-scans all ports
+            with _hw_lock:
+                if _hw_dispatcher:
+                    try:
+                        _hw_dispatcher.disconnect()
+                    except Exception:
+                        pass
+                    _hw_dispatcher = None
+                _hw_port = None
+                _hw_device_type = None
+                _hw_detection_reason = None
+
+            if sys.platform == "win32":
+                try:
+                    subprocess.run(
+                        'powershell -NoProfile -Command "Get-Process javaw -ErrorAction SilentlyContinue | Stop-Process -Force"',
+                        shell=True, capture_output=True, timeout=3
+                    )
+                except Exception:
+                    pass
+
+            ports = SerialDispatcher.list_available_ports()
+            has_hw = any(p.get("is_target_hardware", False) for p in ports)
+            logger.info(f"Reset hardware executed. Discovered {len(ports)} ports.")
+            self._send_json({
+                "status": "reset",
+                "ports": ports,
+                "target_hardware_found": has_hw,
+                "message": "Hardware bus and serial ports reset successfully."
+            })
+
         # PCB Upload
         elif url_path.startswith("/api/upload"):
             content_str = post_data.decode('utf-8', errors='ignore')

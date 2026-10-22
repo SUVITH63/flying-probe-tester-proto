@@ -667,12 +667,84 @@
         /* Hardware Run button variant */
         .btn-hw {
             background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(6,182,212,0.2));
-            color: var(--accent-green);
+            color: #ffffff;
             border: 1px solid var(--accent-green);
         }
         .btn-hw:hover:not(:disabled) {
             background: linear-gradient(135deg, rgba(16,185,129,0.35), rgba(6,182,212,0.35));
             box-shadow: 0 0 16px rgba(16,185,129,0.3);
+        }
+
+        #btnHwRun {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+            color: #ffffff !important;
+            font-weight: 800 !important;
+            font-size: 13px !important;
+            letter-spacing: 0.2px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+            border: 1px solid #34d399 !important;
+            transition: all 0.2s ease;
+        }
+        #btnHwRun span {
+            color: #ffffff !important;
+            font-weight: 800 !important;
+        }
+        #btnHwRun:disabled {
+            opacity: 0.55 !important;
+            cursor: not-allowed;
+            color: rgba(255, 255, 255, 0.75) !important;
+            box-shadow: none !important;
+        }
+        #btnHwRun:not(:disabled) {
+            opacity: 1 !important;
+            color: #ffffff !important;
+            cursor: pointer;
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.5) !important;
+        }
+        #btnHwRun:not(:disabled):hover {
+            box-shadow: 0 0 22px rgba(16, 185, 129, 0.75) !important;
+            transform: translateY(-1px);
+        }
+
+        #btnUploadPlanTab {
+            background: rgba(16, 185, 129, 0.25) !important;
+            border-color: var(--accent-emerald) !important;
+            color: #34d399 !important;
+            font-weight: 800 !important;
+        }
+        #btnUploadPlanTab span {
+            color: #34d399 !important;
+            font-weight: 800 !important;
+        }
+        #btnUploadPlanTab:not(:disabled) {
+            color: #34d399 !important;
+            cursor: pointer;
+        }
+
+        /* ── Reset Icon Spinning Animation ── */
+        @keyframes spin-refresh {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .btn-spinning {
+            animation: spin-refresh 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--accent-cyan) !important;
+            border-color: var(--accent-cyan) !important;
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.5) !important;
+        }
+        #btnRefreshPorts {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 28px;
+            height: 26px;
+            font-size: 13px;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+        #btnRefreshPorts:hover {
+            color: var(--accent-cyan);
+            border-color: var(--accent-cyan);
         }
 
         /* ── Right Panel Tab System ── */
@@ -921,7 +993,7 @@
             </select>
 
             <!-- Refresh Ports -->
-            <button class="hw-btn" id="btnRefreshPorts" title="Refresh available COM ports">↺</button>
+            <button class="hw-btn" id="btnRefreshPorts" title="Reset & Rescan COM Ports (Refresh Serial Bus)">↺</button>
 
             <!-- Primary Connect / Disconnect Action Button (Directly beside port selector!) -->
             <button class="hw-btn" id="btnConnectHw">⚡ Connect COM5</button>
@@ -1018,7 +1090,10 @@
 
             <button class="btn" id="btnGenPlan" disabled>⚡ Generate AI Test Plan</button>
             <button class="btn btn-secondary" id="btnSimulate" disabled>▶ Run Dual-Arm Simulation</button>
-            <button class="btn btn-hw" id="btnHwRun" disabled style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); font-weight: 700; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35); font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 6px;"><span>🚀</span><span>Upload Test Plan to Hardware</span></button>
+            <button class="btn btn-hw" id="btnHwRun" disabled style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #ffffff !important; font-weight: 800; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4); font-size: 12.5px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                <span>🚀</span>
+                <span id="btnHwRunText" style="color: #ffffff !important; font-weight: 800;">Upload Test Plan to Hardware</span>
+            </button>
         </div>
 
         <!-- CENTER PANEL: Interactive 2D Dual-Arm Kinematics Canvas -->
@@ -1254,9 +1329,9 @@
                     btnConnect.innerText = `⏏ Disconnect ${hwPort}`;
                     btnConnect.className = 'hw-btn btn-disconnect-active';
                 }
-                if (btnHwRun && currentTestPlan) btnHwRun.disabled = false;
+                if (btnHwRun) btnHwRun.disabled = !currentTestPlan;
                 const btnTab = document.getElementById('btnUploadPlanTab');
-                if (btnTab && currentTestPlan) btnTab.disabled = false;
+                if (btnTab) btnTab.disabled = !currentTestPlan;
 
                 if (smPortTag) {
                     smPortTag.innerText = `PORT: ${hwPort} @ ${baud} BAUD (${connTag})`;
@@ -1285,9 +1360,9 @@
                     btnConnect.innerText = '⚡ Connect Sim';
                     btnConnect.className = 'hw-btn';
                 }
-                if (btnHwRun) btnHwRun.disabled = true;
+                if (btnHwRun) btnHwRun.disabled = !currentTestPlan;
                 const btnTabSim = document.getElementById('btnUploadPlanTab');
-                if (btnTabSim) btnTabSim.disabled = true;
+                if (btnTabSim) btnTabSim.disabled = !currentTestPlan;
 
                 if (smPortTag) {
                     smPortTag.innerText = 'PORT: NO COM SELECTED (Simulation Active)';
@@ -1315,9 +1390,9 @@
                 btnConnect.innerText = `⚡ Connect ${selectedPort}`;
                 btnConnect.className = 'hw-btn btn-connect-ready';
             }
-            if (btnHwRun) btnHwRun.disabled = true;
+            if (btnHwRun) btnHwRun.disabled = !currentTestPlan;
             const btnTabSel = document.getElementById('btnUploadPlanTab');
-            if (btnTabSel) btnTabSel.disabled = true;
+            if (btnTabSel) btnTabSel.disabled = !currentTestPlan;
 
             if (smPortTag) {
                 smPortTag.innerText = `PORT: ${selectedPort} [${boardTag}] (Selected — Not Connected)`;
@@ -1543,8 +1618,46 @@
             }
         });
 
-        // ── Refresh ports button ───────────────────────────────────────────────
-        document.getElementById('btnRefreshPorts').addEventListener('click', () => refreshPorts(false));
+        // ── Reset Icon & Hardware Port Rescan Action ───────────────────────────
+        async function resetHardwareAndPorts() {
+            const btn = document.getElementById('btnRefreshPorts');
+            if (btn) btn.classList.add('btn-spinning');
+
+            _hasUserDisconnectedManually = false;
+            flashTxLed(150);
+            flashRxLed(150);
+
+            showToast('Resetting hardware bus & scanning COM ports...', 'info', 2500);
+
+            try {
+                // Call backend reset endpoint to free any locked serial port and reset state
+                await fetch('/api/reset-hardware', { method: 'POST' });
+            } catch (_) {}
+
+            // Rescan ports
+            await refreshPorts(false);
+
+            setTimeout(() => {
+                if (btn) btn.classList.remove('btn-spinning');
+            }, 700);
+
+            const select = document.getElementById('comPortSelect');
+            const portKeys = Object.keys(_availablePortsMap).filter(k => k !== 'SIMULATED_COM1');
+
+            if (portKeys.length > 0) {
+                const targetPort = Object.values(_availablePortsMap).find(p => p.is_target_hardware) || Object.values(_availablePortsMap)[0];
+                if (select && targetPort) {
+                    select.value = targetPort.port;
+                    updateSelectedPortBadge(targetPort.port);
+                    showToast(`Hardware reset complete! Found ${targetPort.device_type || 'Device'} on ${targetPort.port}. Connecting…`, 'success', 4500);
+                    await connectToPort(targetPort.port, true);
+                }
+            } else {
+                showToast('No physical COM ports detected. Check USB cable and ensure Arduino/ESP32 is plugged in.', 'warn', 4500);
+            }
+        }
+
+        document.getElementById('btnRefreshPorts').addEventListener('click', resetHardwareAndPorts);
 
         // ── Right Panel Tab Switcher ───────────────────────────────────────────
         function switchTab(tab) {
