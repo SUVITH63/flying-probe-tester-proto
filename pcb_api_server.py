@@ -263,6 +263,24 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
             logger.info("Hardware disconnected by user request.")
             self._send_json({"status": "disconnected", "message": "No hardware found"})
 
+        elif url_path == "/api/free-port":
+            # Releases a COM port held by external applications like Arduino IDE (javaw)
+            freed = False
+            msg = ""
+            if sys.platform == "win32":
+                try:
+                    cmd = 'powershell -NoProfile -Command "Get-Process javaw, arduino* -ErrorAction SilentlyContinue | Stop-Process -Force"'
+                    res = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=5)
+                    freed = True
+                    msg = "Arduino IDE process terminated. Port is now free."
+                except Exception as e:
+                    msg = str(e)
+            else:
+                msg = "Port free request received."
+                freed = True
+            logger.info(f"Port free requested: {msg}")
+            self._send_json({"status": "ok" if freed else "error", "message": msg})
+
         # PCB Upload
         elif url_path.startswith("/api/upload"):
             content_str = post_data.decode('utf-8', errors='ignore')

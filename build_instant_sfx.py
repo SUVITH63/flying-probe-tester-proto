@@ -56,6 +56,19 @@ def build_instant_sfx():
                         zf.write(full_path, rel_path)
                         added.add(rel_path)
 
+        # Add root serial package
+        serial_dir = os.path.join(SRC_DIR, "serial")
+        if os.path.exists(serial_dir):
+            for root, dirs, files in os.walk(serial_dir):
+                for f in files:
+                    if f.startswith("._") or "__pycache__" in root:
+                        continue
+                    full_path = os.path.join(root, f)
+                    rel_path = os.path.relpath(full_path, SRC_DIR)
+                    if rel_path not in added:
+                        zf.write(full_path, rel_path)
+                        added.add(rel_path)
+
     zip_bytes = buf.getvalue()
     marker_str = "REM __FPT_PAYLOAD_OFFSET_MARKER_999__"
     marker_bytes = f"\r\n{marker_str}\r\n".encode("ascii")

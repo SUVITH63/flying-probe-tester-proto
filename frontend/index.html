@@ -30,47 +30,108 @@
             overflow-x: hidden;
         }
 
-        /* Header Bar */
+        /* Header Bar - Fixed 56px, Zero Wrapping, Professional Industrial UI */
         header {
-            background-color: var(--panel-bg);
-            border-bottom: 1px solid var(--border-color);
-            padding: 16px 32px;
+            background: linear-gradient(180deg, #0e1526 0%, #090e1a 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 0 18px;
+            height: 56px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            white-space: nowrap;
         }
 
-        .logo-group {
+        .brand-group {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
+            flex-shrink: 0;
         }
 
-        .logo-icon {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, var(--accent-amber), #d97706);
-            border-radius: 8px;
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border-radius: 7px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 800;
-            color: #000;
+            font-weight: 900;
+            font-size: 13px;
+            color: #0b0f19;
             font-family: 'JetBrains Mono', monospace;
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
         }
 
-        .logo-title {
-            font-size: 20px;
+        .brand-text {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-title {
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: -0.4px;
+            color: #f8fafc;
+        }
+
+        .brand-pill {
+            background: rgba(6, 182, 212, 0.12);
+            border: 1px solid rgba(6, 182, 212, 0.35);
+            color: var(--accent-cyan);
+            font-size: 10px;
+            padding: 2px 7px;
+            border-radius: 12px;
+            font-family: 'JetBrains Mono', monospace;
             font-weight: 700;
-            letter-spacing: -0.5px;
+            letter-spacing: 0.5px;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            border-left: 1px solid #334155;
+            padding-left: 8px;
+        }
+
+        @media (max-width: 1280px) {
+            .brand-sub { display: none; }
+        }
+
+        /* ── Unified Hardware Command Dock ── */
+        .hw-dock {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 4px 8px;
+            border-radius: 8px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);
+            flex-shrink: 0;
+        }
+
+        /* ── Header Right Actions ── */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
         }
 
         .mode-badge {
-            background: rgba(15, 23, 42, 0.7);
-            border: 1px solid #475569;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid #334155;
             color: #94a3b8;
-            padding: 5px 12px;
-            border-radius: 20px;
+            padding: 4px 10px;
+            border-radius: 16px;
             font-size: 11px;
             font-family: 'JetBrains Mono', monospace;
             font-weight: 700;
@@ -82,13 +143,35 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         }
 
+        /* ── Conflict Warning Banner ── */
+        .conflict-banner {
+            background: linear-gradient(90deg, rgba(245, 158, 11, 0.2) 0%, rgba(239, 68, 68, 0.2) 100%);
+            border-bottom: 1px solid rgba(245, 158, 11, 0.4);
+            color: #fef08a;
+            padding: 8px 20px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 999;
+        }
+
         /* Main Grid */
         main {
             display: grid;
-            grid-template-columns: 360px 1fr 380px;
-            gap: 20px;
-            padding: 24px;
+            grid-template-columns: 310px minmax(380px, 1fr) 350px;
+            gap: 16px;
+            padding: 16px;
             flex: 1;
+            min-height: 0;
+        }
+
+        @media (max-width: 1150px) {
+            main {
+                grid-template-columns: 290px 1fr;
+            }
         }
 
         .panel {
@@ -260,111 +343,131 @@
             white-space: pre-wrap;
         }
 
-        /* ── Hardware Status Bar ── */
-        .hw-bar {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .hw-status-pill {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            padding: 5px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 600;
-            border: 1px solid transparent;
-            transition: all 0.4s ease;
-            white-space: nowrap;
-        }
-        .hw-status-pill.disconnected {
-            background: rgba(239, 68, 68, 0.12);
-            border-color: #ef4444;
-            color: #ef4444;
-        }
-        .hw-status-pill.connecting {
-            background: rgba(245, 158, 11, 0.12);
-            border-color: var(--accent-amber);
-            color: var(--accent-amber);
-            animation: pulse-amber 1s ease-in-out infinite;
-        }
-        .hw-status-pill.connected-esp {
-            background: rgba(16, 185, 129, 0.12);
-            border-color: var(--accent-green);
-            color: var(--accent-green);
-            box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
-        }
-        .hw-status-pill.connected-arduino {
-            background: rgba(6, 182, 212, 0.12);
-            border-color: var(--accent-cyan);
-            color: var(--accent-cyan);
-            box-shadow: 0 0 12px rgba(6, 182, 212, 0.25);
-        }
-        .hw-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-        .disconnected .hw-dot  { background: #ef4444; }
-        .connecting .hw-dot    { background: var(--accent-amber); animation: pulse-amber 1s ease-in-out infinite; }
-        .connected-esp .hw-dot { background: var(--accent-green); animation: glow-green 2s ease-in-out infinite; }
-        .connected-arduino .hw-dot { background: var(--accent-cyan); animation: glow-cyan 2s ease-in-out infinite; }
-
-        @keyframes pulse-amber {
-            0%, 100% { opacity: 1; }
-            50%       { opacity: 0.4; }
-        }
-        @keyframes glow-green {
-            0%, 100% { box-shadow: 0 0 4px #10b981; }
-            50%       { box-shadow: 0 0 10px #10b981; }
-        }
-        @keyframes glow-cyan {
-            0%, 100% { box-shadow: 0 0 4px #06b6d4; }
-            50%       { box-shadow: 0 0 10px #06b6d4; }
-        }
-
+        /* ── Hardware Command Dock Controls ── */
         .hw-select {
-            background: #0f172a;
+            background: #090d16;
             border: 1px solid #334155;
             color: var(--text-main);
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-size: 12px;
+            padding: 5px 8px;
+            border-radius: 5px;
+            font-size: 11px;
             font-family: 'JetBrains Mono', monospace;
             cursor: pointer;
-            max-width: 220px;
+            transition: border-color 0.2s;
         }
-        .hw-select:focus { outline: none; border-color: var(--accent-amber); }
+        .hw-select:focus { outline: none; border-color: var(--accent-cyan); }
+
+        #comPortSelect {
+            min-width: 140px;
+            max-width: 200px;
+            font-weight: 600;
+        }
+
+        #baudRateSelect {
+            width: 86px;
+        }
 
         .hw-btn {
             background: #1e293b;
             border: 1px solid #334155;
             color: var(--text-main);
-            padding: 5px 12px;
-            border-radius: 6px;
-            font-size: 12px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 11px;
             font-family: 'JetBrains Mono', monospace;
             font-weight: 600;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
             transition: all 0.2s ease;
+            white-space: nowrap;
         }
-        .hw-btn:hover { background: #334155; }
-        .hw-btn.connect-btn {
-            background: rgba(16, 185, 129, 0.15);
-            border-color: var(--accent-green);
-            color: var(--accent-green);
+        .hw-btn:hover { background: #334155; border-color: #475569; }
+
+        /* The Prominent Connect / Disconnect button */
+        #btnConnectHw {
+            padding: 5px 14px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            white-space: nowrap;
         }
-        .hw-btn.connect-btn:hover { background: rgba(16, 185, 129, 0.25); }
-        .hw-btn.disconnect-btn {
-            background: rgba(239, 68, 68, 0.12);
-            border-color: #ef4444;
+
+        #btnConnectHw.btn-connect-ready {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            border: 1px solid #34d399;
+            color: #ffffff;
+            box-shadow: 0 0 14px rgba(16, 185, 129, 0.45);
+            animation: pulse-connect 2s infinite;
+        }
+        #btnConnectHw.btn-connect-ready:hover {
+            background: linear-gradient(135deg, #047857 0%, #059669 100%);
+            box-shadow: 0 0 18px rgba(16, 185, 129, 0.65);
+        }
+
+        @keyframes pulse-connect {
+            0%, 100% { box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+            50%      { box-shadow: 0 0 18px rgba(16, 185, 129, 0.7); }
+        }
+
+        #btnConnectHw.btn-disconnect-active {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid #ef4444;
             color: #ef4444;
         }
-        .hw-btn.disconnect-btn:hover { background: rgba(239, 68, 68, 0.22); }
+        #btnConnectHw.btn-disconnect-active:hover {
+            background: rgba(239, 68, 68, 0.28);
+        }
+
+        #btnConnectHw.btn-connecting {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid var(--accent-amber);
+            color: var(--accent-amber);
+            animation: pulse-amber 1s infinite;
+        }
+
+        /* ── Bridge Status Widget ── */
+        .bridge-widget {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: #090d16;
+            border: 1px solid #1e293b;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+        .bridge-wire {
+            display: flex;
+            align-items: center;
+            position: relative;
+            width: 24px;
+            height: 3px;
+            background: #334155;
+            border-radius: 2px;
+        }
+        .bridge-wire.connected {
+            background: linear-gradient(90deg, #10b981, #06b6d4, #10b981);
+            background-size: 200% 100%;
+            animation: wire-flow 1.5s linear infinite;
+            box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+        }
+
+        @keyframes wire-flow {
+            0% { background-position: 100% 0; }
+            100% { background-position: 0 0; }
+        }
+
+        @keyframes pulse-amber {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.4; }
+        }
 
         /* ── Toast Notification ── */
         #hwToast {
@@ -421,76 +524,6 @@
         .btn-hw:hover:not(:disabled) {
             background: linear-gradient(135deg, rgba(16,185,129,0.35), rgba(6,182,212,0.35));
             box-shadow: 0 0 16px rgba(16,185,129,0.3);
-        }
-        /* ── Laptop to ESP32 Hardware Bridge Widget ── */
-        .bridge-widget {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(15, 23, 42, 0.7);
-            border: 1px solid var(--border-color);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-family: 'JetBrains Mono', monospace;
-        }
-        .node-pill {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 8px;
-            border-radius: 12px;
-            background: #0f172a;
-            border: 1px solid #334155;
-            font-size: 11px;
-            font-weight: 600;
-        }
-        .node-pill.connected {
-            border-color: var(--accent-green);
-            background: rgba(16, 185, 129, 0.12);
-            color: #10b981;
-            box-shadow: 0 0 8px rgba(16, 185, 129, 0.25);
-        }
-        .node-pill.disconnected {
-            border-color: #475569;
-            color: #94a3b8;
-        }
-        .bridge-wire {
-            display: flex;
-            align-items: center;
-            position: relative;
-            width: 44px;
-            height: 4px;
-            background: #334155;
-            border-radius: 2px;
-        }
-        .bridge-wire.connected {
-            background: linear-gradient(90deg, #10b981, #06b6d4, #10b981);
-            background-size: 200% 100%;
-            animation: wire-flow 1.5s linear infinite;
-            box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
-        }
-        @keyframes wire-flow {
-            0% { background-position: 100% 0; }
-            100% { background-position: 0 0; }
-        }
-        .wire-badge {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 10px;
-            background: #0b0f19;
-            border-radius: 50%;
-            width: 16px;
-            height: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid #334155;
-        }
-        .bridge-wire.connected .wire-badge {
-            border-color: #10b981;
-            box-shadow: 0 0 6px #10b981;
         }
 
         /* ── Right Panel Tab System ── */
@@ -682,62 +715,73 @@
 <body>
 
     <header>
-        <div class="logo-group">
-            <div class="logo-icon">FPT</div>
-            <div>
-                <div class="logo-title">FPTester — Flying Probe PCB Tester</div>
-                <div style="font-size: 11px; color: var(--text-muted);">AI-Powered Camera-less Dual-Arm Electrical Evaluation System</div>
+        <div class="brand-group">
+            <div class="brand-icon">FPT</div>
+            <div class="brand-text">
+                <span class="brand-title">FPTester</span>
+                <span class="brand-pill">DUAL-ARM PRO</span>
+                <span class="brand-sub">Autonomous Flying Probe Bench</span>
             </div>
         </div>
-        <div class="hw-bar">
-            <!-- Mode badge: displays selected COM, ESP32/Arduino annotation, and connection status -->
+
+        <!-- Hardware Command Dock -->
+        <div class="hw-dock">
+            <!-- Port Selector -->
+            <select class="hw-select" id="comPortSelect" title="Select Serial Port">
+                <option value="SIMULATED_COM1">SIMULATED_COM1 — [Simulation]</option>
+            </select>
+
+            <!-- Baud Rate -->
+            <select class="hw-select" id="baudRateSelect" title="Serial Baud Rate">
+                <option value="115200" selected>115200</option>
+                <option value="9600">9600</option>
+                <option value="57600">57600</option>
+                <option value="230400">230400</option>
+                <option value="921600">921600</option>
+            </select>
+
+            <!-- Refresh Ports -->
+            <button class="hw-btn" id="btnRefreshPorts" title="Refresh available COM ports">↺</button>
+
+            <!-- Primary Connect / Disconnect Action Button (Directly beside port selector!) -->
+            <button class="hw-btn" id="btnConnectHw">⚡ Connect COM5</button>
+
+            <!-- Live Bridge Graphic (Laptop <-> Device) -->
+            <div class="bridge-widget" id="bridgeWidget" title="Laptop to Hardware Link Status">
+                <span id="laptopPill">💻</span>
+                <div class="bridge-wire disconnected" id="bridgeWire"></div>
+                <span id="esp32Emoji">📡</span>
+                <span id="esp32Label" style="font-weight: 700;">No COM (Sim)</span>
+            </div>
+        </div>
+
+        <!-- Header Right Actions -->
+        <div class="header-actions">
+            <!-- Mode badge -->
             <div class="mode-badge" id="modeBadge" title="Selected COM Port & Board Annotation Status">
                 <span id="modeBadgeDot">⚪</span>
-                <span id="modeBadgeText">NO COM SELECTED · LAPTOP SIMULATION MODE</span>
-            </div>
-
-            <!-- Port selector -->
-            <select class="hw-select" id="comPortSelect" style="min-width: 250px;" title="Select Serial Port">
-                <option value="SIMULATED_COM1">SIMULATED_COM1 — [Simulation] (No COM Selected)</option>
-            </select>
-
-            <!-- Baud rate selector (Arduino IDE style) -->
-            <select class="hw-select" id="baudRateSelect" style="max-width: 120px;" title="Serial Baud Rate">
-                <option value="115200" selected>115200 baud</option>
-                <option value="9600">9600 baud</option>
-                <option value="57600">57600 baud</option>
-                <option value="230400">230400 baud</option>
-                <option value="921600">921600 baud</option>
-            </select>
-
-            <!-- Refresh ports button -->
-            <button class="hw-btn" id="btnRefreshPorts" title="Refresh available ports">↺</button>
-
-            <!-- Connect / Disconnect toggle -->
-            <button class="hw-btn connect-btn" id="btnConnectHw">🔌 Connect</button>
-
-            <!-- Laptop to ESP32 Live Connection Bridge Graphic -->
-            <div class="bridge-widget" id="bridgeWidget" title="Laptop to ESP32 Hardware Status">
-                <div class="node-pill laptop-pill" id="laptopPill">
-                    <span>💻</span>
-                    <span>Laptop</span>
-                </div>
-                <div class="bridge-wire disconnected" id="bridgeWire">
-                    <span class="wire-badge" id="wireBadge">❌</span>
-                </div>
-                <div class="node-pill esp32-pill disconnected" id="esp32Pill">
-                    <span id="esp32Emoji">📡</span>
-                    <span id="esp32Label">No COM (Simulation)</span>
-                </div>
+                <span id="modeBadgeText">SIMULATION MODE</span>
             </div>
 
             <!-- Quick Serial Monitor Toggle Button -->
             <button class="hw-btn" id="btnHeaderSerial" style="background: rgba(6, 182, 212, 0.15); border-color: var(--accent-cyan); color: var(--accent-cyan);" title="Open Live Arduino Serial Monitor">📟 Serial Monitor</button>
 
             <!-- ESP32 Arduino Code Modal Button -->
-            <button class="hw-btn" id="btnHeaderFirmware" title="View & Copy ESP32 Arduino IDE Sketch (.ino)">📄 ESP32 Code</button>
+            <button class="hw-btn" id="btnHeaderFirmware" title="View & Copy ESP32 Arduino IDE Sketch (.ino)">📄 Code</button>
         </div>
     </header>
+
+    <!-- Port Conflict Banner (Displays if Arduino IDE or another program locks the port) -->
+    <div id="portConflictBanner" class="conflict-banner">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span>⚠️</span>
+            <span id="conflictBannerText">COM5 is busy: Arduino IDE has this COM port open. Close Arduino IDE or click Free Port below.</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <button class="hw-btn" id="btnFreePort" style="background: rgba(245, 158, 11, 0.35); border-color: var(--accent-amber); color: #fff; font-weight: 700;">⚡ Free Port & Connect</button>
+            <button class="hw-btn" id="btnCloseConflictBanner" style="padding: 3px 8px;">✕</button>
+        </div>
+    </div>
 
     <main>
         <!-- LEFT PANEL: File Upload & Board Summary -->
@@ -843,6 +887,14 @@
                     </div>
                 </div>
 
+                <!-- Quick Serial Test Actions -->
+                <div style="display: flex; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;">
+                    <button class="hw-btn" onclick="sendQuickSerial('PING')" style="font-size: 10px; padding: 3px 8px;">📡 PING</button>
+                    <button class="hw-btn" onclick="sendQuickSerial('STATUS')" style="font-size: 10px; padding: 3px 8px;">ℹ️ STATUS</button>
+                    <button class="hw-btn" onclick="sendQuickSerial('HOME')" style="font-size: 10px; padding: 3px 8px;">🏠 HOME</button>
+                    <button class="hw-btn" onclick="sendQuickSerial('G0 X0=0 Y0=50 S0A=90 S0B=90')" style="font-size: 10px; padding: 3px 8px;">🎯 TEST G0</button>
+                </div>
+
                 <!-- Live Monospace Terminal Screen -->
                 <div class="serial-terminal" id="serialTerminal">
                     <div class="sm-line info"><span class="sm-time">[00:00:00]</span> <span class="sm-tag">[SYSTEM]</span> Arduino IDE Serial Monitor Online.</div>
@@ -917,6 +969,22 @@
 
         // ── Hardware Port & Board State ────────────────────────────────────────
         let _availablePortsMap = {};
+        let _hasUserDisconnectedManually = false;
+        let _isInitialScan = true;
+
+        function showConflictBanner(port, msg) {
+            const banner = document.getElementById('portConflictBanner');
+            const bannerText = document.getElementById('conflictBannerText');
+            if (banner && bannerText) {
+                bannerText.innerText = `${port} is in use by another program (e.g. Arduino IDE). Close Arduino IDE Serial Monitor or click Free Port below.`;
+                banner.style.display = 'flex';
+            }
+        }
+
+        function hideConflictBanner() {
+            const banner = document.getElementById('portConflictBanner');
+            if (banner) banner.style.display = 'none';
+        }
 
         function updateSelectedPortBadge(selectedPort) {
             const badge = document.getElementById('modeBadge');
@@ -924,8 +992,6 @@
             const badgeText = document.getElementById('modeBadgeText');
             const laptopPill = document.getElementById('laptopPill');
             const bridgeWire = document.getElementById('bridgeWire');
-            const wireBadge = document.getElementById('wireBadge');
-            const esp32Pill = document.getElementById('esp32Pill');
             const esp32Emoji = document.getElementById('esp32Emoji');
             const esp32Label = document.getElementById('esp32Label');
             const btnConnect = document.getElementById('btnConnectHw');
@@ -947,7 +1013,7 @@
                 const connTag = isConnESP ? 'ESP32' : (isConnArduino ? 'ARDUINO' : (hwDeviceType || 'HARDWARE').toUpperCase());
 
                 if (badgeDot) badgeDot.innerText = '🟢';
-                if (badgeText) badgeText.innerText = `CONNECTED: ${hwPort} [${connTag}] (${baud} BAUD)`;
+                if (badgeText) badgeText.innerText = `${hwPort} · ${connTag} [ONLINE]`;
 
                 if (badge) {
                     badge.style.background = isConnESP
@@ -957,16 +1023,14 @@
                     badge.style.color = isConnESP ? '#10b981' : '#06b6d4';
                 }
 
-                if (laptopPill) laptopPill.className = 'node-pill laptop-pill connected';
+                if (laptopPill) laptopPill.innerText = '💻';
                 if (bridgeWire) bridgeWire.className = 'bridge-wire connected';
-                if (wireBadge) wireBadge.innerText = '⚡';
-                if (esp32Pill) esp32Pill.className = 'node-pill esp32-pill connected';
                 if (esp32Emoji) esp32Emoji.innerText = isConnESP ? '⚡' : (isConnArduino ? '♾️' : '🔌');
                 if (esp32Label) esp32Label.innerText = `${connTag} (${hwPort})`;
 
                 if (btnConnect) {
-                    btnConnect.textContent = '⏏ Disconnect';
-                    btnConnect.className = 'hw-btn disconnect-btn';
+                    btnConnect.innerText = `⏏ Disconnect ${hwPort}`;
+                    btnConnect.className = 'hw-btn btn-disconnect-active';
                 }
                 if (btnHwRun && currentTestPlan) btnHwRun.disabled = false;
 
@@ -980,24 +1044,22 @@
             // 2. Disconnected and SIMULATED_COM1 or no COM selected
             if (!selectedPort || selectedPort === 'SIMULATED_COM1') {
                 if (badgeDot) badgeDot.innerText = '⚪';
-                if (badgeText) badgeText.innerText = 'NO COM SELECTED · LAPTOP SIMULATION MODE';
+                if (badgeText) badgeText.innerText = 'SIMULATION MODE';
 
                 if (badge) {
-                    badge.style.background = 'rgba(15, 23, 42, 0.7)';
-                    badge.style.borderColor = '#475569';
+                    badge.style.background = 'rgba(15, 23, 42, 0.85)';
+                    badge.style.borderColor = '#334155';
                     badge.style.color = '#94a3b8';
                 }
 
-                if (laptopPill) laptopPill.className = 'node-pill laptop-pill';
+                if (laptopPill) laptopPill.innerText = '💻';
                 if (bridgeWire) bridgeWire.className = 'bridge-wire disconnected';
-                if (wireBadge) wireBadge.innerText = '❌';
-                if (esp32Pill) esp32Pill.className = 'node-pill esp32-pill disconnected';
                 if (esp32Emoji) esp32Emoji.innerText = '📡';
-                if (esp32Label) esp32Label.innerText = 'No COM (Simulation)';
+                if (esp32Label) esp32Label.innerText = 'No COM (Sim)';
 
                 if (btnConnect) {
-                    btnConnect.textContent = '🔌 Connect';
-                    btnConnect.className = 'hw-btn connect-btn';
+                    btnConnect.innerText = '⚡ Connect Sim';
+                    btnConnect.className = 'hw-btn';
                 }
                 if (btnHwRun) btnHwRun.disabled = true;
 
@@ -1010,7 +1072,7 @@
 
             // 3. A real COM port is SELECTED in dropdown, but NOT YET CONNECTED
             if (badgeDot) badgeDot.innerText = '🟡';
-            if (badgeText) badgeText.innerText = `SELECTED: ${selectedPort} [${boardTag} DETECTED] · (NOT CONNECTED — Click Connect)`;
+            if (badgeText) badgeText.innerText = `${selectedPort} · ${boardTag} [READY]`;
 
             if (badge) {
                 badge.style.background = 'rgba(245, 158, 11, 0.15)';
@@ -1018,16 +1080,14 @@
                 badge.style.color = 'var(--accent-amber)';
             }
 
-            if (laptopPill) laptopPill.className = 'node-pill laptop-pill';
+            if (laptopPill) laptopPill.innerText = '💻';
             if (bridgeWire) bridgeWire.className = 'bridge-wire disconnected';
-            if (wireBadge) wireBadge.innerText = '⏳';
-            if (esp32Pill) esp32Pill.className = 'node-pill esp32-pill';
             if (esp32Emoji) esp32Emoji.innerText = isESP ? '⚡' : (isArduino ? '♾️' : '📡');
             if (esp32Label) esp32Label.innerText = `${boardTag} on ${selectedPort} (Ready)`;
 
             if (btnConnect) {
-                btnConnect.textContent = '🔌 Connect';
-                btnConnect.className = 'hw-btn connect-btn';
+                btnConnect.innerText = `⚡ Connect ${selectedPort}`;
+                btnConnect.className = 'hw-btn btn-connect-ready';
             }
             if (btnHwRun) btnHwRun.disabled = true;
 
@@ -1062,7 +1122,7 @@
                 if (ports.length === 0) {
                     const opt = document.createElement('option');
                     opt.value = 'SIMULATED_COM1';
-                    opt.textContent = 'SIMULATED_COM1 — [Simulation] (No COM Port Selected)';
+                    opt.textContent = 'SIMULATED_COM1 — [Simulation]';
                     select.appendChild(opt);
                     if (!hwConnected) updateHwUI(false, null, null);
                 } else {
@@ -1070,14 +1130,13 @@
                         _availablePortsMap[p.port] = p;
                         const opt = document.createElement('option');
                         opt.value = p.port;
-                        const devTag = p.device_type ? `[${p.device_type}]` : '[Serial Port]';
-                        const desc = p.description || p.device_manager_name || '';
-                        opt.textContent = `${p.port} — ${devTag} ${desc}`;
+                        const devTag = p.device_type ? `[${p.device_type}]` : '[Serial]';
+                        opt.textContent = `${p.port} — ${devTag}`;
                         select.appendChild(opt);
                     });
                     const simOpt = document.createElement('option');
                     simOpt.value = 'SIMULATED_COM1';
-                    simOpt.textContent = 'SIMULATED_COM1 — [Simulation] (No COM Port Selected)';
+                    simOpt.textContent = 'SIMULATED_COM1 — [Simulation]';
                     select.appendChild(simOpt);
 
                     // Restore previous selection if still present
@@ -1094,21 +1153,28 @@
                     }
                 }
 
-                // ── Auto-detect: check for newly appeared real hardware ports ──
-                const newRealPorts = ports.filter(p =>
-                    p.is_target_hardware &&
-                    !_lastKnownPorts.some(lp => lp.port === p.port)
-                );
-
-                if (newRealPorts.length > 0 && !hwConnected && !_autoConnectInFlight) {
-                    const candidate = newRealPorts[0];
-                    const typeLabel = candidate.device_type || 'Hardware';
-                    showToast(`Hardware detected: ${typeLabel} on ${candidate.port}`, 'success', 6000);
-                    log(`[Auto-detect] Hardware detected: ${typeLabel} on ${candidate.port}. Connecting…`);
-                    select.value = candidate.port;
-                    updateSelectedPortBadge(candidate.port);
-                    await connectToPort(candidate.port, true);
+                // ── Auto-Connect: if target hardware is detected on first scan or newly plugged in ──
+                const targetHardware = ports.find(p => p.is_target_hardware);
+                if (targetHardware && !hwConnected && !_hasUserDisconnectedManually && !_autoConnectInFlight) {
+                    if (_isInitialScan) {
+                        _isInitialScan = false;
+                        log(`[Auto-detect] Hardware found: ${targetHardware.device_type} on ${targetHardware.port}. Auto-connecting…`);
+                        select.value = targetHardware.port;
+                        updateSelectedPortBadge(targetHardware.port);
+                        await connectToPort(targetHardware.port, true);
+                    } else {
+                        // Check if a new hardware port appeared
+                        const isNew = !_lastKnownPorts.some(lp => lp.port === targetHardware.port);
+                        if (isNew) {
+                            showToast(`Hardware detected: ${targetHardware.device_type} on ${targetHardware.port}`, 'success', 5000);
+                            log(`[Auto-detect] Hardware detected: ${targetHardware.device_type} on ${targetHardware.port}. Auto-connecting…`);
+                            select.value = targetHardware.port;
+                            updateSelectedPortBadge(targetHardware.port);
+                            await connectToPort(targetHardware.port, true);
+                        }
+                    }
                 }
+                _isInitialScan = false;
 
                 // Check for removed ports (device unplugged)
                 if (hwConnected && hwPort) {
@@ -1132,12 +1198,16 @@
             if (!port) return;
             _autoConnectInFlight = true;
 
-            const wireBadge = document.getElementById('wireBadge');
             const esp32Label = document.getElementById('esp32Label');
             const badgeDot = document.getElementById('modeBadgeDot');
             const badgeText = document.getElementById('modeBadgeText');
-            if (wireBadge) wireBadge.innerText = '⏳';
-            if (esp32Label) esp32Label.innerText = `Connecting to ${port}…`;
+            const btnConnect = document.getElementById('btnConnectHw');
+
+            if (btnConnect) {
+                btnConnect.innerText = '⏳ Connecting...';
+                btnConnect.className = 'hw-btn btn-connecting';
+            }
+            if (esp32Label) esp32Label.innerText = `Connecting…`;
             if (badgeDot) badgeDot.innerText = '⏳';
             if (badgeText) badgeText.innerText = `CONNECTING TO ${port}…`;
 
@@ -1152,17 +1222,23 @@
                 });
                 const data = await res.json();
                 if (data.status === 'connected') {
+                    hideConflictBanner();
+                    _hasUserDisconnectedManually = false;
                     updateHwUI(true, data.port, data.device_type);
-                    const autoLabel = isAuto ? '(auto)' : '';
+                    const autoLabel = isAuto ? '(auto-connected)' : '';
                     showToast(`Connected to ${data.device_type} on ${data.port} @ ${data.baudrate} baud ${autoLabel}`, 'success');
                     log(`[Hardware] Connected: ${data.device_type} @ ${data.port} | ${data.baudrate} baud`);
                     pollSerialMonitor();
                 } else {
+                    const msg = data.message || 'Port unavailable';
                     if (!isAuto) {
-                        showToast(`Connection error: ${data.message || 'Port unavailable'}`, 'error');
+                        showToast(`Connection error: ${msg}`, 'error', 6000);
                     }
-                    log(`[Hardware] Connection error on ${port}: ${data.message}`);
+                    log(`[Hardware] Connection error on ${port}: ${msg}`);
                     updateHwUI(false, null, null);
+                    if (msg.includes('Arduino IDE') || msg.includes('in use') || msg.includes('Access is denied') || msg.includes('PermissionError') || msg.includes('busy')) {
+                        showConflictBanner(port, msg);
+                    }
                 }
             } catch (err) {
                 if (!isAuto) {
@@ -1176,12 +1252,48 @@
 
         // ── Disconnect ─────────────────────────────────────────────────────────
         async function disconnectHardware() {
+            _hasUserDisconnectedManually = true;
             try {
                 await fetch('/api/disconnect', { method: 'POST' });
             } catch (_) {}
             updateHwUI(false, null, null);
+            hideConflictBanner();
             showToast('Hardware disconnected.', 'warn');
             log('[Hardware] Disconnected from hardware. Simulation mode active.');
+        }
+
+        // ── Quick Serial Command helper ──
+        function sendQuickSerial(cmd) {
+            const input = document.getElementById('serialInputText');
+            if (input) input.value = cmd;
+            switchTab('serial');
+            sendSerialCommand();
+        }
+
+        // ── Conflict Banner Actions ───────────────────────────────────────────
+        const btnFreePort = document.getElementById('btnFreePort');
+        if (btnFreePort) {
+            btnFreePort.addEventListener('click', async () => {
+                btnFreePort.innerText = '⏳ Freeing port...';
+                btnFreePort.disabled = true;
+                try {
+                    const res = await fetch('/api/free-port', { method: 'POST' });
+                    const data = await res.json();
+                    showToast(data.message || 'Port freed. Retrying connection...', 'info');
+                    await new Promise(r => setTimeout(r, 600));
+                    const port = document.getElementById('comPortSelect').value;
+                    await connectToPort(port, false);
+                } catch (err) {
+                    showToast(`Failed to free port: ${err.message}`, 'error');
+                } finally {
+                    btnFreePort.innerText = '⚡ Free Port & Connect';
+                    btnFreePort.disabled = false;
+                }
+            });
+        }
+        const btnCloseConflict = document.getElementById('btnCloseConflictBanner');
+        if (btnCloseConflict) {
+            btnCloseConflict.addEventListener('click', hideConflictBanner);
         }
 
         // ── COM Port & Baud Rate Change Listeners (Instant UI Update) ──────────
