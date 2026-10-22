@@ -104,6 +104,15 @@ void setup() {
     Serial.println(F("======================================================"));
 }
 
+void strobeLed(int count = 4, int delayMs = 20) {
+    for (int i = 0; i < count; i++) {
+        digitalWrite(PIN_LED, HIGH);
+        delay(delayMs);
+        digitalWrite(PIN_LED, LOW);
+        delay(delayMs);
+    }
+}
+
 void loop() {
     while (Serial.available()) {
         char inChar = (char)Serial.read();
@@ -117,7 +126,7 @@ void loop() {
     }
 
     if (stringComplete) {
-        digitalWrite(PIN_LED, HIGH);
+        strobeLed(3, 15); // Rapid flash when data packet received
         processCommand(inputString);
         inputString = "";
         stringComplete = false;
@@ -233,9 +242,11 @@ void processCommand(String cmd) {
         Serial.print(targetS1B, 1);
         Serial.println(F("°)"));
 
+        strobeLed(4, 15); // Rapid flash indicating route received and servos moving
         raiseProbes();
         moveServosSmooth(targetS0A, targetS0B, targetS1A, targetS1B, 150);
         lowerProbes();
+        digitalWrite(PIN_LED, HIGH); // Solid status LED during electrical contact & ADC measurement
         delay(40);
 
         digitalWrite(PIN_TX_SIGNAL, HIGH);
@@ -245,6 +256,8 @@ void processCommand(String cmd) {
         digitalWrite(PIN_TX_SIGNAL, LOW);
 
         raiseProbes();
+        digitalWrite(PIN_LED, LOW);
+        strobeLed(2, 20); // Quick flash confirming measurement completion
 
         String verdict = (measuredV >= expectedMin && measuredV <= expectedMax + 0.5) ? "PASS" : "FAIL";
 

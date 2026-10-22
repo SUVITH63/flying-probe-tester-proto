@@ -24,46 +24,51 @@
             background-color: var(--bg-dark);
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
-            min-height: 100vh;
+            height: 100vh;
+            max-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow-x: hidden;
+            overflow: hidden;
+            box-sizing: border-box;
         }
 
-        /* Header Bar - Fixed 56px, Zero Wrapping, Professional Industrial UI */
+        /* Header Bar - Fixed 50px, Zero Wrapping, Professional Industrial UI */
         header {
             background: linear-gradient(180deg, #0e1526 0%, #090e1a 100%);
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 0 18px;
-            height: 56px;
+            padding: 0 12px;
+            height: 50px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             position: sticky;
             top: 0;
             z-index: 1000;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
             white-space: nowrap;
+            flex-shrink: 0;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .brand-group {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             flex-shrink: 0;
         }
 
         .brand-icon {
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             background: linear-gradient(135deg, #f59e0b, #d97706);
-            border-radius: 7px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 900;
-            font-size: 13px;
+            font-size: 11px;
             color: #0b0f19;
             font-family: 'JetBrains Mono', monospace;
             box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
@@ -72,11 +77,11 @@
         .brand-text {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .brand-title {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 800;
             letter-spacing: -0.4px;
             color: #f8fafc;
@@ -86,9 +91,9 @@
             background: rgba(6, 182, 212, 0.12);
             border: 1px solid rgba(6, 182, 212, 0.35);
             color: var(--accent-cyan);
-            font-size: 10px;
-            padding: 2px 7px;
-            border-radius: 12px;
+            font-size: 9px;
+            padding: 1px 6px;
+            border-radius: 10px;
             font-family: 'JetBrains Mono', monospace;
             font-weight: 700;
             letter-spacing: 0.5px;
@@ -98,10 +103,10 @@
             font-size: 11px;
             color: var(--text-muted);
             border-left: 1px solid #334155;
-            padding-left: 8px;
+            padding-left: 6px;
         }
 
-        @media (max-width: 1280px) {
+        @media (max-width: 1350px) {
             .brand-sub { display: none; }
         }
 
@@ -109,20 +114,54 @@
         .hw-dock {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             background: rgba(15, 23, 42, 0.85);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 4px 8px;
-            border-radius: 8px;
+            padding: 3px 6px;
+            border-radius: 7px;
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);
             flex-shrink: 0;
+        }
+
+        /* Hardware TX/RX Traffic LEDs */
+        .hw-traffic {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            background: #050811;
+            border: 1px solid #1e293b;
+            border-radius: 4px;
+            padding: 2px 5px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            font-weight: 800;
+            user-select: none;
+        }
+        .traffic-led {
+            padding: 1px 4px;
+            border-radius: 2px;
+            color: #475569;
+            background: rgba(255,255,255,0.04);
+            transition: all 0.08s ease;
+        }
+        .traffic-led.active-tx {
+            color: #0b0f19 !important;
+            background: #f59e0b !important;
+            box-shadow: 0 0 10px #f59e0b, 0 0 4px #fbbf24 !important;
+            transform: scale(1.08);
+        }
+        .traffic-led.active-rx {
+            color: #0b0f19 !important;
+            background: #06b6d4 !important;
+            box-shadow: 0 0 10px #06b6d4, 0 0 4px #22d3ee !important;
+            transform: scale(1.08);
         }
 
         /* ── Header Right Actions ── */
         .header-actions {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             flex-shrink: 0;
         }
 
@@ -130,15 +169,18 @@
             background: rgba(15, 23, 42, 0.85);
             border: 1px solid #334155;
             color: #94a3b8;
-            padding: 4px 10px;
-            border-radius: 16px;
-            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 14px;
+            font-size: 10px;
             font-family: 'JetBrains Mono', monospace;
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
             white-space: nowrap;
+            max-width: 175px;
+            overflow: hidden;
+            text-overflow: ellipsis;
             transition: all 0.3s ease;
             box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         }
@@ -148,62 +190,73 @@
             background: linear-gradient(90deg, rgba(245, 158, 11, 0.2) 0%, rgba(239, 68, 68, 0.2) 100%);
             border-bottom: 1px solid rgba(245, 158, 11, 0.4);
             color: #fef08a;
-            padding: 8px 20px;
+            padding: 6px 16px;
             display: none;
             align-items: center;
             justify-content: space-between;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             z-index: 999;
         }
 
-        /* Main Grid */
+        /* Main Grid: Responsive 3-column layout without overflow */
         main {
             display: grid;
-            grid-template-columns: 310px minmax(380px, 1fr) 350px;
-            gap: 16px;
-            padding: 16px;
+            grid-template-columns: 280px minmax(320px, 1fr) 330px;
+            gap: 10px;
+            padding: 10px 12px;
             flex: 1;
             min-height: 0;
+            overflow: hidden;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         @media (max-width: 1150px) {
             main {
-                grid-template-columns: 290px 1fr;
+                grid-template-columns: 270px 1fr;
             }
         }
 
         .panel {
             background: var(--panel-bg);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
+            border-radius: 10px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 10px;
+            min-width: 0;
+            min-height: 0;
+            overflow: hidden;
+            height: 100%;
+            box-sizing: border-box;
         }
 
         .panel-title {
-            font-size: 14px;
+            font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.8px;
             color: var(--text-muted);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            margin-bottom: 2px;
+            flex-shrink: 0;
         }
 
         /* Upload Zone */
         .dropzone {
             border: 2px dashed #334155;
             border-radius: 8px;
-            padding: 32px 16px;
+            padding: 16px 12px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s ease;
             background: rgba(15, 23, 42, 0.5);
+            flex-shrink: 0;
         }
 
         .dropzone:hover, .dropzone.active {
@@ -215,16 +268,17 @@
             background: var(--accent-amber);
             color: #000;
             border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
+            padding: 9px 16px;
+            border-radius: 7px;
             font-weight: 700;
-            font-size: 14px;
+            font-size: 12px;
             cursor: pointer;
             transition: opacity 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
+            flex-shrink: 0;
         }
 
         .btn:hover { opacity: 0.9; }
@@ -241,27 +295,28 @@
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 8px;
+            flex-shrink: 0;
         }
 
         .stat-box {
             background: #0f172a;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 8px 10px;
+            border-radius: 6px;
             border: 1px solid var(--border-color);
         }
 
         .stat-value {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 20px;
+            font-size: 16px;
             font-weight: 700;
             color: var(--accent-cyan);
         }
 
         .stat-label {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-muted);
-            margin-top: 2px;
+            margin-top: 1px;
         }
 
         /* Center Canvas Simulation */
@@ -275,6 +330,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            min-height: 200px;
         }
 
         canvas {
@@ -285,15 +341,38 @@
 
         .canvas-overlay {
             position: absolute;
-            top: 16px;
-            left: 16px;
+            top: 12px;
+            left: 12px;
             background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(8px);
-            padding: 10px 16px;
+            padding: 8px 12px;
             border-radius: 6px;
             border: 1px solid var(--border-color);
             font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
+            font-size: 11px;
+            pointer-events: none;
+        }
+
+        .canvas-flasher {
+            position: absolute;
+            bottom: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.92);
+            border: 1px solid var(--accent-amber);
+            color: #fef08a;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 5px 14px;
+            border-radius: 20px;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 0 18px rgba(245, 158, 11, 0.6);
+            pointer-events: none;
+            z-index: 10;
+            animation: beacon-blink 0.3s infinite alternate;
         }
 
         /* Test Sequence & Log Panel */
@@ -302,30 +381,31 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            max-height: 280px;
+            gap: 6px;
+            min-height: 100px;
         }
 
         .test-card {
             background: #0f172a;
             border: 1px solid var(--border-color);
-            padding: 10px 14px;
+            padding: 8px 10px;
             border-radius: 6px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
+            font-size: 11px;
         }
 
-        .test-card.active { border-color: var(--accent-amber); }
+        .test-card.active { border-color: var(--accent-amber); box-shadow: 0 0 10px rgba(245, 158, 11, 0.3); }
         .test-card.pass { border-color: var(--accent-green); }
         .test-card.fail { border-color: var(--accent-red); }
 
         .verdict-tag {
-            padding: 2px 8px;
+            padding: 2px 6px;
             border-radius: 4px;
             font-weight: 700;
+            font-size: 10px;
         }
         .verdict-pass { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); }
         .verdict-fail { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); }
@@ -334,13 +414,15 @@
             background: #05070a;
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            padding: 10px;
+            padding: 8px;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
+            font-size: 10px;
             color: #10b981;
-            height: 140px;
+            height: 90px;
+            min-height: 70px;
             overflow-y: auto;
             white-space: pre-wrap;
+            flex-shrink: 0;
         }
 
         /* ── Hardware Command Dock Controls ── */
@@ -348,7 +430,7 @@
             background: #090d16;
             border: 1px solid #334155;
             color: var(--text-main);
-            padding: 5px 8px;
+            padding: 4px 6px;
             border-radius: 5px;
             font-size: 11px;
             font-family: 'JetBrains Mono', monospace;
@@ -358,20 +440,22 @@
         .hw-select:focus { outline: none; border-color: var(--accent-cyan); }
 
         #comPortSelect {
-            min-width: 140px;
-            max-width: 200px;
+            min-width: 110px;
+            max-width: 150px;
             font-weight: 600;
         }
 
         #baudRateSelect {
-            width: 86px;
+            width: 72px;
+            padding: 4px 2px;
+            font-size: 10px;
         }
 
         .hw-btn {
             background: #1e293b;
             border: 1px solid #334155;
             color: var(--text-main);
-            padding: 5px 10px;
+            padding: 4px 8px;
             border-radius: 5px;
             font-size: 11px;
             font-family: 'JetBrains Mono', monospace;
@@ -379,7 +463,7 @@
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
             transition: all 0.2s ease;
             white-space: nowrap;
         }
@@ -387,8 +471,8 @@
 
         /* The Prominent Connect / Disconnect button */
         #btnConnectHw {
-            padding: 5px 14px;
-            border-radius: 6px;
+            padding: 4px 10px;
+            border-radius: 5px;
             font-size: 11px;
             font-family: 'JetBrains Mono', monospace;
             font-weight: 800;
@@ -401,12 +485,12 @@
             background: linear-gradient(135deg, #059669 0%, #10b981 100%);
             border: 1px solid #34d399;
             color: #ffffff;
-            box-shadow: 0 0 14px rgba(16, 185, 129, 0.45);
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.45);
             animation: pulse-connect 2s infinite;
         }
         #btnConnectHw.btn-connect-ready:hover {
             background: linear-gradient(135deg, #047857 0%, #059669 100%);
-            box-shadow: 0 0 18px rgba(16, 185, 129, 0.65);
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.65);
         }
 
         @keyframes pulse-connect {
@@ -434,20 +518,20 @@
         .bridge-widget {
             display: flex;
             align-items: center;
-            gap: 6px;
-            padding: 3px 8px;
-            border-radius: 6px;
+            gap: 5px;
+            padding: 2px 6px;
+            border-radius: 5px;
             background: #090d16;
             border: 1px solid #1e293b;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
+            font-size: 10px;
             white-space: nowrap;
         }
         .bridge-wire {
             display: flex;
             align-items: center;
             position: relative;
-            width: 24px;
+            width: 20px;
             height: 3px;
             background: #334155;
             border-radius: 2px;
@@ -458,10 +542,21 @@
             animation: wire-flow 1.5s linear infinite;
             box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
         }
+        .bridge-wire.flashing {
+            background: linear-gradient(90deg, #f59e0b, #ec4899, #06b6d4, #10b981) !important;
+            background-size: 300% 100% !important;
+            animation: wire-rapid-flash 0.2s linear infinite alternate !important;
+            box-shadow: 0 0 14px rgba(245, 158, 11, 0.95), 0 0 8px #06b6d4 !important;
+        }
 
         @keyframes wire-flow {
             0% { background-position: 100% 0; }
             100% { background-position: 0 0; }
+        }
+
+        @keyframes wire-rapid-flash {
+            0% { background-position: 0% 50%; opacity: 0.5; }
+            100% { background-position: 100% 50%; opacity: 1; }
         }
 
         @keyframes pulse-amber {
@@ -469,19 +564,73 @@
             50%       { opacity: 0.4; }
         }
 
+        @keyframes beacon-blink {
+            0% { opacity: 0.4; transform: scale(0.96); }
+            100% { opacity: 1; transform: scale(1.04); }
+        }
+
+        /* ── Flashing Hardware Upload Button & Streaming Banner ── */
+        .btn-flashing-upload {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #06b6d4 100%) !important;
+            background-size: 200% 200% !important;
+            color: #000 !important;
+            font-weight: 800 !important;
+            border: 1px solid #fbbf24 !important;
+            animation: btn-upload-pulse 0.35s infinite alternate !important;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.8) !important;
+        }
+
+        @keyframes btn-upload-pulse {
+            0% { opacity: 0.85; transform: scale(0.99); }
+            100% { opacity: 1; transform: scale(1.02); }
+        }
+
+        .streaming-banner {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            background: linear-gradient(90deg, rgba(245, 158, 11, 0.25), rgba(6, 182, 212, 0.25));
+            border: 1px solid var(--accent-amber);
+            border-radius: 6px;
+            padding: 5px 8px;
+            margin-bottom: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: #fef08a;
+            box-shadow: 0 0 14px rgba(245, 158, 11, 0.35);
+            animation: banner-glow 0.8s infinite alternate;
+            flex-shrink: 0;
+        }
+
+        @keyframes banner-glow {
+            0% { border-color: var(--accent-amber); box-shadow: 0 0 6px rgba(245, 158, 11, 0.3); }
+            100% { border-color: var(--accent-cyan); box-shadow: 0 0 16px rgba(6, 182, 212, 0.6); }
+        }
+
+        .banner-pulse-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--accent-amber);
+            animation: beacon-blink 0.25s infinite alternate;
+            flex-shrink: 0;
+        }
+
         /* ── Toast Notification ── */
         #hwToast {
             position: fixed;
-            bottom: 28px;
-            right: 28px;
+            bottom: 24px;
+            right: 24px;
             z-index: 9999;
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 14px 20px;
-            border-radius: 10px;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 8px;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             border: 1px solid transparent;
             box-shadow: 0 8px 32px rgba(0,0,0,0.5);
@@ -529,19 +678,23 @@
         /* ── Right Panel Tab System ── */
         .panel-tab-bar {
             display: flex;
-            gap: 6px;
+            gap: 4px;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
-            margin-bottom: 6px;
+            padding-bottom: 6px;
+            margin-bottom: 4px;
+            flex-shrink: 0;
+            width: 100%;
+            box-sizing: border-box;
         }
         .panel-tab {
             flex: 1;
+            min-width: 0;
             background: #0f172a;
             border: 1px solid #334155;
             color: var(--text-muted);
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 12px;
+            padding: 5px 6px;
+            border-radius: 6px;
+            font-size: 11px;
             font-family: 'JetBrains Mono', monospace;
             font-weight: 700;
             cursor: pointer;
@@ -549,7 +702,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .panel-tab:hover { background: #1e293b; color: #fff; }
         .panel-tab.active {
@@ -576,65 +732,83 @@
             background: #0a0e17;
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            padding: 6px 10px;
-            margin-bottom: 8px;
-            font-size: 11px;
+            padding: 4px 6px;
+            margin-bottom: 6px;
+            font-size: 10px;
             font-family: 'JetBrains Mono', monospace;
+            flex-shrink: 0;
+            width: 100%;
+            box-sizing: border-box;
+            gap: 4px;
         }
         .sm-port-tag {
             color: var(--accent-cyan);
             font-weight: 700;
+            font-size: 10px;
+            max-width: 130px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex-shrink: 1;
         }
         .sm-tools {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 6px;
+            flex-shrink: 0;
         }
         .sm-check {
             display: flex;
             align-items: center;
-            gap: 4px;
-            font-size: 11px;
+            gap: 3px;
+            font-size: 10px;
             color: var(--text-muted);
             cursor: pointer;
+            white-space: nowrap;
         }
         .sm-tool-btn {
-            padding: 3px 8px;
-            font-size: 11px;
+            padding: 2px 6px !important;
+            font-size: 10px !important;
+            white-space: nowrap;
         }
         .serial-terminal {
             background: #050811;
             border: 1px solid #1e293b;
-            border-radius: 8px;
-            padding: 10px 12px;
+            border-radius: 6px;
+            padding: 6px 8px;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            line-height: 1.5;
-            height: 380px;
+            font-size: 10.5px;
+            line-height: 1.45;
+            flex: 1;
+            min-height: 160px;
             overflow-y: auto;
+            overflow-x: hidden;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 2px;
             white-space: pre-wrap;
             word-break: break-all;
             box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+            box-sizing: border-box;
+            width: 100%;
         }
         .sm-line {
             display: flex;
-            gap: 6px;
+            gap: 4px;
             align-items: flex-start;
         }
         .sm-time {
             color: #64748b;
             flex-shrink: 0;
             user-select: none;
+            font-size: 9.5px;
         }
         .sm-tag {
             font-weight: 700;
             flex-shrink: 0;
-            padding: 0 4px;
-            border-radius: 3px;
-            font-size: 10px;
+            padding: 0 3px;
+            border-radius: 2px;
+            font-size: 9.5px;
         }
         .sm-line.tx .sm-tag { background: rgba(6, 182, 212, 0.2); color: #38bdf8; }
         .sm-line.tx .sm-text { color: #bae6fd; }
@@ -647,18 +821,24 @@
 
         .sm-input-bar {
             display: flex;
-            gap: 6px;
-            margin-top: 8px;
+            gap: 4px;
+            margin-top: 6px;
+            flex-shrink: 0;
+            width: 100%;
+            box-sizing: border-box;
+            align-items: center;
         }
         .sm-input {
             flex: 1;
+            min-width: 0 !important;
             background: #050811;
             border: 1px solid #334155;
             color: #fff;
-            padding: 7px 12px;
-            border-radius: 6px;
+            padding: 5px 8px;
+            border-radius: 5px;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
+            font-size: 11px;
+            box-sizing: border-box;
         }
         .sm-input:focus { outline: none; border-color: var(--accent-cyan); }
 
@@ -753,6 +933,12 @@
                 <span id="esp32Emoji">📡</span>
                 <span id="esp32Label" style="font-weight: 700;">No COM (Sim)</span>
             </div>
+
+            <!-- Hardware TX/RX Traffic Activity Indicator LEDs -->
+            <div class="hw-traffic" title="Serial Traffic Activity (TX / RX)">
+                <span class="traffic-led" id="ledTx" title="Transmitting to Hardware (TX)">TX</span>
+                <span class="traffic-led" id="ledRx" title="Receiving from Hardware (RX)">RX</span>
+            </div>
         </div>
 
         <!-- Header Right Actions -->
@@ -789,9 +975,9 @@
             <div class="panel-title">1. Design Upload</div>
             <div class="dropzone" id="dropzone">
                 <input type="file" id="fileInput" accept=".kicad_pcb,.gbr,.pho" style="display: none;">
-                <div style="font-size: 32px; margin-bottom: 8px;">📁</div>
-                <div style="font-weight: 600; margin-bottom: 4px;">Drag & Drop PCB File</div>
-                <div style="font-size: 11px; color: var(--text-muted);">Supports KiCad (.kicad_pcb) & Gerber (.gbr)</div>
+                <div style="font-size: 28px; margin-bottom: 4px;">📁</div>
+                <div style="font-weight: 600; margin-bottom: 2px;">Drag & Drop PCB File</div>
+                <div style="font-size: 10.5px; color: var(--text-muted);">Supports KiCad (.kicad_pcb) & Gerber (.gbr)</div>
             </div>
 
             <div class="panel-title">2. Board Analysis</div>
@@ -815,9 +1001,9 @@
             </div>
 
             <div class="panel-title">3. AI Engine Configuration</div>
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-                <label style="font-size: 11px; color: var(--text-muted);">Select AI Engine Provider:</label>
-                <select id="aiProviderSelect" class="btn btn-secondary" style="padding: 8px; font-size: 12px; width: 100%; text-align: left;">
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+                <label style="font-size: 10.5px; color: var(--text-muted);">Select AI Engine Provider:</label>
+                <select id="aiProviderSelect" class="btn btn-secondary" style="padding: 6px 8px; font-size: 11px; width: 100%; text-align: left;">
                     <option value="built_in" selected>⚡ Built-in Offline Neural AI Engine (Zero Setup)</option>
                     <option value="ollama">🦙 Local Ollama LLM (http://localhost:11434)</option>
                     <option value="gemini">✨ Google Gemini API (Public API Key)</option>
@@ -825,62 +1011,72 @@
                 </select>
 
                 <div id="apiKeyGroup" style="display: none; flex-direction: column; gap: 4px;">
-                    <label style="font-size: 11px; color: var(--text-muted);" id="apiKeyLabel">API Key:</label>
-                    <input type="password" id="aiApiKey" placeholder="Enter API key..." style="background: #05070a; border: 1px solid var(--border-color); color: #fff; padding: 8px; border-radius: 6px; font-size: 12px; font-family: monospace;">
+                    <label style="font-size: 10.5px; color: var(--text-muted);" id="apiKeyLabel">API Key:</label>
+                    <input type="password" id="aiApiKey" placeholder="Enter API key..." style="background: #05070a; border: 1px solid var(--border-color); color: #fff; padding: 6px; border-radius: 5px; font-size: 11px; font-family: monospace;">
                 </div>
             </div>
 
             <button class="btn" id="btnGenPlan" disabled>⚡ Generate AI Test Plan</button>
             <button class="btn btn-secondary" id="btnSimulate" disabled>▶ Run Dual-Arm Simulation</button>
-            <button class="btn btn-hw" id="btnHwRun" disabled style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); font-weight: 700; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35); font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px;"><span>🚀</span><span>Upload Test Plan to Hardware</span></button>
+            <button class="btn btn-hw" id="btnHwRun" disabled style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); font-weight: 700; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35); font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 6px;"><span>🚀</span><span>Upload Test Plan to Hardware</span></button>
         </div>
 
         <!-- CENTER PANEL: Interactive 2D Dual-Arm Kinematics Canvas -->
-        <div class="panel" style="padding: 12px;">
+        <div class="panel" style="padding: 10px;">
             <div class="panel-title">
                 <span>3. Live Dual 5-Bar Arm Kinematics & PCB Visualizer</span>
-                <span style="font-size: 11px; color: var(--accent-cyan);" id="statusIndicator">Ready</span>
+                <span style="font-size: 10.5px; color: var(--accent-cyan);" id="statusIndicator">Ready</span>
             </div>
-            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                <button class="btn btn-secondary" id="btnRotateBlue" style="padding: 6px 12px; font-size: 11px;">🔄 Rotate Blue Arm Up</button>
-                <button class="btn btn-secondary" id="btnAlignProbes" style="padding: 6px 12px; font-size: 11px;">🎯 Align Probes</button>
-                <button class="btn btn-secondary" id="btnResetArms" style="padding: 6px 12px; font-size: 11px;">↺ Reset Arms</button>
+            <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                <button class="btn btn-secondary" id="btnRotateBlue" style="padding: 5px 10px; font-size: 10.5px;">🔄 Rotate Blue Arm Up</button>
+                <button class="btn btn-secondary" id="btnAlignProbes" style="padding: 5px 10px; font-size: 10.5px;">🎯 Align Probes</button>
+                <button class="btn btn-secondary" id="btnResetArms" style="padding: 5px 10px; font-size: 10.5px;">↺ Reset Arms</button>
             </div>
             <div class="canvas-container">
                 <canvas id="simCanvas"></canvas>
                 <div class="canvas-overlay">
                     <div>ARM 0 (Top): <span id="arm0Coords" style="color: var(--accent-amber);">(0.0, 57.5)</span></div>
                     <div>ARM 1 (Bot): <span id="arm1Coords" style="color: var(--accent-cyan);">(0.0, 57.5)</span></div>
-                    <div style="font-size: 10px; color: #94a3b8; margin-top: 4px;">💡 Drag flex handles on canvas to rotate arms</div>
+                    <div style="font-size: 9.5px; color: #94a3b8; margin-top: 3px;">💡 Drag flex handles on canvas to rotate arms</div>
                 </div>
+                <div id="canvasFlasher" class="canvas-flasher">⚡ FLASHING HARDWARE ROUTE</div>
             </div>
         </div>
 
         <!-- RIGHT PANEL: Test Sequence & Serial Monitor -->
-        <div class="panel" style="min-height: 580px;">
+        <div class="panel">
             <div class="panel-tab-bar">
-                <button class="panel-tab active" id="tabBtnTestPlan">📋 AI Test Plan (<span id="testPlanCount">0</span>)</button>
+                <button class="panel-tab active" id="tabBtnTestPlan">📋 Test Plan (<span id="testPlanCount">0</span>)</button>
                 <button class="panel-tab" id="tabBtnSerial">📟 Serial Monitor <span class="serial-indicator" id="serialRxPulse">●</span></button>
             </div>
 
             <!-- Tab 1: AI Test Plan & Sequence -->
-            <div id="tabContentTestPlan" style="display: flex; flex-direction: column; gap: 12px; flex: 1;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div id="tabContentTestPlan" style="display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 0; overflow: hidden;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
                     <div class="panel-title" style="margin-bottom: 0;">4. Probing Route Plan</div>
-                    <button class="hw-btn" id="btnUploadPlanTab" style="background: rgba(16, 185, 129, 0.2); border-color: var(--accent-emerald); color: #34d399; font-weight: 700; font-size: 11px; padding: 5px 12px; display: flex; align-items: center; gap: 6px;" disabled title="Upload and stream test plan routes to ESP32 / Arduino"><span>🚀</span><span>Upload to Hardware</span></button>
+                    <button class="hw-btn" id="btnUploadPlanTab" style="background: rgba(16, 185, 129, 0.2); border-color: var(--accent-emerald); color: #34d399; font-weight: 700; font-size: 10.5px; padding: 4px 10px; display: flex; align-items: center; gap: 5px;" disabled title="Upload and stream test plan routes to ESP32 / Arduino"><span>🚀</span><span>Upload to Hardware</span></button>
                 </div>
                 <div class="test-list" id="testList">
-                    <div style="text-align: center; color: var(--text-muted); margin-top: 40px; font-size: 12px;">
+                    <div style="text-align: center; color: var(--text-muted); margin-top: 30px; font-size: 11px;">
                         Upload a PCB design file to generate probing sequence.
                     </div>
                 </div>
 
-                <div class="panel-title">5. Diagnostic Card</div>
+                <div class="panel-title" style="flex-shrink: 0;">5. Diagnostic Card</div>
                 <div class="console-log" id="consoleLog">> FPTester System Ready. Upload .kicad_pcb or .gbr design file to begin.</div>
             </div>
 
             <!-- Tab 2: Serial Monitor -->
-            <div id="tabContentSerial" style="display: none; flex-direction: column; flex: 1;">
+            <div id="tabContentSerial" style="display: none; flex-direction: column; flex: 1; min-height: 0; overflow: hidden;">
+                <!-- Flashing Hardware Transmission Banner -->
+                <div id="hwStreamingBanner" class="streaming-banner">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <div class="banner-pulse-dot"></div>
+                        <span id="streamingBannerText">⚡ TRANSMITTING ROUTE TO HARDWARE...</span>
+                    </div>
+                    <span id="streamingBannerStep">STEP 1/1</span>
+                </div>
+
                 <div class="serial-monitor-header">
                     <div class="sm-port-tag" id="smPortTag">PORT: DISCONNECTED</div>
                     <div class="sm-tools">
@@ -891,11 +1087,11 @@
                 </div>
 
                 <!-- Quick Serial Test Actions -->
-                <div style="display: flex; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;">
-                    <button class="hw-btn" onclick="sendQuickSerial('PING')" style="font-size: 10px; padding: 3px 8px;">📡 PING</button>
-                    <button class="hw-btn" onclick="sendQuickSerial('STATUS')" style="font-size: 10px; padding: 3px 8px;">ℹ️ STATUS</button>
-                    <button class="hw-btn" onclick="sendQuickSerial('HOME')" style="font-size: 10px; padding: 3px 8px;">🏠 HOME</button>
-                    <button class="hw-btn" onclick="sendQuickSerial('G0 X0=0 Y0=50 S0A=90 S0B=90')" style="font-size: 10px; padding: 3px 8px;">🎯 TEST G0</button>
+                <div style="display: flex; gap: 4px; margin-bottom: 4px; flex-wrap: wrap; flex-shrink: 0;">
+                    <button class="hw-btn" onclick="sendQuickSerial('PING')" style="font-size: 9.5px; padding: 2px 6px;">📡 PING</button>
+                    <button class="hw-btn" onclick="sendQuickSerial('STATUS')" style="font-size: 9.5px; padding: 2px 6px;">ℹ️ STATUS</button>
+                    <button class="hw-btn" onclick="sendQuickSerial('HOME')" style="font-size: 9.5px; padding: 2px 6px;">🏠 HOME</button>
+                    <button class="hw-btn" onclick="sendQuickSerial('G0 X0=0 Y0=50 S0A=90 S0B=90')" style="font-size: 9.5px; padding: 2px 6px;">🎯 TEST G0</button>
                 </div>
 
                 <!-- Live Monospace Terminal Screen -->
@@ -906,14 +1102,14 @@
 
                 <!-- Command Input Bar (Exact Serial Monitor Feel) -->
                 <div class="sm-input-bar">
-                    <input type="text" id="serialInputText" class="sm-input" placeholder="Send G-code/command to hardware (e.g. PING, STATUS, HOME, G0)..." autocomplete="off">
-                    <select id="serialLineEnding" class="hw-select" style="max-width: 120px; font-size: 11px;">
-                        <option value="\r\n" selected>Both NL & CR</option>
+                    <input type="text" id="serialInputText" class="sm-input" placeholder="Send command (PING, STATUS, HOME, G0)..." autocomplete="off">
+                    <select id="serialLineEnding" class="hw-select" style="width: 72px; min-width: 60px; max-width: 76px; font-size: 10px; padding: 4px 2px;">
+                        <option value="\r\n" selected>NL & CR</option>
                         <option value="\n">Newline</option>
-                        <option value="\r">Carriage return</option>
-                        <option value="">No line ending</option>
+                        <option value="\r">Carriage</option>
+                        <option value="">None</option>
                     </select>
-                    <button class="btn btn-hw" id="btnSerialSend" style="padding: 6px 14px; font-size: 12px;">Send</button>
+                    <button class="btn btn-hw" id="btnSerialSend" style="padding: 5px 12px; font-size: 11px; font-weight: 700; white-space: nowrap;">Send</button>
                 </div>
             </div>
         </div>
@@ -972,6 +1168,25 @@
             toast.className = `show toast-${type}`;
             if (_toastTimer) clearTimeout(_toastTimer);
             _toastTimer = setTimeout(() => { toast.classList.remove('show'); }, durationMs);
+        }
+
+        // ── Hardware Serial Traffic Indicator Helpers ──────────────────────────
+        let _txTimer = null;
+        let _rxTimer = null;
+        function flashTxLed(durationMs = 90) {
+            const led = document.getElementById('ledTx');
+            if (!led) return;
+            led.classList.add('active-tx');
+            if (_txTimer) clearTimeout(_txTimer);
+            _txTimer = setTimeout(() => { if (led) led.classList.remove('active-tx'); }, durationMs);
+        }
+
+        function flashRxLed(durationMs = 90) {
+            const led = document.getElementById('ledRx');
+            if (!led) return;
+            led.classList.add('active-rx');
+            if (_rxTimer) clearTimeout(_rxTimer);
+            _rxTimer = setTimeout(() => { if (led) led.classList.remove('active-rx'); }, durationMs);
         }
 
         // ── Hardware Port & Board State ────────────────────────────────────────
@@ -1392,8 +1607,11 @@
 
                     logs.forEach(item => {
                         _lastSerialLogId = Math.max(_lastSerialLogId, item.id);
-                        const line = document.createElement('div');
                         const dirClass = item.direction.toLowerCase();
+                        if (dirClass === 'tx') flashTxLed(100);
+                        else if (dirClass === 'rx') flashRxLed(100);
+
+                        const line = document.createElement('div');
                         line.className = `sm-line ${dirClass}`;
 
                         const timeHtml = showTimestamps
@@ -1432,6 +1650,7 @@
             const payload = text + ending;
             input.value = '';
 
+            flashTxLed(140);
             try {
                 await fetch('/api/serial-monitor/send', {
                     method: 'POST',
@@ -1771,71 +1990,119 @@
             // Automatically switch right panel tab to Serial Monitor so user sees live commands & telemetry!
             switchTab('serial');
 
+            // Activate visual flashing indicators (pulsing bridge wire, glowing upload buttons, streaming banner, canvas flasher)
+            const bridgeWire = document.getElementById('bridgeWire');
+            if (bridgeWire) bridgeWire.className = 'bridge-wire flashing';
+
+            const btnHwRunEl = document.getElementById('btnHwRun');
+            const btnUploadPlanTabEl = document.getElementById('btnUploadPlanTab');
+            if (btnHwRunEl) {
+                btnHwRunEl.classList.add('btn-flashing-upload');
+                btnHwRunEl.innerHTML = `<span>⚡</span><span>FLASHING TO ${targetDev.toUpperCase()}...</span>`;
+            }
+            if (btnUploadPlanTabEl) {
+                btnUploadPlanTabEl.classList.add('btn-flashing-upload');
+                btnUploadPlanTabEl.innerHTML = `<span>⚡</span><span>FLASHING...</span>`;
+            }
+
+            const streamingBanner = document.getElementById('hwStreamingBanner');
+            const streamingBannerText = document.getElementById('streamingBannerText');
+            const streamingBannerStep = document.getElementById('streamingBannerStep');
+            if (streamingBanner) streamingBanner.style.display = 'flex';
+
+            const canvasFlasher = document.getElementById('canvasFlasher');
+            if (canvasFlasher) canvasFlasher.style.display = 'flex';
+
             let passCount = 0;
             let failCount = 0;
 
-            for (let i = 0; i < totalSteps; i++) {
-                const cmd = currentTestPlan.commands[i];
-                const meta = cmd.meta || {};
-                const testId = meta.test_id || (i + 1);
-                const net = meta.net || 'NET';
+            try {
+                for (let i = 0; i < totalSteps; i++) {
+                    const cmd = currentTestPlan.commands[i];
+                    const meta = cmd.meta || {};
+                    const testId = meta.test_id || (i + 1);
+                    const net = meta.net || 'NET';
 
-                document.getElementById('statusIndicator').innerText = `Step ${i + 1}/${totalSteps}: Probing ${net} (${targetDev})`;
+                    document.getElementById('statusIndicator').innerText = `Step ${i + 1}/${totalSteps}: Probing ${net} (${targetDev})`;
 
-                // Highlight active test card in AI Test Plan
-                const card = document.getElementById(`test-card-${testId}`);
-                if (card) {
-                    card.classList.add('active');
-                }
+                    if (streamingBannerText) streamingBannerText.innerText = `⚡ FLASHING ROUTE ${i + 1}/${totalSteps} TO ${targetDev.toUpperCase()} [${targetPort}]...`;
+                    if (streamingBannerStep) streamingBannerStep.innerText = `STEP ${i + 1}/${totalSteps}`;
+                    if (btnHwRunEl) btnHwRunEl.innerHTML = `<span>⚡</span><span>FLASHING STEP ${i + 1}/${totalSteps}...</span>`;
 
-                // Smoothly animate canvas arms to target pads in sync with real servos
-                const arm0Target = (cmd.arms && cmd.arms[0]) ? cmd.arms[0] : { x: 0, y: 57.5 };
-                const arm1Target = (cmd.arms && cmd.arms[1]) ? cmd.arms[1] : { x: 0, y: 57.5 };
-                const animPromise = animateArmMove(arm0Target, arm1Target);
-
-                // Call backend single-step hardware endpoint
-                let stepData = null;
-                try {
-                    const res = await fetch(`/api/hardware-step/${currentBoardId}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ step_index: i })
-                    });
-                    stepData = await res.json();
-                } catch (err) {
-                    log(`[Hardware] Step #${testId} communication error: ${err.message}`);
-                }
-
-                await animPromise; // Wait for smooth canvas arm animation
-
-                if (stepData && stepData.result) {
-                    const r = stepData.result;
-                    const verdict = r.verdict || 'FAIL';
-                    const vVal = (r.measured_voltage !== undefined) ? r.measured_voltage : 0.0;
-
-                    if (verdict === 'PASS') passCount++; else failCount++;
-
-                    const verdictTag = document.getElementById(`verdict-${testId}`);
-                    if (verdictTag) {
-                        verdictTag.innerText = `${vVal}V [${verdict}]`;
-                        verdictTag.className = `verdict-tag ${verdict === 'PASS' ? 'verdict-pass' : 'verdict-fail'}`;
-                    }
+                    // Highlight active test card in AI Test Plan
+                    const card = document.getElementById(`test-card-${testId}`);
                     if (card) {
-                        card.classList.remove('active');
-                        card.classList.add(verdict === 'PASS' ? 'pass' : 'fail');
+                        card.classList.add('active');
                     }
-                    log(`Test #${testId} (${net}): ${meta.pad_a_ref || 'PadA'} -> ${meta.pad_b_ref || 'PadB'} = ${vVal}V [${verdict}]`);
-                } else {
-                    failCount++;
-                    if (card) card.classList.remove('active');
-                }
 
-                // Settle delay between steps
-                await new Promise(r => setTimeout(r, 140));
+                    // Strobe TX LED brightly to indicate active route transmission
+                    flashTxLed(250);
+
+                    // Smoothly animate canvas arms to target pads in sync with real servos
+                    const arm0Target = (cmd.arms && cmd.arms[0]) ? cmd.arms[0] : { x: 0, y: 57.5 };
+                    const arm1Target = (cmd.arms && cmd.arms[1]) ? cmd.arms[1] : { x: 0, y: 57.5 };
+                    const animPromise = animateArmMove(arm0Target, arm1Target);
+
+                    // Call backend single-step hardware endpoint
+                    let stepData = null;
+                    try {
+                        const res = await fetch(`/api/hardware-step/${currentBoardId}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ step_index: i })
+                        });
+                        stepData = await res.json();
+                        // Strobe RX LED when telemetry measurement returns
+                        flashRxLed(220);
+                    } catch (err) {
+                        log(`[Hardware] Step #${testId} communication error: ${err.message}`);
+                    }
+
+                    await animPromise; // Wait for smooth canvas arm animation
+
+                    if (stepData && stepData.result) {
+                        const r = stepData.result;
+                        const verdict = r.verdict || 'FAIL';
+                        const vVal = (r.measured_voltage !== undefined) ? r.measured_voltage : 0.0;
+
+                        if (verdict === 'PASS') passCount++; else failCount++;
+
+                        const verdictTag = document.getElementById(`verdict-${testId}`);
+                        if (verdictTag) {
+                            verdictTag.innerText = `${vVal}V [${verdict}]`;
+                            verdictTag.className = `verdict-tag ${verdict === 'PASS' ? 'verdict-pass' : 'verdict-fail'}`;
+                        }
+                        if (card) {
+                            card.classList.remove('active');
+                            card.classList.add(verdict === 'PASS' ? 'pass' : 'fail');
+                        }
+                        log(`Test #${testId} (${net}): ${meta.pad_a_ref || 'PadA'} -> ${meta.pad_b_ref || 'PadB'} = ${vVal}V [${verdict}]`);
+                    } else {
+                        failCount++;
+                        if (card) card.classList.remove('active');
+                    }
+
+                    // Settle delay between steps
+                    await new Promise(r => setTimeout(r, 140));
+                }
+            } finally {
+                // Restore normal button and wire states
+                if (bridgeWire) bridgeWire.className = hwConnected ? 'bridge-wire connected' : 'bridge-wire disconnected';
+                if (btnHwRunEl) {
+                    btnHwRunEl.classList.remove('btn-flashing-upload');
+                    btnHwRunEl.innerHTML = `<span>🚀</span><span>Upload Test Plan to Hardware</span>`;
+                }
+                if (btnUploadPlanTabEl) {
+                    btnUploadPlanTabEl.classList.remove('btn-flashing-upload');
+                    btnUploadPlanTabEl.innerHTML = `<span>🚀</span><span>Upload to Hardware</span>`;
+                }
+                if (streamingBanner) streamingBanner.style.display = 'none';
+                if (canvasFlasher) canvasFlasher.style.display = 'none';
+
+                isSimulating = false;
+                document.getElementById('statusIndicator').innerText = 'Ready';
             }
 
-            isSimulating = false;
-            document.getElementById('statusIndicator').innerText = 'Ready';
             const summaryMsg = `Hardware run complete: ${passCount} PASS, ${failCount} FAIL (${totalSteps} total).`;
             log(`[🚀 Hardware Complete] ${summaryMsg}`);
             showToast(summaryMsg, failCount === 0 ? 'success' : 'info', 6000);

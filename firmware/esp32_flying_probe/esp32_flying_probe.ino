@@ -123,6 +123,15 @@ void setup() {
     Serial.println(F("======================================================"));
 }
 
+void strobeLed(int count = 4, int delayMs = 20) {
+    for (int i = 0; i < count; i++) {
+        digitalWrite(PIN_LED, HIGH);
+        delay(delayMs);
+        digitalWrite(PIN_LED, LOW);
+        delay(delayMs);
+    }
+}
+
 void loop() {
     // Read incoming characters from Serial
     while (Serial.available()) {
@@ -137,7 +146,7 @@ void loop() {
     }
 
     if (stringComplete) {
-        digitalWrite(PIN_LED, HIGH);
+        strobeLed(3, 15); // Rapid blue LED flash when data packet received
         processCommand(inputString);
         inputString = "";
         stringComplete = false;
@@ -260,7 +269,8 @@ void processCommand(String cmd) {
         Serial.print(targetS1B, 1);
         Serial.println(F("°)"));
 
-        // 1. Ensure probes are raised during XY planar travel
+        // 1. Strobe LED on route reception and ensure probes are raised during XY planar travel
+        strobeLed(4, 15);
         raiseProbes();
 
         // 2. Move 5-bar linkage servos smoothly to target pad positions
@@ -268,6 +278,7 @@ void processCommand(String cmd) {
 
         // 3. Lower probe needles onto target copper pads
         lowerProbes();
+        digitalWrite(PIN_LED, HIGH); // Solid status LED during electrical contact & ADC measurement
         delay(40); // Settle contact
 
         // 4. Inject 3.3V pulse on TX probe and measure ADC on RX probe
@@ -279,6 +290,8 @@ void processCommand(String cmd) {
 
         // 5. Retract probes after measurement
         raiseProbes();
+        digitalWrite(PIN_LED, LOW);
+        strobeLed(2, 20); // Quick flash confirming measurement completion
 
         // Determine PASS / FAIL verdict
         String verdict = (measuredV >= expectedMin && measuredV <= expectedMax + 0.2) ? "PASS" : "FAIL";
