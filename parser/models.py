@@ -101,16 +101,42 @@ class TestPair:
 
     def to_hardware_command(self, job_id: int) -> Dict[str, Any]:
         """
-        Formats test command to match ESP32 USB JSON protocol.
+        Formats test command to match ESP32 USB JSON protocol with 5-bar linkage servo angles.
         """
+        # Calculate servo angles for both 5-bar arms
+        s0a, s0b = 90.0, 90.0
+        s1a, s1b = 90.0, 90.0
+        try:
+            from .workspace import WorkspaceValidator
+            val = WorkspaceValidator()
+            s0a, s0b = val.calculate_servo_angles(0, self.pad_a.x, self.pad_a.y)
+            s1a, s1b = val.calculate_servo_angles(1, self.pad_b.x, self.pad_b.y)
+        except Exception:
+            pass
+
         return {
             "msg_type": "run_test",
             "job_id": job_id,
             "test_type": "digital_high_adc_read",
             "arms": [
-                {"arm_id": 0, "x": round(self.pad_a.x, 3), "y": round(self.pad_a.y, 3)},
-                {"arm_id": 1, "x": round(self.pad_b.x, 3), "y": round(self.pad_b.y, 3)},
+                {
+                    "arm_id": 0,
+                    "x": round(self.pad_a.x, 3),
+                    "y": round(self.pad_a.y, 3),
+                    "servo_a_deg": s0a,
+                    "servo_b_deg": s0b,
+                    "pad_ref": self.pad_a.pad_id
+                },
+                {
+                    "arm_id": 1,
+                    "x": round(self.pad_b.x, 3),
+                    "y": round(self.pad_b.y, 3),
+                    "servo_a_deg": s1a,
+                    "servo_b_deg": s1b,
+                    "pad_ref": self.pad_b.pad_id
+                },
             ],
+            "gcode": f"G0 X0={self.pad_a.x:.2f} Y0={self.pad_a.y:.2f} S0A={s0a} S0B={s0b} X1={self.pad_b.x:.2f} Y1={self.pad_b.y:.2f} S1A={s1a} S1B={s1b}",
             "test_params": {
                 "tx_arm_id": 0,
                 "rx_arm_id": 1,

@@ -51,7 +51,8 @@ class TestAPIServerAndAI(unittest.TestCase):
 
     def test_serial_dispatcher_simulation(self):
         dispatcher = SerialDispatcher(port="SIMULATED_COM1")
-        self.assertTrue(dispatcher.connect())
+        ok, msg = dispatcher.connect()
+        self.assertTrue(ok)
 
         cmd = {
             "msg_type": "run_test",
@@ -69,7 +70,63 @@ class TestAPIServerAndAI(unittest.TestCase):
 
     def test_serial_ports_listing(self):
         ports = SerialDispatcher.list_available_ports()
-        self.assertGreater(len(ports), 0)
+        self.assertIsInstance(ports, list)
+
+    def test_5bar_servo_angles_ik(self):
+        val = WorkspaceValidator()
+        # Arm 0 (Top arm) at center of PCB
+        deg_a, deg_b = val.calculate_servo_angles(0, 0.0, 57.5)
+        self.assertGreaterEqual(deg_a, 0.0)
+        self.assertLessEqual(deg_a, 180.0)
+        self.assertGreaterEqual(deg_b, 0.0)
+        self.assertLessEqual(deg_b, 180.0)
+
+        # Arm 1 (Bottom arm) at center of PCB
+        deg_1a, deg_1b = val.calculate_servo_angles(1, 0.0, 57.5)
+        self.assertGreaterEqual(deg_1a, 0.0)
+        self.assertLessEqual(deg_1a, 180.0)
+        self.assertGreaterEqual(deg_1b, 0.0)
+        self.assertLessEqual(deg_1b, 180.0)
+
+    def test_hardware_command_servo_and_gcode(self):
+        parser = KiCadPCBParser()
+        board = parser.parse_string(SAMPLE_KICAD_PCB)
+        planner = AITestPlanner()
+        job = planner.generate_plan(board, job_id=303)
+        self.assertGreater(len(job.test_pairs), 0)
+
+        cmd = job.test_pairs[0].to_hardware_command(job.job_id)
+        # Check servo angles in command
+        self.assertIn("arms", cmd)
+        self.assertEqual(len(cmd["arms"]), 2)
+        self.assertIn("servo_a_deg", cmd["arms"][0])
+        self.assertIn("servo_b_deg", cmd["arms"][0])
+        self.assertIn("servo_a_deg", cmd["arms"][1])
+        self.assertIn("servo_b_deg", cmd["arms"][1])
+        # Check G-code string
+        self.assertIn("gcode", cmd)
+        self.assertTrue(cmd["gcode"].startswith("G0"))
+        self.assertIn("S0A=", cmd["gcode"])
+        self.assertIn("S1A=", cmd["gcode"])
+
+    def test_serial_monitor_log_buffer(self):
+        from parser.serial_dispatcher import append_serial_log, get_serial_logs, clear_serial_logs
+        clear_serial_logs()
+        append_serial_log("TX", "PING", "COM3")
+        append_serial_log("RX", "PONG", "COM3")
+        logs = get_serial_logs(0)
+        self.assertEqual(len(logs), 2)
+        self.assertEqual(logs[0]["direction"], "TX")
+        self.assertEqual(logs[0]["text"], "PING")
+        self.assertEqual(logs[1]["direction"], "RX")
+        self.assertEqual(logs[1]["text"], "PONG")
+
+        # Test since parameter
+        since_id = logs[0]["id"]
+        later_logs = get_serial_logs(since_id)
+        self.assertEqual(len(later_logs), 1)
+        self.assertEqual(later_logs[0]["text"], "PONG")
 
 if __name__ == "__main__":
     unittest.main()
+

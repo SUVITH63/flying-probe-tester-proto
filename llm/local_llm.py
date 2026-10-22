@@ -39,7 +39,8 @@ class LocalEmbeddedLLM:
         self.model_path = os.path.join(model_dir, "fptester-circuit-llm.gguf")
 
         if not _model_checked:
-            self._ensure_model_exists()
+            if os.environ.get("FPTESTER_AUTO_DOWNLOAD_MODEL") == "1":
+                self._ensure_model_exists()
             _model_checked = True
 
         size_mb = 0
@@ -48,7 +49,7 @@ class LocalEmbeddedLLM:
         if size_mb > 1:
             logger.info(f"🤖 [LLM Engine] Model ready: {size_mb} MB GGUF weights")
         else:
-            logger.info("🤖 [LLM Engine] Using Embedded Neural Rules Inference Model")
+            logger.info("🤖 [LLM Engine] Using Embedded Neural Rules Inference Model (run 'python download_model.py' to cache GGUF weights)")
 
     # ─── model auto-download (deferred, runs once) ────────────────────────────
 

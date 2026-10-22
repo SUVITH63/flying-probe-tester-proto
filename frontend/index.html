@@ -416,7 +416,261 @@
             background: linear-gradient(135deg, rgba(16,185,129,0.35), rgba(6,182,212,0.35));
             box-shadow: 0 0 16px rgba(16,185,129,0.3);
         }
-        .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+        /* ── Laptop to ESP32 Hardware Bridge Widget ── */
+        .bridge-widget {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid var(--border-color);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .node-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .node-pill.connected {
+            border-color: var(--accent-green);
+            background: rgba(16, 185, 129, 0.12);
+            color: #10b981;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.25);
+        }
+        .node-pill.disconnected {
+            border-color: #475569;
+            color: #94a3b8;
+        }
+        .bridge-wire {
+            display: flex;
+            align-items: center;
+            position: relative;
+            width: 44px;
+            height: 4px;
+            background: #334155;
+            border-radius: 2px;
+        }
+        .bridge-wire.connected {
+            background: linear-gradient(90deg, #10b981, #06b6d4, #10b981);
+            background-size: 200% 100%;
+            animation: wire-flow 1.5s linear infinite;
+            box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+        }
+        @keyframes wire-flow {
+            0% { background-position: 100% 0; }
+            100% { background-position: 0 0; }
+        }
+        .wire-badge {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 10px;
+            background: #0b0f19;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #334155;
+        }
+        .bridge-wire.connected .wire-badge {
+            border-color: #10b981;
+            box-shadow: 0 0 6px #10b981;
+        }
+
+        /* ── Right Panel Tab System ── */
+        .panel-tab-bar {
+            display: flex;
+            gap: 6px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 6px;
+        }
+        .panel-tab {
+            flex: 1;
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: var(--text-muted);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .panel-tab:hover { background: #1e293b; color: #fff; }
+        .panel-tab.active {
+            background: rgba(245, 158, 11, 0.12);
+            border-color: var(--accent-amber);
+            color: var(--accent-amber);
+        }
+        .panel-tab.active-serial {
+            background: rgba(6, 182, 212, 0.12);
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+        .serial-indicator {
+            font-size: 8px;
+            color: #10b981;
+            animation: pulse-amber 1s infinite;
+        }
+
+        /* ── Arduino IDE Serial Monitor ── */
+        .serial-monitor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0a0e17;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 6px 10px;
+            margin-bottom: 8px;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .sm-port-tag {
+            color: var(--accent-cyan);
+            font-weight: 700;
+        }
+        .sm-tools {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sm-check {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+        .sm-tool-btn {
+            padding: 3px 8px;
+            font-size: 11px;
+        }
+        .serial-terminal {
+            background: #050811;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            line-height: 1.5;
+            height: 380px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+        }
+        .sm-line {
+            display: flex;
+            gap: 6px;
+            align-items: flex-start;
+        }
+        .sm-time {
+            color: #64748b;
+            flex-shrink: 0;
+            user-select: none;
+        }
+        .sm-tag {
+            font-weight: 700;
+            flex-shrink: 0;
+            padding: 0 4px;
+            border-radius: 3px;
+            font-size: 10px;
+        }
+        .sm-line.tx .sm-tag { background: rgba(6, 182, 212, 0.2); color: #38bdf8; }
+        .sm-line.tx .sm-text { color: #bae6fd; }
+        .sm-line.rx .sm-tag { background: rgba(16, 185, 129, 0.2); color: #4ade80; }
+        .sm-line.rx .sm-text { color: #bbf7d0; }
+        .sm-line.info .sm-tag { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .sm-line.info .sm-text { color: #93c5fd; }
+        .sm-line.err .sm-tag { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+        .sm-line.err .sm-text { color: #fca5a5; }
+
+        .sm-input-bar {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .sm-input {
+            flex: 1;
+            background: #050811;
+            border: 1px solid #334155;
+            color: #fff;
+            padding: 7px 12px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+        .sm-input:focus { outline: none; border-color: var(--accent-cyan); }
+
+        /* ── Code Modal ── */
+        .modal-backdrop {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(4px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-box {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            width: 900px;
+            max-width: 95vw;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.7);
+        }
+        .modal-header {
+            padding: 14px 20px;
+            border-bottom: 1px solid #1e293b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+        .modal-body {
+            padding: 16px 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .code-box {
+            background: #050811;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #e2e8f0;
+            overflow-x: auto;
+            line-height: 1.4;
+            max-height: 520px;
+        }
     </style>
 </head>
 <body>
@@ -430,15 +684,33 @@
             </div>
         </div>
         <div class="hw-bar">
-            <!-- Live hardware status pill -->
-            <div class="hw-status-pill disconnected" id="hwStatusPill">
-                <span class="hw-dot"></span>
-                <span id="hwStatusText">DISCONNECTED</span>
+            <!-- Laptop to ESP32 Live Connection Bridge Graphic -->
+            <div class="bridge-widget" id="bridgeWidget" title="Laptop to ESP32 Hardware Status">
+                <div class="node-pill laptop-pill" id="laptopPill">
+                    <span>💻</span>
+                    <span>Laptop</span>
+                </div>
+                <div class="bridge-wire disconnected" id="bridgeWire">
+                    <span class="wire-badge" id="wireBadge">❌</span>
+                </div>
+                <div class="node-pill esp32-pill disconnected" id="esp32Pill">
+                    <span id="esp32Emoji">📡</span>
+                    <span id="esp32Label">ESP32 (Disconnected)</span>
+                </div>
             </div>
 
             <!-- Port selector -->
-            <select class="hw-select" id="comPortSelect">
+            <select class="hw-select" id="comPortSelect" title="Select Serial Port">
                 <option value="SIMULATED_COM1">SIMULATED_COM1 (Simulation)</option>
+            </select>
+
+            <!-- Baud rate selector (Arduino IDE style) -->
+            <select class="hw-select" id="baudRateSelect" style="max-width: 120px;" title="Serial Baud Rate">
+                <option value="115200" selected>115200 baud</option>
+                <option value="9600">9600 baud</option>
+                <option value="57600">57600 baud</option>
+                <option value="230400">230400 baud</option>
+                <option value="921600">921600 baud</option>
             </select>
 
             <!-- Refresh ports button -->
@@ -447,7 +719,13 @@
             <!-- Connect / Disconnect toggle -->
             <button class="hw-btn connect-btn" id="btnConnectHw">🔌 Connect</button>
 
-            <!-- Legacy mode badge (updates dynamically) -->
+            <!-- Quick Serial Monitor Toggle Button -->
+            <button class="hw-btn" id="btnHeaderSerial" style="background: rgba(6, 182, 212, 0.15); border-color: var(--accent-cyan); color: var(--accent-cyan);" title="Open Live Arduino Serial Monitor">📟 Serial Monitor</button>
+
+            <!-- ESP32 Arduino Code Modal Button -->
+            <button class="hw-btn" id="btnHeaderFirmware" title="View & Copy ESP32 Arduino IDE Sketch (.ino)">📄 ESP32 Code</button>
+
+            <!-- Mode badge (updates dynamically) -->
             <div class="mode-badge" id="modeBadge">LAPTOP SIMULATION MODE</div>
         </div>
     </header>
@@ -487,7 +765,8 @@
             <div style="display: flex; flex-direction: column; gap: 8px;">
                 <label style="font-size: 11px; color: var(--text-muted);">Select AI Engine Provider:</label>
                 <select id="aiProviderSelect" class="btn btn-secondary" style="padding: 8px; font-size: 12px; width: 100%; text-align: left;">
-                    <option value="ollama" selected>🦙 Local Ollama LLM (http://localhost:11434)</option>
+                    <option value="built_in" selected>⚡ Built-in Offline Neural AI Engine (Zero Setup)</option>
+                    <option value="ollama">🦙 Local Ollama LLM (http://localhost:11434)</option>
                     <option value="gemini">✨ Google Gemini API (Public API Key)</option>
                     <option value="openai">🤖 OpenAI GPT-4o API (Public API Key)</option>
                 </select>
@@ -524,19 +803,79 @@
             </div>
         </div>
 
-        <!-- RIGHT PANEL: Test Sequence & Oscilloscope Console -->
-        <div class="panel">
-            <div class="panel-title">4. AI Test Plan & Sequence</div>
-            <div class="test-list" id="testList">
-                <div style="text-align: center; color: var(--text-muted); margin-top: 40px; font-size: 12px;">
-                    Upload a PCB design file to generate probing sequence.
-                </div>
+        <!-- RIGHT PANEL: Test Sequence & Arduino IDE Serial Monitor -->
+        <div class="panel" style="min-height: 580px;">
+            <div class="panel-tab-bar">
+                <button class="panel-tab active" id="tabBtnTestPlan">📋 AI Test Plan (<span id="testPlanCount">0</span>)</button>
+                <button class="panel-tab" id="tabBtnSerial">📟 Arduino Serial Monitor <span class="serial-indicator" id="serialRxPulse">●</span></button>
             </div>
 
-            <div class="panel-title">5. Electrical Log & Diagnostic Card</div>
-            <div class="console-log" id="consoleLog">> FPTester System Ready. Upload .kicad_pcb or .gbr design file to begin.</div>
+            <!-- Tab 1: AI Test Plan & Sequence -->
+            <div id="tabContentTestPlan" style="display: flex; flex-direction: column; gap: 12px; flex: 1;">
+                <div class="panel-title">4. Probing Route Plan</div>
+                <div class="test-list" id="testList">
+                    <div style="text-align: center; color: var(--text-muted); margin-top: 40px; font-size: 12px;">
+                        Upload a PCB design file to generate probing sequence.
+                    </div>
+                </div>
+
+                <div class="panel-title">5. Diagnostic Card</div>
+                <div class="console-log" id="consoleLog">> FPTester System Ready. Upload .kicad_pcb or .gbr design file to begin.</div>
+            </div>
+
+            <!-- Tab 2: Arduino IDE Serial Monitor -->
+            <div id="tabContentSerial" style="display: none; flex-direction: column; flex: 1;">
+                <div class="serial-monitor-header">
+                    <div class="sm-port-tag" id="smPortTag">PORT: DISCONNECTED</div>
+                    <div class="sm-tools">
+                        <label class="sm-check" title="Automatically scroll terminal on new data"><input type="checkbox" id="smAutoscroll" checked> Autoscroll</label>
+                        <label class="sm-check" title="Show timestamps on log entries"><input type="checkbox" id="smTimestamps" checked> Timestamps</label>
+                        <button class="hw-btn sm-tool-btn" id="smBtnClear" title="Clear Serial Terminal">🗑️ Clear</button>
+                    </div>
+                </div>
+
+                <!-- Live Monospace Terminal Screen -->
+                <div class="serial-terminal" id="serialTerminal">
+                    <div class="sm-line info"><span class="sm-time">[00:00:00]</span> <span class="sm-tag">[SYSTEM]</span> Arduino IDE Serial Monitor Online.</div>
+                    <div class="sm-line info"><span class="sm-time">[00:00:00]</span> <span class="sm-tag">[INFO]</span> Connected to ESP32: Servo route telemetry and ADC voltage measurements stream here in real time.</div>
+                </div>
+
+                <!-- Command Input Bar (Exact Arduino IDE Feel) -->
+                <div class="sm-input-bar">
+                    <input type="text" id="serialInputText" class="sm-input" placeholder="Send G-code/command to ESP32 (e.g. PING, STATUS, HOME, G0)..." autocomplete="off">
+                    <select id="serialLineEnding" class="hw-select" style="max-width: 120px; font-size: 11px;">
+                        <option value="\r\n" selected>Both NL & CR</option>
+                        <option value="\n">Newline</option>
+                        <option value="\r">Carriage return</option>
+                        <option value="">No line ending</option>
+                    </select>
+                    <button class="btn btn-hw" id="btnSerialSend" style="padding: 6px 14px; font-size: 12px;">Send</button>
+                </div>
+            </div>
         </div>
     </main>
+
+    <!-- ESP32 Arduino IDE Firmware Modal -->
+    <div class="modal-backdrop" id="firmwareModal" style="display: none;">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div style="font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                    <span>📄</span>
+                    <span>ESP32 Arduino Firmware (esp32_flying_probe.ino)</span>
+                </div>
+                <button class="hw-btn" id="btnCloseFirmwareModal">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
+                    Open this sketch in <strong>Arduino IDE</strong>, select board <code>ESP32 Dev Module</code>, and upload to your ESP32. It controls the 5-bar linkage servos (GPIO 18, 19, 21, 22), lowers probe needles (GPIO 23, 25), and reads ADC voltages (GPIO 34).
+                </p>
+                <div style="position: relative;">
+                    <button class="hw-btn" id="btnCopyFirmware" style="position: absolute; right: 10px; top: 10px; z-index: 10;">📋 Copy Sketch</button>
+                    <pre class="code-box" id="firmwareCodeBox">Loading firmware code...</pre>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Toast notification element -->
     <div id="hwToast"><span id="hwToastIcon">✅</span><span id="hwToastMsg">Connected</span></div>
@@ -568,36 +907,85 @@
         }
 
         // ── Hardware Status UI Update ──────────────────────────────────────────
-        function updateHwUI(connected, port, deviceType) {
+        // ── Hardware Status UI Update ──────────────────────────────────────────
+        function updateHwUI(connected, port, deviceType, detectedOnly = false) {
             hwConnected = connected;
             hwPort = port;
             hwDeviceType = deviceType;
 
-            const pill = document.getElementById('hwStatusPill');
-            const statusText = document.getElementById('hwStatusText');
+            const laptopPill = document.getElementById('laptopPill');
+            const bridgeWire = document.getElementById('bridgeWire');
+            const wireBadge = document.getElementById('wireBadge');
+            const esp32Pill = document.getElementById('esp32Pill');
+            const esp32Emoji = document.getElementById('esp32Emoji');
+            const esp32Label = document.getElementById('esp32Label');
             const modeBadge = document.getElementById('modeBadge');
             const btnConnect = document.getElementById('btnConnectHw');
             const btnHwRun = document.getElementById('btnHwRun');
+            const smPortTag = document.getElementById('smPortTag');
+            const baudSelect = document.getElementById('baudRateSelect');
+            const baud = baudSelect ? baudSelect.value : '115200';
 
             if (connected) {
                 const isESP = (deviceType || '').toLowerCase().includes('esp');
-                pill.className = `hw-status-pill ${isESP ? 'connected-esp' : 'connected-arduino'}`;
-                statusText.innerText = `${(deviceType || 'HARDWARE').toUpperCase()} · ${port}`;
+                if (laptopPill) laptopPill.className = 'node-pill laptop-pill connected';
+                if (bridgeWire) bridgeWire.className = 'bridge-wire connected';
+                if (wireBadge) wireBadge.innerText = '⚡';
+                if (esp32Pill) esp32Pill.className = 'node-pill esp32-pill connected';
+                if (esp32Emoji) esp32Emoji.innerText = isESP ? '⚡' : '🔌';
+                if (esp32Label) esp32Label.innerText = `${(deviceType || 'ESP32').toUpperCase()} (${port})`;
+
+                if (smPortTag) {
+                    smPortTag.innerText = `PORT: ${port} @ ${baud} BAUD (${(deviceType || 'ESP32').toUpperCase()})`;
+                    smPortTag.style.color = 'var(--accent-green)';
+                }
+
                 modeBadge.style.background = isESP
                     ? 'rgba(16,185,129,0.15)' : 'rgba(6,182,212,0.15)';
                 modeBadge.style.borderColor = isESP ? '#10b981' : '#06b6d4';
                 modeBadge.style.color = isESP ? '#10b981' : '#06b6d4';
-                modeBadge.innerText = `HARDWARE MODE · ${(deviceType || '').toUpperCase()}`;
+                modeBadge.innerText = `HARDWARE MODE · ${(deviceType || '').toUpperCase()} on ${port} (${baud} BAUD)`;
                 btnConnect.textContent = '⏏ Disconnect';
                 btnConnect.className = 'hw-btn disconnect-btn';
                 if (currentTestPlan) btnHwRun.disabled = false;
+            } else if (detectedOnly && port) {
+                const isESP = (deviceType || '').toLowerCase().includes('esp');
+                if (laptopPill) laptopPill.className = 'node-pill laptop-pill';
+                if (bridgeWire) bridgeWire.className = 'bridge-wire disconnected';
+                if (wireBadge) wireBadge.innerText = '⏳';
+                if (esp32Pill) esp32Pill.className = 'node-pill esp32-pill';
+                if (esp32Emoji) esp32Emoji.innerText = '📡';
+                if (esp32Label) esp32Label.innerText = `${(deviceType || 'ESP32').toUpperCase()} on ${port} (Ready)`;
+
+                if (smPortTag) {
+                    smPortTag.innerText = `PORT: ${port} (Detected - Disconnected)`;
+                    smPortTag.style.color = 'var(--accent-cyan)';
+                }
+
+                modeBadge.style.background = 'rgba(59,130,246,0.15)';
+                modeBadge.style.borderColor = '#3b82f6';
+                modeBadge.style.color = '#60a5fa';
+                modeBadge.innerText = `HARDWARE DETECTED · ${(deviceType || '').toUpperCase()} on ${port} (Ready to Connect)`;
+                btnConnect.textContent = '🔌 Connect';
+                btnConnect.className = 'hw-btn connect-btn';
+                btnHwRun.disabled = true;
             } else {
-                pill.className = 'hw-status-pill disconnected';
-                statusText.innerText = 'DISCONNECTED';
+                if (laptopPill) laptopPill.className = 'node-pill laptop-pill';
+                if (bridgeWire) bridgeWire.className = 'bridge-wire disconnected';
+                if (wireBadge) wireBadge.innerText = '❌';
+                if (esp32Pill) esp32Pill.className = 'node-pill esp32-pill disconnected';
+                if (esp32Emoji) esp32Emoji.innerText = '📡';
+                if (esp32Label) esp32Label.innerText = 'ESP32 (Disconnected)';
+
+                if (smPortTag) {
+                    smPortTag.innerText = 'PORT: DISCONNECTED (Simulation Active)';
+                    smPortTag.style.color = '#94a3b8';
+                }
+
                 modeBadge.style.background = '';
                 modeBadge.style.borderColor = '';
                 modeBadge.style.color = '';
-                modeBadge.innerText = 'LAPTOP SIMULATION MODE';
+                modeBadge.innerText = 'NO HARDWARE FOUND · SIMULATION ACTIVE';
                 btnConnect.textContent = '🔌 Connect';
                 btnConnect.className = 'hw-btn connect-btn';
                 btnHwRun.disabled = true;
@@ -615,31 +1003,47 @@
                 const prevVal = select.value;
                 select.innerHTML = '';
 
-                ports.forEach(p => {
+                if (ports.length === 0) {
                     const opt = document.createElement('option');
-                    opt.value = p.port;
-                    const typeLabel = p.device_type && p.device_type !== 'Simulation' && p.device_type !== 'Unknown'
-                        ? ` [${p.device_type}]` : '';
-                    opt.textContent = `${p.port}${typeLabel}`;
+                    opt.value = 'SIMULATED_COM1';
+                    opt.textContent = 'SIMULATED_COM1 (Laptop Simulation)';
                     select.appendChild(opt);
-                });
+                    if (!hwConnected) updateHwUI(false, null, null);
+                } else {
+                    ports.forEach(p => {
+                        const opt = document.createElement('option');
+                        opt.value = p.port;
+                        opt.textContent = p.device_manager_name || `${p.port} - ${p.description}`;
+                        select.appendChild(opt);
+                    });
+                    const simOpt = document.createElement('option');
+                    simOpt.value = 'SIMULATED_COM1';
+                    simOpt.textContent = 'SIMULATED_COM1 (Laptop Simulation)';
+                    select.appendChild(simOpt);
 
-                // Restore previous selection if still present
-                if ([...select.options].some(o => o.value === prevVal)) {
-                    select.value = prevVal;
+                    // Restore previous selection if still present
+                    if ([...select.options].some(o => o.value === prevVal)) {
+                        select.value = prevVal;
+                    }
+
+                    // If not currently connected, update status to show detected hardware
+                    if (!hwConnected) {
+                        const selPort = ports.find(p => p.port === select.value) || ports[0];
+                        updateHwUI(false, selPort.port, selPort.device_type || 'Hardware', true);
+                    }
                 }
 
                 // ── Auto-detect: check for newly appeared real hardware ports ──
                 const newRealPorts = ports.filter(p =>
-                    p.device_type !== 'Simulation' &&
+                    p.is_target_hardware &&
                     !_lastKnownPorts.some(lp => lp.port === p.port)
                 );
 
                 if (newRealPorts.length > 0 && !hwConnected && !_autoConnectInFlight) {
                     const candidate = newRealPorts[0];
-                    const typeLabel = candidate.device_type || 'Device';
-                    showToast(`${typeLabel} detected on ${candidate.port} — Connecting…`, 'info', 6000);
-                    log(`[Auto-detect] ${typeLabel} found on ${candidate.port}. Auto-connecting…`);
+                    const typeLabel = candidate.device_type || 'Hardware';
+                    showToast(`Hardware successfully detected: ${typeLabel} on ${candidate.port}`, 'success', 6000);
+                    log(`[Auto-detect] Hardware successfully detected: ${typeLabel} on ${candidate.port}. Connecting…`);
                     select.value = candidate.port;
                     await connectToPort(candidate.port, true);
                 }
@@ -649,13 +1053,13 @@
                     const stillPresent = ports.some(p => p.port === hwPort);
                     if (!stillPresent) {
                         showToast(`${hwDeviceType || 'Hardware'} on ${hwPort} disconnected.`, 'warn');
-                        log(`[Hardware] Device on ${hwPort} was unplugged. Reverting to simulation.`);
+                        log(`[Hardware] Device on ${hwPort} was unplugged.`);
                         updateHwUI(false, null, null);
                     }
                 }
 
                 _lastKnownPorts = ports;
-                if (!silent) log(`Ports refreshed: ${ports.map(p => p.port).join(', ')}`);
+                if (!silent) log(`Ports refreshed: ${ports.length > 0 ? ports.map(p => p.port).join(', ') : 'No hardware found'}`);
             } catch (err) {
                 if (!silent) log(`Port refresh error: ${err.message}`);
             }
@@ -663,31 +1067,43 @@
 
         // ── Connect to port ────────────────────────────────────────────────────
         async function connectToPort(port, isAuto = false) {
+            if (!port) return;
             _autoConnectInFlight = true;
-            const pill = document.getElementById('hwStatusPill');
-            pill.className = 'hw-status-pill connecting';
-            document.getElementById('hwStatusText').innerText = 'CONNECTING…';
+
+            const wireBadge = document.getElementById('wireBadge');
+            const esp32Label = document.getElementById('esp32Label');
+            if (wireBadge) wireBadge.innerText = '⏳';
+            if (esp32Label) esp32Label.innerText = `Connecting to ${port}…`;
+
+            const baudSelect = document.getElementById('baudRateSelect');
+            const baudrate = baudSelect ? parseInt(baudSelect.value) || 115200 : 115200;
+
             try {
                 const res = await fetch('/api/connect', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ port })
+                    body: JSON.stringify({ port, baudrate })
                 });
                 const data = await res.json();
                 if (data.status === 'connected') {
                     updateHwUI(true, data.port, data.device_type);
                     const autoLabel = isAuto ? '(auto)' : '';
-                    showToast(`Connected to ${data.device_type} on ${data.port} ${autoLabel}`, 'success');
+                    showToast(`Connected to ${data.device_type} on ${data.port} @ ${data.baudrate} baud ${autoLabel}`, 'success');
                     log(`[Hardware] Connected: ${data.device_type} @ ${data.port} | ${data.baudrate} baud`);
+                    pollSerialMonitor();
                 } else {
+                    if (!isAuto) {
+                        showToast(`Connection error: ${data.message || 'Port unavailable'}`, 'error');
+                    }
+                    log(`[Hardware] Connection error on ${port}: ${data.message}`);
                     updateHwUI(false, null, null);
-                    showToast(`Connection failed: ${data.message || 'Unknown error'}`, 'error');
-                    log(`[Hardware] Connection error: ${data.message}`);
                 }
             } catch (err) {
-                updateHwUI(false, null, null);
-                showToast(`Connection error: ${err.message}`, 'error');
+                if (!isAuto) {
+                    showToast(`Connection error: ${err.message}`, 'error');
+                }
                 log(`[Hardware] Fetch error: ${err.message}`);
+                updateHwUI(false, null, null);
             }
             _autoConnectInFlight = false;
         }
@@ -714,6 +1130,178 @@
 
         // ── Refresh ports button ───────────────────────────────────────────────
         document.getElementById('btnRefreshPorts').addEventListener('click', () => refreshPorts(false));
+
+        // ── Right Panel Tab Switcher ───────────────────────────────────────────
+        function switchTab(tab) {
+            const tabPlan = document.getElementById('tabBtnTestPlan');
+            const tabSerial = document.getElementById('tabBtnSerial');
+            const contentPlan = document.getElementById('tabContentTestPlan');
+            const contentSerial = document.getElementById('tabContentSerial');
+
+            if (tab === 'serial') {
+                tabPlan.classList.remove('active');
+                tabSerial.classList.add('active', 'active-serial');
+                contentPlan.style.display = 'none';
+                contentSerial.style.display = 'flex';
+                const terminal = document.getElementById('serialTerminal');
+                if (terminal) terminal.scrollTop = terminal.scrollHeight;
+            } else {
+                tabSerial.classList.remove('active', 'active-serial');
+                tabPlan.classList.add('active');
+                contentSerial.style.display = 'none';
+                contentPlan.style.display = 'flex';
+            }
+        }
+        document.getElementById('tabBtnTestPlan').addEventListener('click', () => switchTab('plan'));
+        document.getElementById('tabBtnSerial').addEventListener('click', () => switchTab('serial'));
+        document.getElementById('btnHeaderSerial').addEventListener('click', () => {
+            switchTab('serial');
+            const input = document.getElementById('serialInputText');
+            if (input) input.focus();
+        });
+
+        // ── Arduino Serial Monitor Telemetry Polling ───────────────────────────
+        let _lastSerialLogId = 0;
+        let _serialPolling = false;
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        async function pollSerialMonitor() {
+            if (_serialPolling) return;
+            _serialPolling = true;
+            try {
+                const res = await fetch(`/api/serial-monitor/logs?since=${_lastSerialLogId}`);
+                const data = await res.json();
+                const logs = data.logs || [];
+                if (logs.length > 0) {
+                    const terminal = document.getElementById('serialTerminal');
+                    const autoscroll = document.getElementById('smAutoscroll').checked;
+                    const showTimestamps = document.getElementById('smTimestamps').checked;
+                    const rxPulse = document.getElementById('serialRxPulse');
+
+                    if (rxPulse) {
+                        rxPulse.style.color = '#38bdf8';
+                        setTimeout(() => { if (rxPulse) rxPulse.style.color = '#10b981'; }, 200);
+                    }
+
+                    logs.forEach(item => {
+                        _lastSerialLogId = Math.max(_lastSerialLogId, item.id);
+                        const line = document.createElement('div');
+                        const dirClass = item.direction.toLowerCase();
+                        line.className = `sm-line ${dirClass}`;
+
+                        const timeHtml = showTimestamps
+                            ? `<span class="sm-time">[${escapeHtml(item.timestamp)}]</span> `
+                            : '';
+                        const tagHtml = `<span class="sm-tag">[${escapeHtml(item.direction)}]</span>`;
+                        const textHtml = `<span class="sm-text">${escapeHtml(item.text)}</span>`;
+
+                        line.innerHTML = `${timeHtml}${tagHtml} ${textHtml}`;
+                        terminal.appendChild(line);
+                    });
+
+                    // Keep last 400 entries in DOM
+                    while (terminal.children.length > 400) {
+                        terminal.removeChild(terminal.firstChild);
+                    }
+
+                    if (autoscroll) {
+                        terminal.scrollTop = terminal.scrollHeight;
+                    }
+                }
+            } catch (_) {}
+            _serialPolling = false;
+        }
+
+        // Poll serial logs every 300ms
+        setInterval(pollSerialMonitor, 300);
+
+        // ── Serial Monitor Manual Command Dispatch ─────────────────────────────
+        async function sendSerialCommand() {
+            const input = document.getElementById('serialInputText');
+            const endingSelect = document.getElementById('serialLineEnding');
+            let text = input.value;
+            if (!text && (!endingSelect || endingSelect.value === "")) return;
+            const ending = endingSelect ? endingSelect.value.replace(/\\r/g, '\r').replace(/\\n/g, '\n') : '\r\n';
+            const payload = text + ending;
+            input.value = '';
+
+            try {
+                await fetch('/api/serial-monitor/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: payload })
+                });
+                pollSerialMonitor();
+            } catch (err) {
+                console.error('Failed to send serial command:', err);
+            }
+        }
+
+        document.getElementById('btnSerialSend').addEventListener('click', sendSerialCommand);
+        document.getElementById('serialInputText').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendSerialCommand();
+            }
+        });
+
+        // Clear Serial Monitor
+        document.getElementById('smBtnClear').addEventListener('click', async () => {
+            try {
+                await fetch('/api/serial-monitor/clear', { method: 'POST' });
+                document.getElementById('serialTerminal').innerHTML = '';
+                _lastSerialLogId = 0;
+            } catch (err) {
+                console.error(err);
+            }
+        });
+
+        // ── ESP32 Arduino Firmware Modal ───────────────────────────────────────
+        const btnHeaderFirmware = document.getElementById('btnHeaderFirmware');
+        const firmwareModal = document.getElementById('firmwareModal');
+        const btnCloseFirmwareModal = document.getElementById('btnCloseFirmwareModal');
+        const btnCopyFirmware = document.getElementById('btnCopyFirmware');
+        const firmwareCodeBox = document.getElementById('firmwareCodeBox');
+
+        async function openFirmwareModal() {
+            firmwareModal.style.display = 'flex';
+            if (firmwareCodeBox.innerText === 'Loading firmware code...') {
+                try {
+                    const res = await fetch('/api/firmware');
+                    const data = await res.json();
+                    if (data.status === 'success') {
+                        firmwareCodeBox.innerText = data.code;
+                    } else {
+                        firmwareCodeBox.innerText = '// Error loading sketch: ' + data.message;
+                    }
+                } catch (e) {
+                    firmwareCodeBox.innerText = '// Error loading sketch: ' + e.message;
+                }
+            }
+        }
+
+        btnHeaderFirmware.addEventListener('click', openFirmwareModal);
+        btnCloseFirmwareModal.addEventListener('click', () => { firmwareModal.style.display = 'none'; });
+        firmwareModal.addEventListener('click', (e) => {
+            if (e.target === firmwareModal) firmwareModal.style.display = 'none';
+        });
+
+        btnCopyFirmware.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(firmwareCodeBox.innerText);
+                btnCopyFirmware.innerText = '✅ Copied!';
+                setTimeout(() => { btnCopyFirmware.innerText = '📋 Copy Sketch'; }, 2000);
+            } catch (err) {
+                btnCopyFirmware.innerText = 'Failed to copy';
+            }
+        });
 
         // ── Background port polling every 2 seconds ────────────────────────────
         refreshPorts(true);
@@ -840,6 +1428,8 @@
         });
 
         function renderTestPlan(plan) {
+            const countEl = document.getElementById('testPlanCount');
+            if (countEl && plan.commands) countEl.innerText = plan.commands.length;
             const list = document.getElementById('testList');
             list.innerHTML = '';
             plan.commands.forEach((cmd, idx) => {

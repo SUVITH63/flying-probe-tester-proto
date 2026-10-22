@@ -84,3 +84,40 @@ class WorkspaceValidator:
             return False, f"Pads are too close ({dist:.2f}mm < 1.5mm safety threshold)."
 
         return True, "Reachable"
+
+    def calculate_servo_angles(self, arm_id: int, global_x: float, global_y: float) -> Tuple[float, float]:
+        """
+        Calculates the motor/servo angles (theta_A, theta_B) in degrees for a 5-bar linkage arm.
+        Motor A (Left) is at (-L0/2, 0).
+        Motor B (Right) is at (+L0/2, 0).
+        Both angles are computed in degrees [0 to 180] relative to positive X-axis.
+        """
+        local_x, local_y = self.global_to_local(arm_id, global_x, global_y)
+        xA, yA = -self.l0 / 2.0, 0.0
+        xB, yB = self.l0 / 2.0, 0.0
+
+        # Motor A (Left)
+        dxA = local_x - xA
+        dyA = local_y - yA
+        dA = math.hypot(dxA, dyA)
+        alphaA = math.atan2(dyA, dxA)
+        cos_betaA = (self.l1**2 + dA**2 - self.l2**2) / (2.0 * self.l1 * max(dA, 0.001))
+        cos_betaA = max(-1.0, min(1.0, cos_betaA))
+        betaA = math.acos(cos_betaA)
+        # Outward elbow bending: left motor bends upward/leftward
+        thetaA_rad = alphaA + betaA
+        thetaA_deg = round(math.degrees(thetaA_rad), 1)
+
+        # Motor B (Right)
+        dxB = local_x - xB
+        dyB = local_y - yB
+        dB = math.hypot(dxB, dyB)
+        alphaB = math.atan2(dyB, dxB)
+        cos_betaB = (self.l1**2 + dB**2 - self.l2**2) / (2.0 * self.l1 * max(dB, 0.001))
+        cos_betaB = max(-1.0, min(1.0, cos_betaB))
+        betaB = math.acos(cos_betaB)
+        # Outward elbow bending: right motor bends upward/rightward
+        thetaB_rad = alphaB - betaB
+        thetaB_deg = round(math.degrees(thetaB_rad), 1)
+
+        return thetaA_deg, thetaB_deg
