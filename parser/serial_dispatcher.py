@@ -29,21 +29,36 @@ _ARDUINO_VIDS = {"2341", "2A03", "1B4F", "239A", "1A86", "0403", "1781"}
 def identify_device_type(hwid: str, description: str = "", port_name: str = "") -> str:
     """
     Identifies whether a serial port belongs to an ESP32, Arduino, or USB Serial board.
+    Checks descriptive strings, Windows Device Manager names, and USB VID:PID tags.
     """
     hwid_upper = (hwid or "").upper()
     desc_upper = (description or "").upper()
     port_upper = (port_name or "").upper()
 
-    if any(kw in desc_upper for kw in ("ARDUINO", "UNO", "MEGA", "NANO", "LEONARDO", "PRO MICRO")):
-        return "Arduino"
-    if any(kw in desc_upper for kw in ("ESP32", "ESP8266", "ESPRESSIF")):
+    # 1. Direct Explicit Board Name Matches
+    if any(kw in desc_upper for kw in ("ESP32", "ESP8266", "ESPRESSIF", "NODE_MCU", "NODEMCU")):
         return "ESP32"
-    if any(kw in desc_upper for kw in ("CP210", "CP2102", "CP210X")):
+    if any(kw in desc_upper for kw in ("ARDUINO", "UNO", "MEGA", "NANO", "LEONARDO", "PRO MICRO", "DUE", "TEENSY")):
+        return "Arduino"
+
+    # 2. USB Hardware VID:PID matches
+    # Espressif native USB (ESP32-S2, ESP32-S3, ESP32-C3, ESP32-C6)
+    if "VID_303A" in hwid_upper or "303A:" in hwid_upper or "ESPRESSIF" in hwid_upper:
+        return "ESP32"
+    # Official Arduino SA / LLC
+    if any(v in hwid_upper for v in ("VID_2341", "VID_2A03", "2341:", "2A03:", "VID_1B4F", "VID_239A")):
+        return "Arduino"
+
+    # 3. Dedicated USB-to-UART Bridges heavily used on ESP32 & Arduino boards
+    if any(kw in desc_upper for kw in ("CP210", "CP2102", "CP2104", "CP210X")) or "VID_10C4" in hwid_upper or "10C4:EA60" in hwid_upper:
         return "ESP32 (CP210x)"
-    if any(kw in desc_upper for kw in ("CH340", "CH341", "CH9102")):
+    if any(kw in desc_upper for kw in ("CH340", "CH341", "CH9102")) or "VID_1A86" in hwid_upper or "1A86:7523" in hwid_upper or "1A86:55D4" in hwid_upper:
         return "ESP32 / Arduino (CH340)"
-    if "FT232" in desc_upper or "FTDI" in desc_upper:
+    if "FT232" in desc_upper or "FTDI" in desc_upper or "VID_0403" in hwid_upper or "0403:6001" in hwid_upper:
         return "ESP32 / Arduino (FTDI)"
+    if "VID_2E8A" in hwid_upper or "RP2040" in desc_upper:
+        return "Raspberry Pi Pico / RP2040"
+
     if "VID:PID=" in hwid_upper or "USB" in hwid_upper or "TTYUSB" in port_upper or "TTYACM" in port_upper:
         return "USB Serial Device"
 
