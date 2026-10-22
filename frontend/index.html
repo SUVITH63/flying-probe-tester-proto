@@ -764,10 +764,10 @@
             </div>
 
             <!-- Quick Serial Monitor Toggle Button -->
-            <button class="hw-btn" id="btnHeaderSerial" style="background: rgba(6, 182, 212, 0.15); border-color: var(--accent-cyan); color: var(--accent-cyan);" title="Open Live Arduino Serial Monitor">📟 Serial Monitor</button>
+            <button class="hw-btn" id="btnHeaderSerial" style="background: rgba(6, 182, 212, 0.15); border-color: var(--accent-cyan); color: var(--accent-cyan);" title="Open Live Serial Monitor">📟 Serial Monitor</button>
 
-            <!-- ESP32 Arduino Code Modal Button -->
-            <button class="hw-btn" id="btnHeaderFirmware" title="View & Copy ESP32 Arduino IDE Sketch (.ino)">📄 Code</button>
+            <!-- Firmware Code Modal Button -->
+            <button class="hw-btn" id="btnHeaderFirmware" title="View & Copy Hardware Firmware Sketch (.ino)">📄 Code</button>
         </div>
     </header>
 
@@ -832,7 +832,7 @@
 
             <button class="btn" id="btnGenPlan" disabled>⚡ Generate AI Test Plan</button>
             <button class="btn btn-secondary" id="btnSimulate" disabled>▶ Run Dual-Arm Simulation</button>
-            <button class="btn btn-hw" id="btnHwRun" disabled>🔬 Run on Hardware</button>
+            <button class="btn btn-hw" id="btnHwRun" disabled style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); font-weight: 700; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35); font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px;"><span>🚀</span><span>Upload Test Plan to Hardware</span></button>
         </div>
 
         <!-- CENTER PANEL: Interactive 2D Dual-Arm Kinematics Canvas -->
@@ -856,16 +856,19 @@
             </div>
         </div>
 
-        <!-- RIGHT PANEL: Test Sequence & Arduino IDE Serial Monitor -->
+        <!-- RIGHT PANEL: Test Sequence & Serial Monitor -->
         <div class="panel" style="min-height: 580px;">
             <div class="panel-tab-bar">
                 <button class="panel-tab active" id="tabBtnTestPlan">📋 AI Test Plan (<span id="testPlanCount">0</span>)</button>
-                <button class="panel-tab" id="tabBtnSerial">📟 Arduino Serial Monitor <span class="serial-indicator" id="serialRxPulse">●</span></button>
+                <button class="panel-tab" id="tabBtnSerial">📟 Serial Monitor <span class="serial-indicator" id="serialRxPulse">●</span></button>
             </div>
 
             <!-- Tab 1: AI Test Plan & Sequence -->
             <div id="tabContentTestPlan" style="display: flex; flex-direction: column; gap: 12px; flex: 1;">
-                <div class="panel-title">4. Probing Route Plan</div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="panel-title" style="margin-bottom: 0;">4. Probing Route Plan</div>
+                    <button class="hw-btn" id="btnUploadPlanTab" style="background: rgba(16, 185, 129, 0.2); border-color: var(--accent-emerald); color: #34d399; font-weight: 700; font-size: 11px; padding: 5px 12px; display: flex; align-items: center; gap: 6px;" disabled title="Upload and stream test plan routes to ESP32 / Arduino"><span>🚀</span><span>Upload to Hardware</span></button>
+                </div>
                 <div class="test-list" id="testList">
                     <div style="text-align: center; color: var(--text-muted); margin-top: 40px; font-size: 12px;">
                         Upload a PCB design file to generate probing sequence.
@@ -876,7 +879,7 @@
                 <div class="console-log" id="consoleLog">> FPTester System Ready. Upload .kicad_pcb or .gbr design file to begin.</div>
             </div>
 
-            <!-- Tab 2: Arduino IDE Serial Monitor -->
+            <!-- Tab 2: Serial Monitor -->
             <div id="tabContentSerial" style="display: none; flex-direction: column; flex: 1;">
                 <div class="serial-monitor-header">
                     <div class="sm-port-tag" id="smPortTag">PORT: DISCONNECTED</div>
@@ -897,13 +900,13 @@
 
                 <!-- Live Monospace Terminal Screen -->
                 <div class="serial-terminal" id="serialTerminal">
-                    <div class="sm-line info"><span class="sm-time">[00:00:00]</span> <span class="sm-tag">[SYSTEM]</span> Arduino IDE Serial Monitor Online.</div>
-                    <div class="sm-line info"><span class="sm-time">[00:00:00]</span> <span class="sm-tag">[INFO]</span> Connected to ESP32: Servo route telemetry and ADC voltage measurements stream here in real time.</div>
+                    <div class="sm-line info"><span class="sm-time">[00:00:00]</span> <span class="sm-tag">[SYSTEM]</span> Serial Monitor Online.</div>
+                    <div class="sm-line info"><span class="sm-time">[00:00:00]</span> <span class="sm-tag">[INFO]</span> Connected hardware route telemetry, servo angles, and ADC voltage readings stream here in real time.</div>
                 </div>
 
-                <!-- Command Input Bar (Exact Arduino IDE Feel) -->
+                <!-- Command Input Bar (Exact Serial Monitor Feel) -->
                 <div class="sm-input-bar">
-                    <input type="text" id="serialInputText" class="sm-input" placeholder="Send G-code/command to ESP32 (e.g. PING, STATUS, HOME, G0)..." autocomplete="off">
+                    <input type="text" id="serialInputText" class="sm-input" placeholder="Send G-code/command to hardware (e.g. PING, STATUS, HOME, G0)..." autocomplete="off">
                     <select id="serialLineEnding" class="hw-select" style="max-width: 120px; font-size: 11px;">
                         <option value="\r\n" selected>Both NL & CR</option>
                         <option value="\n">Newline</option>
@@ -916,18 +919,22 @@
         </div>
     </main>
 
-    <!-- ESP32 Arduino IDE Firmware Modal -->
+    <!-- Hardware Firmware Modal (ESP32 & Arduino Uno) -->
     <div class="modal-backdrop" id="firmwareModal" style="display: none;">
         <div class="modal-box">
             <div class="modal-header">
                 <div style="font-weight: 700; display: flex; align-items: center; gap: 8px;">
                     <span>📄</span>
-                    <span>ESP32 Arduino Firmware (esp32_flying_probe.ino)</span>
+                    <span id="firmwareModalTitle">Hardware Firmware Sketch</span>
                 </div>
-                <button class="hw-btn" id="btnCloseFirmwareModal">✕</button>
+                <div style="display: flex; gap: 6px;">
+                    <button class="hw-btn" id="btnTabFwESP32" style="font-size: 11px; padding: 3px 8px; background: rgba(16, 185, 129, 0.2); border-color: var(--accent-emerald); color: #34d399;">⚡ ESP32 (.ino)</button>
+                    <button class="hw-btn" id="btnTabFwArduino" style="font-size: 11px; padding: 3px 8px;">♾️ Arduino Uno (.ino)</button>
+                    <button class="hw-btn" id="btnCloseFirmwareModal">✕</button>
+                </div>
             </div>
             <div class="modal-body">
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
+                <p id="firmwareModalDesc" style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
                     Open this sketch in <strong>Arduino IDE</strong>, select board <code>ESP32 Dev Module</code>, and upload to your ESP32. It controls the 5-bar linkage servos (GPIO 18, 19, 21, 22), lowers probe needles (GPIO 23, 25), and reads ADC voltages (GPIO 34).
                 </p>
                 <div style="position: relative;">
@@ -1033,6 +1040,8 @@
                     btnConnect.className = 'hw-btn btn-disconnect-active';
                 }
                 if (btnHwRun && currentTestPlan) btnHwRun.disabled = false;
+                const btnTab = document.getElementById('btnUploadPlanTab');
+                if (btnTab && currentTestPlan) btnTab.disabled = false;
 
                 if (smPortTag) {
                     smPortTag.innerText = `PORT: ${hwPort} @ ${baud} BAUD (${connTag})`;
@@ -1062,6 +1071,8 @@
                     btnConnect.className = 'hw-btn';
                 }
                 if (btnHwRun) btnHwRun.disabled = true;
+                const btnTabSim = document.getElementById('btnUploadPlanTab');
+                if (btnTabSim) btnTabSim.disabled = true;
 
                 if (smPortTag) {
                     smPortTag.innerText = 'PORT: NO COM SELECTED (Simulation Active)';
@@ -1090,6 +1101,8 @@
                 btnConnect.className = 'hw-btn btn-connect-ready';
             }
             if (btnHwRun) btnHwRun.disabled = true;
+            const btnTabSel = document.getElementById('btnUploadPlanTab');
+            if (btnTabSel) btnTabSel.disabled = true;
 
             if (smPortTag) {
                 smPortTag.innerText = `PORT: ${selectedPort} [${boardTag}] (Selected — Not Connected)`;
@@ -1450,29 +1463,62 @@
             }
         });
 
-        // ── ESP32 Arduino Firmware Modal ───────────────────────────────────────
+        // ── Hardware Firmware Modal (ESP32 & Arduino Uno) ──────────────────────
         const btnHeaderFirmware = document.getElementById('btnHeaderFirmware');
         const firmwareModal = document.getElementById('firmwareModal');
         const btnCloseFirmwareModal = document.getElementById('btnCloseFirmwareModal');
         const btnCopyFirmware = document.getElementById('btnCopyFirmware');
         const firmwareCodeBox = document.getElementById('firmwareCodeBox');
+        const firmwareModalTitle = document.getElementById('firmwareModalTitle');
+        const firmwareModalDesc = document.getElementById('firmwareModalDesc');
+        const btnTabFwESP32 = document.getElementById('btnTabFwESP32');
+        const btnTabFwArduino = document.getElementById('btnTabFwArduino');
+        let _activeFwBoard = 'esp32';
+
+        async function loadFirmware(board = 'esp32') {
+            _activeFwBoard = board;
+            if (board === 'arduino') {
+                btnTabFwArduino.style.background = 'rgba(6, 182, 212, 0.25)';
+                btnTabFwArduino.style.borderColor = 'var(--accent-cyan)';
+                btnTabFwArduino.style.color = '#38bdf8';
+                btnTabFwESP32.style.background = 'transparent';
+                btnTabFwESP32.style.borderColor = 'var(--border-color)';
+                btnTabFwESP32.style.color = 'var(--text-muted)';
+                firmwareModalTitle.innerText = 'Arduino Uno Firmware (arduino_flying_probe.ino)';
+                firmwareModalDesc.innerHTML = 'Open in <strong>Arduino IDE</strong>, select board <code>Arduino Uno</code> (or Nano/Mega), and upload. Controls servos on D3, D5, D6, D9, Z-probes on D10, D11, TX on D12, ADC on A0.';
+            } else {
+                btnTabFwESP32.style.background = 'rgba(16, 185, 129, 0.25)';
+                btnTabFwESP32.style.borderColor = 'var(--accent-emerald)';
+                btnTabFwESP32.style.color = '#34d399';
+                btnTabFwArduino.style.background = 'transparent';
+                btnTabFwArduino.style.borderColor = 'var(--border-color)';
+                btnTabFwArduino.style.color = 'var(--text-muted)';
+                firmwareModalTitle.innerText = 'ESP32 Firmware (esp32_flying_probe.ino)';
+                firmwareModalDesc.innerHTML = 'Open in <strong>Arduino IDE</strong>, select board <code>ESP32 Dev Module</code>, and upload to ESP32. Controls 5-bar linkage servos (GPIO 18, 19, 21, 22), Z-probes (23, 25), TX pulse (32), ADC readout (34).';
+            }
+
+            firmwareCodeBox.innerText = 'Loading firmware code...';
+            try {
+                const res = await fetch(`/api/firmware?board=${board}`);
+                const data = await res.json();
+                if (data.status === 'success') {
+                    firmwareCodeBox.innerText = data.code;
+                } else {
+                    firmwareCodeBox.innerText = '// Error loading sketch: ' + data.message;
+                }
+            } catch (e) {
+                firmwareCodeBox.innerText = '// Error loading sketch: ' + e.message;
+            }
+        }
 
         async function openFirmwareModal() {
             firmwareModal.style.display = 'flex';
-            if (firmwareCodeBox.innerText === 'Loading firmware code...') {
-                try {
-                    const res = await fetch('/api/firmware');
-                    const data = await res.json();
-                    if (data.status === 'success') {
-                        firmwareCodeBox.innerText = data.code;
-                    } else {
-                        firmwareCodeBox.innerText = '// Error loading sketch: ' + data.message;
-                    }
-                } catch (e) {
-                    firmwareCodeBox.innerText = '// Error loading sketch: ' + e.message;
-                }
-            }
+            const defaultBoard = (hwDeviceType && hwDeviceType.toLowerCase().includes('arduino')) ? 'arduino' : 'esp32';
+            loadFirmware(defaultBoard);
         }
+
+        btnTabFwESP32.addEventListener('click', () => loadFirmware('esp32'));
+        btnTabFwArduino.addEventListener('click', () => loadFirmware('arduino'));
 
         btnHeaderFirmware.addEventListener('click', openFirmwareModal);
         btnCloseFirmwareModal.addEventListener('click', () => { firmwareModal.style.display = 'none'; });
@@ -1604,7 +1650,11 @@
                 if (data.status === 'success') {
                     currentTestPlan = data.test_plan;
                     btnSimulate.disabled = false;
-                    if (hwConnected) document.getElementById('btnHwRun').disabled = false;
+                    if (hwConnected) {
+                        document.getElementById('btnHwRun').disabled = false;
+                        const btnTab = document.getElementById('btnUploadPlanTab');
+                        if (btnTab) btnTab.disabled = false;
+                    }
                     renderTestPlan(data.test_plan);
                     log(`AI Test Plan generated! Total probe pairs: ${data.total_tests}`);
                     if (hwConnected) showToast('Test plan ready — hardware run available!', 'success');
@@ -1682,38 +1732,120 @@
             document.getElementById('statusIndicator').innerText = 'Ready';
         });
 
-        // ── Hardware run ───────────────────────────────────────────────────────
-        const btnHwRun = document.getElementById('btnHwRun');
-        btnHwRun.addEventListener('click', async () => {
+        // ── Synchronized Real Hardware Test Execution ─────────────────────────
+        async function executeHardwareTestPlan() {
             if (!currentBoardId || isSimulating) return;
-            if (!hwConnected) {
-                showToast('No hardware connected. Plug in an ESP32 or Arduino first.', 'error');
-                return;
-            }
-            isSimulating = true;
-            log(`[Hardware] Dispatching test plan to ${hwDeviceType} @ ${hwPort}…`);
-            document.getElementById('statusIndicator').innerText = `Running on ${hwDeviceType}…`;
-            showToast(`Sending tests to ${hwDeviceType} @ ${hwPort}…`, 'info', 8000);
-            try {
-                const res = await fetch(`/api/hardware-run/${currentBoardId}`, { method: 'POST' });
-                const data = await res.json();
-                if (data.status === 'error') {
-                    log(`[Hardware] Error: ${data.message}`);
-                    showToast(data.message, 'error');
-                } else {
-                    if (data.errors && data.errors.length > 0) {
-                        log(`[Hardware] ⚠ ${data.errors.length} serial error(s) occurred.`);
-                    }
-                    await renderRunResults(data, `Hardware (${hwDeviceType})`);
-                    showToast(`Hardware run complete! ${data.total_executed} tests executed.`, 'success');
+
+            // 1. Ensure test plan exists
+            if (!currentTestPlan || !currentTestPlan.commands || currentTestPlan.commands.length === 0) {
+                showToast('Generating AI test plan first...', 'info');
+                const btnGen = document.getElementById('btnGenPlan');
+                if (btnGen) btnGen.click();
+                await new Promise(r => setTimeout(r, 600));
+                if (!currentTestPlan || !currentTestPlan.commands) {
+                    showToast('Please upload a PCB and generate a test plan first.', 'error');
+                    return;
                 }
-            } catch (err) {
-                log(`[Hardware] Fetch error: ${err.message}`);
-                showToast(`Hardware run failed: ${err.message}`, 'error');
             }
+
+            // 2. Ensure hardware is connected (or prompt auto-connect)
+            if (!hwConnected) {
+                const select = document.getElementById('comPortSelect');
+                const target = (select && select.value) ? select.value : 'SIMULATED_COM1';
+                showToast(`Auto-connecting to ${target}...`, 'info', 3000);
+                await connectToPort(target);
+                if (!hwConnected) {
+                    showToast('Could not connect. Close Arduino IDE or select another port.', 'error');
+                    return;
+                }
+            }
+
+            isSimulating = true;
+            const totalSteps = currentTestPlan.commands.length;
+            const targetDev = hwDeviceType || 'Hardware';
+            const targetPort = hwPort || 'COM';
+
+            log(`[🚀 Hardware Upload] Streaming test plan (${totalSteps} steps) to ${targetDev} @ ${targetPort}…`);
+            showToast(`Streaming ${totalSteps} test routes to ${targetDev} @ ${targetPort}…`, 'info', 6000);
+
+            // Automatically switch right panel tab to Serial Monitor so user sees live commands & telemetry!
+            switchTab('serial');
+
+            let passCount = 0;
+            let failCount = 0;
+
+            for (let i = 0; i < totalSteps; i++) {
+                const cmd = currentTestPlan.commands[i];
+                const meta = cmd.meta || {};
+                const testId = meta.test_id || (i + 1);
+                const net = meta.net || 'NET';
+
+                document.getElementById('statusIndicator').innerText = `Step ${i + 1}/${totalSteps}: Probing ${net} (${targetDev})`;
+
+                // Highlight active test card in AI Test Plan
+                const card = document.getElementById(`test-card-${testId}`);
+                if (card) {
+                    card.classList.add('active');
+                }
+
+                // Smoothly animate canvas arms to target pads in sync with real servos
+                const arm0Target = (cmd.arms && cmd.arms[0]) ? cmd.arms[0] : { x: 0, y: 57.5 };
+                const arm1Target = (cmd.arms && cmd.arms[1]) ? cmd.arms[1] : { x: 0, y: 57.5 };
+                const animPromise = animateArmMove(arm0Target, arm1Target);
+
+                // Call backend single-step hardware endpoint
+                let stepData = null;
+                try {
+                    const res = await fetch(`/api/hardware-step/${currentBoardId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ step_index: i })
+                    });
+                    stepData = await res.json();
+                } catch (err) {
+                    log(`[Hardware] Step #${testId} communication error: ${err.message}`);
+                }
+
+                await animPromise; // Wait for smooth canvas arm animation
+
+                if (stepData && stepData.result) {
+                    const r = stepData.result;
+                    const verdict = r.verdict || 'FAIL';
+                    const vVal = (r.measured_voltage !== undefined) ? r.measured_voltage : 0.0;
+
+                    if (verdict === 'PASS') passCount++; else failCount++;
+
+                    const verdictTag = document.getElementById(`verdict-${testId}`);
+                    if (verdictTag) {
+                        verdictTag.innerText = `${vVal}V [${verdict}]`;
+                        verdictTag.className = `verdict-tag ${verdict === 'PASS' ? 'verdict-pass' : 'verdict-fail'}`;
+                    }
+                    if (card) {
+                        card.classList.remove('active');
+                        card.classList.add(verdict === 'PASS' ? 'pass' : 'fail');
+                    }
+                    log(`Test #${testId} (${net}): ${meta.pad_a_ref || 'PadA'} -> ${meta.pad_b_ref || 'PadB'} = ${vVal}V [${verdict}]`);
+                } else {
+                    failCount++;
+                    if (card) card.classList.remove('active');
+                }
+
+                // Settle delay between steps
+                await new Promise(r => setTimeout(r, 140));
+            }
+
             isSimulating = false;
             document.getElementById('statusIndicator').innerText = 'Ready';
-        });
+            const summaryMsg = `Hardware run complete: ${passCount} PASS, ${failCount} FAIL (${totalSteps} total).`;
+            log(`[🚀 Hardware Complete] ${summaryMsg}`);
+            showToast(summaryMsg, failCount === 0 ? 'success' : 'info', 6000);
+        }
+
+        const btnHwRun = document.getElementById('btnHwRun');
+        if (btnHwRun) btnHwRun.addEventListener('click', executeHardwareTestPlan);
+
+        const btnUploadPlanTab = document.getElementById('btnUploadPlanTab');
+        if (btnUploadPlanTab) btnUploadPlanTab.addEventListener('click', executeHardwareTestPlan);
 
         // 2D Canvas Kinematics Rendering Engine
         function resizeCanvas() {

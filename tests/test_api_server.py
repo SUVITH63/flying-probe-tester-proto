@@ -127,6 +127,25 @@ class TestAPIServerAndAI(unittest.TestCase):
         self.assertEqual(len(later_logs), 1)
         self.assertEqual(later_logs[0]["text"], "PONG")
 
+    def test_device_identification(self):
+        from parser.serial_dispatcher import identify_device_info, is_target_device
+
+        # Official Arduino Uno R3
+        dev_type, reason = identify_device_info("USB\\VID_2341&PID_0043\\1234", "USB Serial Device (COM5)", "COM5")
+        self.assertEqual(dev_type, "Arduino Uno")
+        self.assertIn("0x2341", reason)
+        self.assertTrue(is_target_device(dev_type))
+
+        # ESP32 CP210x Bridge
+        dev_type_esp, reason_esp = identify_device_info("USB\\VID_10C4&PID_EA60\\0001", "Silicon Labs CP210x (COM3)", "COM3")
+        self.assertIn("ESP32", dev_type_esp)
+        self.assertTrue(is_target_device(dev_type_esp))
+
+        # Espressif native USB
+        dev_type_nat, reason_nat = identify_device_info("USB\\VID_303A&PID_1001\\0001", "ESP32-S3 (COM7)", "COM7")
+        self.assertEqual(dev_type_nat, "ESP32")
+        self.assertTrue(is_target_device(dev_type_nat))
+
 if __name__ == "__main__":
     unittest.main()
 

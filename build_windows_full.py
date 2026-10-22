@@ -33,6 +33,8 @@ APP_FILES = [
     "parser/workspace.py",
     "llm/__init__.py",
     "llm/local_llm.py",
+    "firmware/esp32_flying_probe/esp32_flying_probe.ino",
+    "firmware/arduino_flying_probe/arduino_flying_probe.ino",
 ]
 
 def build_zip_package():

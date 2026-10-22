@@ -40,6 +40,7 @@ _sessions_lock = threading.Lock()
 _hw_dispatcher: SerialDispatcher = None
 _hw_port: str = None
 _hw_device_type: str = None
+_hw_detection_reason: str = None
 _hw_lock = threading.Lock()
 
 # Pre-warm parsers at import time so the very first upload request is instant
@@ -109,6 +110,7 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                         "connected": True,
                         "port": _hw_port,
                         "device_type": _hw_device_type or "ESP32",
+                        "detection_reason": _hw_detection_reason or "",
                         "status_text": f"Connected: {_hw_device_type} on {_hw_port}"
                     })
                 else:
@@ -116,15 +118,28 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                         "connected": False,
                         "port": None,
                         "device_type": None,
+                        "detection_reason": "",
                         "status_text": "No hardware found"
                     })
 
         elif url_path == "/api/firmware":
-            ino_path = os.path.join(os.path.dirname(__file__), "firmware", "esp32_flying_probe", "esp32_flying_probe.ino")
+            query = urllib.parse.urlparse(self.path).query
+            query_params = urllib.parse.parse_qs(query)
+            target = query_params.get("board", [""])[0].lower()
+            if not target and _hw_device_type:
+                target = "arduino" if "arduino" in _hw_device_type.lower() else "esp32"
+
+            if "arduino" in target:
+                ino_path = os.path.join(os.path.dirname(__file__), "firmware", "arduino_flying_probe", "arduino_flying_probe.ino")
+                fname = "arduino_flying_probe.ino"
+            else:
+                ino_path = os.path.join(os.path.dirname(__file__), "firmware", "esp32_flying_probe", "esp32_flying_probe.ino")
+                fname = "esp32_flying_probe.ino"
+
             if os.path.exists(ino_path):
                 with open(ino_path, "r", encoding="utf-8") as f:
                     code = f.read()
-                self._send_json({"status": "success", "code": code, "filename": "esp32_flying_probe.ino"})
+                self._send_json({"status": "success", "code": code, "filename": fname, "board": "Arduino Uno" if "arduino" in target else "ESP32"})
             else:
                 self._send_json({"status": "error", "message": "Firmware file not found"}, 404)
 
@@ -168,7 +183,7 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
             self._send_json({"error": "Endpoint not found"}, 404)
 
     def do_POST(self):
-        global _hw_dispatcher, _hw_port, _hw_device_type
+        global _hw_dispatcher, _hw_port, _hw_device_type, _hw_detection_reason
         url_path = urllib.parse.urlparse(self.path).path
         content_length = int(self.headers.get('Content-Length', 0))
         post_data = self.rfile.read(content_length) if content_length > 0 else b""
@@ -192,11 +207,13 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                     _hw_dispatcher = dispatcher
                     _hw_port = "SIMULATED_COM1"
                     _hw_device_type = "Simulation"
+                    _hw_detection_reason = "Virtual Simulated Hardware Link"
                 logger.info("Hardware connected: SIMULATED_COM1 (Simulation)")
                 self._send_json({
                     "status": "connected",
                     "port": "SIMULATED_COM1",
                     "device_type": "Simulation",
+                    "detection_reason": "Virtual Simulated Hardware Link",
                     "baudrate": baudrate,
                     "message": "Connected to Simulation Mode (SIMULATED_COM1)"
                 })
@@ -220,9 +237,11 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                     target_port = ports[0]["port"]
 
             device_type = "ESP32"
+            detection_reason = ""
             for p in ports:
                 if p["port"] == target_port:
                     device_type = p.get("device_type", "ESP32")
+                    detection_reason = p.get("detection_reason", "")
                     break
 
             with _hw_lock:
@@ -236,11 +255,13 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                     _hw_dispatcher = dispatcher
                     _hw_port = target_port
                     _hw_device_type = device_type
+                    _hw_detection_reason = detection_reason
                     logger.info(f"Hardware connected: {target_port} ({device_type})")
                     self._send_json({
                         "status": "connected",
                         "port": target_port,
                         "device_type": device_type,
+                        "detection_reason": detection_reason,
                         "baudrate": baudrate,
                         "message": f"Connected to {device_type} on {target_port}"
                     })
@@ -248,6 +269,7 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                     _hw_dispatcher = None
                     _hw_port = None
                     _hw_device_type = None
+                    _hw_detection_reason = None
                     self._send_json({
                         "status": "error",
                         "message": err_msg
@@ -260,6 +282,7 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
                 _hw_dispatcher = None
                 _hw_port = None
                 _hw_device_type = None
+                _hw_detection_reason = None
             logger.info("Hardware disconnected by user request.")
             self._send_json({"status": "disconnected", "message": "No hardware found"})
 
@@ -466,6 +489,90 @@ class FPTesterHTTPRequestHandler(BaseHTTPRequestHandler):
         elif url_path == "/api/serial-monitor/clear":
             clear_serial_logs()
             self._send_json({"status": "cleared"})
+
+        # Single-Step Real Hardware Execution (ESP32 / Arduino Synchronized)
+        elif url_path.startswith("/api/hardware-step/"):
+            board_id = url_path.split("/")[-1]
+            with _sessions_lock:
+                session = BOARD_SESSIONS.get(board_id)
+            if not session:
+                self._send_json({"error": "Board session not found"}, 404)
+                return
+
+            try:
+                payload = json.loads(post_data.decode('utf-8')) if post_data else {}
+            except Exception:
+                payload = {}
+            step_index = int(payload.get("step_index", 0))
+
+            with _hw_lock:
+                if not _hw_dispatcher or not _hw_dispatcher.is_connected:
+                    self._send_json({
+                        "status": "error",
+                        "message": "No hardware connected. Please connect an ESP32 or Arduino."
+                    }, 400)
+                    return
+                active_dispatcher = _hw_dispatcher
+                active_port = _hw_port
+                active_device_type = _hw_device_type
+
+            job = session.get("test_job")
+            if not job:
+                planner = AITestPlanner()
+                job = planner.generate_plan(session["board"])
+                with _sessions_lock:
+                    session["test_job"] = job
+
+            if step_index < 0 or step_index >= len(job.test_pairs):
+                self._send_json({"status": "error", "message": f"Step index {step_index} out of range"}, 400)
+                return
+
+            tp = job.test_pairs[step_index]
+            cmd = tp.to_hardware_command(job.job_id)
+            res = active_dispatcher.send_test_command(cmd)
+
+            if res.get("status") == "error":
+                step_res = {
+                    "test_id": tp.test_id,
+                    "step_index": step_index,
+                    "net": tp.net_name,
+                    "description": tp.description,
+                    "pad_a": {"ref": tp.pad_a.pad_id, "x": round(tp.pad_a.x, 3), "y": round(tp.pad_a.y, 3)},
+                    "pad_b": {"ref": tp.pad_b.pad_id, "x": round(tp.pad_b.x, 3), "y": round(tp.pad_b.y, 3)},
+                    "expected_min_v": tp.expected_min_v,
+                    "expected_max_v": tp.expected_max_v,
+                    "measured_voltage": 0.0,
+                    "adc_raw": 0,
+                    "verdict": "ERROR",
+                    "error": res.get("message", "Hardware step communication error")
+                }
+            else:
+                measured_v = res.get("result", {}).get("adc_voltage", 0.0)
+                raw_adc = res.get("result", {}).get("adc_raw", 0)
+                verdict = res.get("result", {}).get("verdict", "PASS")
+                step_res = {
+                    "test_id": tp.test_id,
+                    "step_index": step_index,
+                    "net": tp.net_name,
+                    "description": tp.description,
+                    "pad_a": {"ref": tp.pad_a.pad_id, "x": round(tp.pad_a.x, 3), "y": round(tp.pad_a.y, 3)},
+                    "pad_b": {"ref": tp.pad_b.pad_id, "x": round(tp.pad_b.x, 3), "y": round(tp.pad_b.y, 3)},
+                    "expected_min_v": tp.expected_min_v,
+                    "expected_max_v": tp.expected_max_v,
+                    "measured_voltage": measured_v,
+                    "adc_raw": raw_adc,
+                    "verdict": verdict
+                }
+
+            self._send_json({
+                "status": "success",
+                "board_id": board_id,
+                "step_index": step_index,
+                "total_steps": len(job.test_pairs),
+                "device_type": active_device_type,
+                "port": active_port,
+                "result": step_res
+            })
 
         # Real Hardware Run (ESP32 / Arduino)
         elif url_path.startswith("/api/hardware-run/"):
