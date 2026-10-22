@@ -1,48 +1,90 @@
 @echo off
-title FPTester Flying Probe PCB Tester
-color 0A
-echo.
-echo  =========================================================
-echo     FPTester - Automated Flying Probe PCB Tester
-echo  =========================================================
+title FPTester Flying Probe PCB Tester Web App
+echo =========================================================
+echo    FPTester - Automated Flying Probe PCB Tester Web App
+echo =========================================================
 echo.
 
 cd /d "%~dp0"
 
-REM Try system Python
+if exist "%~dp0py_embed_win\python.exe" (
+    echo [*] Starting FPTester server with bundled Python runtime...
+    "%~dp0py_embed_win\python.exe" run_app.py
+    if %errorlevel% neq 0 (
+        echo.
+        echo [ERROR] Server exited with code %errorlevel%.
+        pause
+    )
+    goto end
+)
+
 where py >nul 2>nul
 if %errorlevel%==0 (
-    echo  [*] Starting FPTester with Python...
-    py run_app.py
-    goto end
+    py -c "import sys" >nul 2>nul
+    if %errorlevel%==0 (
+        if not exist "llm\models\fptester-circuit-llm.gguf" (
+            echo [*] Downloading local GGUF LLM Model for offline AI reasoning...
+            py download_model.py
+        )
+        echo [*] Launching FPTester server with py...
+        py run_app.py
+        if %errorlevel% neq 0 (
+            echo.
+            echo [ERROR] Server exited with code %errorlevel%.
+            pause
+        )
+        goto end
+    )
 )
 
 where python >nul 2>nul
 if %errorlevel%==0 (
-    echo  [*] Starting FPTester with Python...
-    python run_app.py
-    goto end
+    python -c "import sys" >nul 2>nul
+    if %errorlevel%==0 (
+        if not exist "llm\models\fptester-circuit-llm.gguf" (
+            echo [*] Downloading local GGUF LLM Model for offline AI reasoning...
+            python download_model.py
+        )
+        echo [*] Launching FPTester server with python...
+        python run_app.py
+        if %errorlevel% neq 0 (
+            echo.
+            echo [ERROR] Server exited with code %errorlevel%.
+            pause
+        )
+        goto end
+    )
 )
 
 where python3 >nul 2>nul
 if %errorlevel%==0 (
-    echo  [*] Starting FPTester with Python...
-    python3 run_app.py
-    goto end
+    python3 -c "import sys" >nul 2>nul
+    if %errorlevel%==0 (
+        if not exist "llm\models\fptester-circuit-llm.gguf" (
+            echo [*] Downloading local GGUF LLM Model for offline AI reasoning...
+            python3 download_model.py
+        )
+        echo [*] Launching FPTester server with python3...
+        python3 run_app.py
+        if %errorlevel% neq 0 (
+            echo.
+            echo [ERROR] Server exited with code %errorlevel%.
+            pause
+        )
+        goto end
+    )
 )
 
-REM Try bundled exe
-if exist "FPTester-Windows.exe" (
-    echo  [*] Starting FPTester standalone app...
-    start "" "FPTester-Windows.exe"
-    timeout /t 3 /nobreak >nul
-    start "" "http://localhost:8000"
+echo [!] System Python command was not detected or active.
+echo [!] Launching FPTester-Launcher.bat ...
+if exist FPTester-Launcher.bat (
+    call FPTester-Launcher.bat
     goto end
 )
 
 echo.
-echo  [ERROR] Python not found. Please run FPTester-Launcher.bat instead,
-echo  which will automatically download everything needed.
+echo [ERROR] Could not start Python server automatically.
+echo Please run FPTester-Launcher.bat!
 echo.
 pause
 
